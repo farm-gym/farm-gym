@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt, mpld3
-#http://mpld3.github.io/quickstart.html
+
+# http://mpld3.github.io/quickstart.html
 import numpy as np
 
 from PIL import Image, ImageDraw, ImageFont
 import time
-
 
 
 # data = []
@@ -22,98 +22,115 @@ import time
 
 
 import datetime as dt
-#import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
 
 
 def sum_value(value_array):
     sum = 0
-    it = np.nditer(value_array, flags=['multi_index', 'refs_ok'])
+    it = np.nditer(value_array, flags=["multi_index", "refs_ok"])
     for x in it:
         sum += value_array[it.multi_index].value
     return sum
 
-def mat2d_value(value_array,X,Y):
-        mat = np.zeros((X,Y))
-        for x in range(X):
-            for y in range(Y):
-                mat[x,y]=value_array[x,y].value
-        return mat
 
-class Monitor():
-    def __init__(self, farm, list_of_variables_to_monitor,filename='monitor.png'):
-        '''
+def mat2d_value(value_array, X, Y):
+    mat = np.zeros((X, Y))
+    for x in range(X):
+        for y in range(Y):
+            mat[x, y] = value_array[x, y].value
+    return mat
+
+
+class Monitor:
+    def __init__(self, farm, list_of_variables_to_monitor, filename="monitor.png"):
+        """
 
         :param farm:
         :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
-        '''
+        """
         self.farm = farm
         self.variables = list_of_variables_to_monitor
-        self.filename=filename
+        self.filename = filename
 
         self.history_variables = {}
-        for  v in self.variables:
-            self.history_variables[v] = ([],[])
+        for v in self.variables:
+            self.history_variables[v] = ([], [])
 
-        self.sizex = (int) (np.ceil(np.sqrt(len(self.variables))/1.3))
-        self.sizey = (int) (np.ceil(np.sqrt(len(self.variables))*1.3))
+        self.sizex = (int)(np.ceil(np.sqrt(len(self.variables)) / 1.3))
+        self.sizey = (int)(np.ceil(np.sqrt(len(self.variables)) * 1.3))
 
-        self.fig =  plt.figure(figsize=(3*self.sizey,3*self.sizex))
+        self.fig = plt.figure(figsize=(3 * self.sizey, 3 * self.sizex))
 
     def update_fig(self):
 
         for i in range(len(self.variables)):
-            v= self.variables[i]
-            fi_key,entity_key,var_key,map_v,name_to_display, v_range = v
-            day = self.farm.fields[fi_key].entities['Weather-0'].variables['day#int365'].value
-            value = map_v(self.farm.fields[fi_key].entities[entity_key].variables[var_key])
+            v = self.variables[i]
+            fi_key, entity_key, var_key, map_v, name_to_display, v_range = v
+            day = (
+                self.farm.fields[fi_key]
+                .entities["Weather-0"]
+                .variables["day#int365"]
+                .value
+            )
+            value = map_v(
+                self.farm.fields[fi_key].entities[entity_key].variables[var_key]
+            )
 
-            days,values = self.history_variables[v]
+            days, values = self.history_variables[v]
 
-            #days.append(f'day {day}')
+            # days.append(f'day {day}')
             days.append(day)
             values.append(value)
 
-
-            #print(v,day,value,self.history_variables[v])
-            ax = plt.subplot(self.sizex, self.sizey, 1+i)
+            # print(v,day,value,self.history_variables[v])
+            ax = plt.subplot(self.sizex, self.sizey, 1 + i)
             ax.clear()
             # If real value !
-            if isinstance(value,Image.Image):
-                self.history_variables[v]= (days[-2:],values[-2:])
+            if isinstance(value, Image.Image):
+                self.history_variables[v] = (days[-2:], values[-2:])
                 ax.imshow(self.history_variables[v][1][-1])
-            elif (isinstance(value,(float,int, np.integer, np.float))  ):
-                self.history_variables[v] = (days[-20:],values[-20:])
+            elif isinstance(value, (float, int, np.integer, np.float)):
+                self.history_variables[v] = (days[-20:], values[-20:])
                 ax.plot(self.history_variables[v][0], self.history_variables[v][1])
-                if (v_range != 'range_auto'):
+                if v_range != "range_auto":
                     vm, vM = v_range
-                    plt.ylim(vm,vM)
+                    plt.ylim(vm, vM)
 
-            else: #assumes it is matrix
-                #print("TYPE",value,type(value),isinstance(value,float),type(value)==int,v)
-                self.history_variables[v]= (days[-2:],values[-2:])
-                if(v_range=='range_auto'):
-                    ax.imshow(self.history_variables[v][1][-1],cmap='hot', interpolation='nearest')
+            else:  # assumes it is matrix
+                # print("TYPE",value,type(value),isinstance(value,float),type(value)==int,v)
+                self.history_variables[v] = (days[-2:], values[-2:])
+                if v_range == "range_auto":
+                    ax.imshow(
+                        self.history_variables[v][1][-1],
+                        cmap="hot",
+                        interpolation="nearest",
+                    )
                 else:
-                    vm,vM = v_range
-                    ax.imshow(self.history_variables[v][1][-1], cmap='gray', vmin=vm, vmax=vM, interpolation='nearest')
+                    vm, vM = v_range
+                    ax.imshow(
+                        self.history_variables[v][1][-1],
+                        cmap="gray",
+                        vmin=vm,
+                        vmax=vM,
+                        interpolation="nearest",
+                    )
 
-            #plt.xticks(rotation=45, ha='right')
+            # plt.xticks(rotation=45, ha='right')
             plt.subplots_adjust(bottom=0.30, wspace=0.8, hspace=0.8)
-            plt.title(f'{fi_key}, {entity_key}\n {var_key}')
-            plt.ylabel(f'{name_to_display}')
-            plt.xlabel('day')
+            plt.title(f"{fi_key}, {entity_key}\n {var_key}")
+            plt.ylabel(f"{name_to_display}")
+            plt.xlabel("day")
             plt.show(block=False)
         plt.pause(0.001)
 
     def stop(self):
         plt.savefig(self.filename)
 
-
-
-
         # represents each monitored value as image, pixel=plot, , pixel-value = value at plot, evolving with time.
+
 
 # represents each plot as a figure, monotored value = curve, evolving with time.
 #

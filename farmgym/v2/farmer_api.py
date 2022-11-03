@@ -1,4 +1,4 @@
-class Farmer_API():
+class Farmer_API:
     def __init__(self):
         self.name = "Farmer"
         self.fields = {}
@@ -6,7 +6,7 @@ class Farmer_API():
     def assign_field(self, field):
         self.fields[field.name] = field
 
-    def perform_action(self,fi_key,entity_key,action,params):
+    def perform_action(self, fi_key, entity_key, action, params):
         observations = []
         return observations
 
@@ -14,11 +14,9 @@ class Farmer_API():
         observations = []
         return observations
 
-
     def update_to_next_day(self):
         ()
 
     def __str__(self):
         s = self.name
         return s
-
