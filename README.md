@@ -67,7 +67,7 @@ The score may incorporate several features such as yield, biodiversity, resource
  FarmGym comes with a bunch of predefined games that can be seen as illustrative examples to build user-defined games.
 
 ### Minimal environment
-```
+```python
 import gym
 from farmgym.v2.games.farms_1x1.clay_corn.farm import env
 
@@ -86,7 +86,7 @@ intervention-actions at observation steps.
 Alternatively, one may want to separate between observation and intervention times, and asks random observation-action
 or random interention-action at the appropriate time. 
 We provide such an example below, here using the farmgym_step function instead of step.
-```
+```python
 import gym
 from farmgym.v2.games.farms_1x1.clay_corn.farm import env
 
@@ -107,13 +107,23 @@ while not is_done:
 The difference between step and farmgym_step is the format of the action given as input.
 Any gym action can be converted into its corresponding farm_gym format using farm.gymaction_to_farmgymaction.
 
+### Logging
+
+To know what happened in the farm at time of death, use the debug log-level
+
+```python
+import logging
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+```
+
 ### Rendering
 The basic rendering option is to print a farm, which output a text representation of the farm with all entities and available actions.
 When rendering is called with farm.render(), the environment produces an image representing the farm at the current day.
 Once a game is done, it is possible to assemble all these images into a movie, calling the method generate_video. 
 It is also possible to generate a gif using the method generatee_gif.
 Further, we store all these figures and the movie in a sub-folder for convenience.
-```
+```python
 import gym
 from farmgym.v2.games.farms_1x1.clay_corn.farm import env
 from farmgym.v2.farm import generate_video
@@ -145,7 +155,7 @@ Then, the method run from  farmgym.v2.games.rungame runs a complete game,
 collects rewards and costs, gather all rendered images if asked, and output all this in a sub-folder.
 It also tests is the environment is compatible with gym.
 
-```
+```python
 import gym
 from farmgym.v2.games.register_all import register_all
 from farmgym.v2.games.rungame import run_randomactions
@@ -233,9 +243,4 @@ Here the random agent fails due to combination of all these effects.
     <div align="center">A difficult game</div>
 </p>
 
-
-
-
- You can use [Github-flavored Markdown](https://guides.github.com/features/mastering-markdown/)
-to write your content.
 

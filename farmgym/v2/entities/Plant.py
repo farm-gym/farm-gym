@@ -1,7 +1,7 @@
 from PIL import Image
 
 from farmgym.v2.entity_api import *
-
+import logging
 
 def increase(value, rate, valuemax):
     return min(value + rate * (1.0 - value / valuemax) * np.sqrt(value), valuemax)
@@ -538,11 +538,9 @@ class Plant(Entity_API):
                             if is_dead:
                                 self.variables["stage"][x, y].set_value("dead")
                                 self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
-                                print(
-                                    "[FarmGym] DEATH CAUSE, seed stage:",
-                                    (x, y),
-                                    self.debug_death_info[x, y],
-                                )
+                                logger.debug(
+                                    "[FarmGym] DEATH CAUSE, seed stage:"
+                                    +str((x, y))+str(self.debug_death_info[x, y]))
 
                             else:
                                 q = []
@@ -790,11 +788,9 @@ class Plant(Entity_API):
                         if is_dead:
                             self.variables["stage"][x, y].set_value("dead")
                             self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
-                            print(
+                            logger.debug(
                                 "[FarmGym] DEATH CAUSE, grow stage:",
-                                (x, y),
-                                self.debug_death_info[x, y],
-                            )
+                                    +str((x, y))+str(self.debug_death_info[x, y]))
 
                     elif self.variables["stage"][x, y].value in ["bloom"]:
 
@@ -932,11 +928,9 @@ class Plant(Entity_API):
                         if is_dead:
                             self.variables["stage"][x, y].set_value("dead")
                             self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
-                            print(
+                            logger.debug(
                                 "[FarmGym] DEATH CAUSE, bloom stage:",
-                                (x, y),
-                                self.debug_death_info[x, y],
-                            )
+                                    +str((x, y))+str(self.debug_death_info[x, y]))
 
                     elif self.variables["stage"][x, y].value in ["fruit"]:
 
@@ -1153,11 +1147,9 @@ class Plant(Entity_API):
                         if is_dead:
                             self.variables["stage"][x, y].set_value("dead")
                             self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
-                            print(
+                            logger.debug(
                                 "[FarmGym] DEATH CAUSE, fruit stage:",
-                                (x, y),
-                                self.debug_death_info[x, y],
-                            )
+                                    +str((x, y))+str(self.debug_death_info[x, y]))
 
                     elif self.variables["stage"][x, y].value in ["ripe"]:
 
@@ -1242,11 +1234,9 @@ class Plant(Entity_API):
                         if self.variables["fruits_per_plant#nb"][x, y].value == 0:
                             self.variables["stage"][x, y].set_value("dead")
                             self.debug_death_info[x, y] = {"fruits_per_plant#nb": 0}
-                            print(
+                            logger.debug(
                                 "[FarmGym] DEATH CAUSE, ripe stage:",
-                                (x, y),
-                                self.debug_death_info[x, y],
-                            )
+                                    +str((x, y))+str(self.debug_death_info[x, y]))
 
                     elif self.variables["stage"][x, y].value in ["harvested"]:
                         for n in ["N", "K", "P", "C"]:
