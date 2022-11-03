@@ -32,7 +32,7 @@ bean:
     sprout_T_min: 8
     sprout_T_max: 25
     sensitivity_sprout_T: 0.7
-    sprout_RH_min: 70
+    sprout_RH_min: 30
     sprout_RH_max: 95
     sensitivity_sprout_RH: 0.4
     sensitivity_sprout_age: 1.
