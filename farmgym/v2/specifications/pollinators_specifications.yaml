@@ -1,0 +1,16 @@
+bee:
+  sprites:
+    some: 'pollinator-there.png'
+  visit_conditions:
+    theta_0: 0.
+    theta_dist_edge: 0.2
+    theta_T: 0.8
+    T_min: 11
+    T_max: 38
+    theta_Wind: 0.4
+    Wind_max: 25
+    theta_Rain: 0.8
+    theta_pesticide: 2.
+    pesticide_tol: 0.1
+    theta_death_birds: 0.2
+    death_birds_max: 3.

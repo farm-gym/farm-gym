@@ -1,0 +1,29 @@
+observation-cost:
+  Field-0:
+    Weather-0:
+      humidity_index#%: 1
+      wind: 1
+      sun_exposure#int5: 1
+      rain_amount: 1
+      rain_intensity: 1
+      consecutive_dry#day: 1
+    Plant-0:
+      stage: 1
+      population#nb: 1
+      size#cm: 1
+      fruits_per_plant#nb: 1
+      fruit_weight#g: 1
+intervention-cost:
+  Field-0:
+    Soil-0:
+      water_discrete: 1
+    Plant-0:
+      sow: 1
+      harvest: 1
+reward-mix:
+     alpha_bio: 0.
+     alpha_resource: 0.
+     alpha_soil: 0.
+     alpha_harvest: 1.
+     alpha_stage: 0.
+

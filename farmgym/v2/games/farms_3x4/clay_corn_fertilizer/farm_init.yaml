@@ -1,0 +1,16 @@
+  Field-0:
+    Weather-0:
+      day#int365: 180
+    Soil-0:
+      available_N#g: 5000.0
+      available_P#g: 5000.0
+      available_K#g: 5000.0
+      available_C#g: 5000.0
+      available_Water#L: 5000.0
+      wet_surface#m2.day-1: 0.0
+      microlife_health_index#%: 80.0
+    Plant-0:
+      stage: seed
+    Fertilizer-0:
+      amount#kg: 0.0
+

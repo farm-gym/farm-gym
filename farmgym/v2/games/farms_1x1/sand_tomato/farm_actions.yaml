@@ -1,0 +1,27 @@
+params:
+  max_action_schedule_size: 1
+observations:
+  Field-0:
+    Weather-0:
+      humidity_index#%:
+      wind:
+        speed#km.h-1:
+      sun_exposure#int5: 
+      rain_amount: 
+      rain_intensity:
+      consecutive_dry#day:
+    Plant-0:
+      stage: ['(0, 0)']
+      population#nb: ['(0, 0)']
+      size#cm: ['(0, 0)']
+      fruits_per_plant#nb: ['(0, 0)']
+      fruit_weight#g: ['(0, 0)']
+interventions:
+  Field-0:
+    Soil-0:
+      water_discrete: 
+        plot: ['(0, 0)']
+        amount#L: [1.0, 2.0, 3.0, 4.0, 5.0]
+        duration#min: [60]
+    Plant-0:
+      harvest:

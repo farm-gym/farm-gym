@@ -1,0 +1,18 @@
+  Field-0:
+    Weather-0:
+      day#int365: 120
+    Soil-0:
+      available_N#g: 50.0
+      available_P#g: 50.0
+      available_K#g: 50.0
+      available_C#g: 50.0
+      available_Water#L: 50.0
+      microlife_health_index#%: 95.0
+    Plant-0:
+      stage: seed
+      population#nb: 10.0
+    Birds-0:
+      population#nb: 0.0
+    Facility-0:
+      scarecrow: none
+

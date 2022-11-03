@@ -1,0 +1,25 @@
+basic:
+  sprites:
+    few: 'pest-few.png'
+    many: 'pest-many.png'
+  min_population#nb: 0
+  max_population#nb: 5
+  arrival_frequency#day-1: 0.1
+  appear_conditions:
+    sensitivity_0: 0.01
+    sensitivity_dist_edge: 0.5
+    T_min: 12
+    T_max: 35
+    sensitivity_T: 1.5
+    pesticide_min: 0
+    sensitivity_pesticide: 5.
+  leave_conditions:
+    sensitivity_0: 0.01
+    sensitivity_dist_edge: 0.05
+    T_min: 10
+    T_max: 35
+    sensitivity_T: 0.2
+    pesticide_min: 0
+    sensitivity_pesticide: 5.
+    sensitivity_death_birds: 3.
+    death_birds_max: 1.

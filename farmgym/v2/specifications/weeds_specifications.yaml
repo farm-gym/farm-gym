@@ -1,0 +1,43 @@
+base_weed:
+  sprites:
+    few: 'weeds-few.png'
+    many: 'weeds-many.png'
+  time_to_grow#day: 5
+  sensitivity_flowers_0: 0.1
+  max_new_seeds#nb: 1
+  flowers_per_plant#nb: 3
+  size#cm: 16
+  flower_to_seed#%: 0.9
+  seed_per_flower#nb: 3
+  pest_repulsive_effect#float: -0.5
+  grow_conditions:
+    sensitivity_grow_0: 0.1
+    sensitivity_grow_T: 0.3
+    grow_T_min: 7
+    grow_T_max: 38
+    sensitivity_grow_RH: 0.2
+    grow_RH_min: 20
+    grow_RH_max: 100
+    sensitivity_grow_herbicide: 0.8
+    grow_herbicide_max#g: 3
+
+    sensitivity_death_0: 0.01
+    sensitivity_death_herbicide: 2.
+    death_herbicide_max#g: 10
+
+    N_grow_consumption#g.mm-1: 0.5
+    K_grow_consumption#g.mm-1: 0.5
+    P_grow_consumption#g.mm-1: 0.5
+    C_grow_consumption#g.mm-1: 0.5
+    Water_grow_consumption#mL.mm-1: 0.5
+    sensibility_draught#%: 0.1
+
+    sensitivity_death_N: 0.2
+    sensitivity_death_P: 0.2
+    sensitivity_death_K: 0.2
+    sensitivity_death_C: 0.2
+    sensitivity_death_Water: 0.5
+
+  appear_conditions:
+    sensitivity_dist_edge: 0.3
+    sensitivity_0: 0.3
