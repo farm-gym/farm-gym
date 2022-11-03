@@ -347,7 +347,7 @@ def plot_results(farms, policy_parameters, results, title):
 import matplotlib.pyplot as plt
 
 
-def box_plot(ax, data, labels, edge_color, fill_color):
+def box_plot(ax, data, labels, edge_color, fill_color, hatch):
     bp = ax.boxplot(data, patch_artist=True, labels=labels, notch=True)
 
     for element in ["boxes", "whiskers", "fliers", "means", "medians", "caps"]:
@@ -355,6 +355,7 @@ def box_plot(ax, data, labels, edge_color, fill_color):
 
     for patch in bp["boxes"]:
         patch.set(facecolor=fill_color)
+        patch.set(hatch=hatch)
 
     return bp
 
@@ -384,11 +385,21 @@ def plot_results2(farms, policy_parameters, results, title):
 
     i = 4 * nb_pol
     bp1 = box_plot(
-        axes[0], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "pink"
+        axes[0],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "pink",
+        (1.0, 0, 0, 0.8),
+        "/",
     )
     i = 3 * nb_pol
     bp2 = box_plot(
-        axes[0], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "lightblue"
+        axes[0],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "lightblue",
+        (0, 0, 1, 0.8),
+        ".",
     )
 
     axes[0].legend([bp1["boxes"][0], bp2["boxes"][0]], ["clay", "sand"])
@@ -400,11 +411,21 @@ def plot_results2(farms, policy_parameters, results, title):
 
     i = 1 * nb_pol
     bp1 = box_plot(
-        axes[1], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "pink"
+        axes[1],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "pink",
+        (1.0, 0, 0, 0.8),
+        "/",
     )
     i = 2 * nb_pol
     bp2 = box_plot(
-        axes[1], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "lightblue"
+        axes[1],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "lightblue",
+        (0, 0, 1, 0.8),
+        ".",
     )
 
     axes[1].legend(
@@ -418,11 +439,21 @@ def plot_results2(farms, policy_parameters, results, title):
 
     i = 4 * nb_pol
     bp1 = box_plot(
-        axes[2], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "pink"
+        axes[2],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "pink",
+        (1.0, 0, 0, 0.8),
+        "/",
     )
     i = 5 * nb_pol
     bp2 = box_plot(
-        axes[2], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "lightblue"
+        axes[2],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "lightblue",
+        (0, 0, 1, 0.8),
+        ".",
     )
 
     axes[2].legend(
@@ -470,11 +501,21 @@ def plot_results3(farms, policy_parameters, results, title):
 
     i = 0 * nb_pol
     bp1 = box_plot(
-        axes[0], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "pink"
+        axes[0],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "pink",
+        (1.0, 0, 0, 0.8),
+        "/",
     )
     i = 1 * nb_pol
     bp2 = box_plot(
-        axes[0], all_data[i : i + nb_pol], labels[i : i + nb_pol], "black", "lightblue"
+        axes[0],
+        all_data[i : i + nb_pol],
+        labels[i : i + nb_pol],
+        "lightblue",
+        (0, 0, 1.0, 0.8),
+        ".",
     )
 
     axes[0].legend([bp1["boxes"][0], bp2["boxes"][0]], ["pests", "no pests"])
@@ -495,9 +536,9 @@ def plot_results3(farms, policy_parameters, results, title):
     plt.savefig("fig.png")
 
 
-# farms,policy_parameters,results = xp_watering()
-# plot_results2(farms,policy_parameters,results,'Watering policy (daily input in L)')
+farms, policy_parameters, results = xp_watering()
+plot_results2(farms, policy_parameters, results, "Watering policy (daily input in L)")
 
 
-farms, policy_parameters, results = xp_coupling()
-plot_results3(farms, policy_parameters, results, "Herbicide policy (every x day)")
+# farms,policy_parameters,results = xp_coupling()
+# plot_results3(farms,policy_parameters,results,'Herbicide policy (every x day)')

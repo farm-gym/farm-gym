@@ -206,18 +206,22 @@ class Soil(Entity_API):
                     )
 
                 # Other nutrients input (fertilizers)
+                # print("FERTILIZERS",fertilizers)
                 for f in fertilizers:
                     # Q: Here, should we trigger update of f entity or simply compute amount? [f is updated later or earlier]
                     # Answer: Receiver always triggers action, Emitter never triggers it.
-                    release = f.release_nutrients((x, y), self)
+                    release = f.release_nutrients((x, y), self)  # in kg
+                    # print("Nutrients before",self.variables['available_N#g'][x,y].value, self.variables['microlife_health_index#%'][x,y].value)
                     for n in ["N", "K", "P", "C"]:
                         self.variables["available_" + n + "#g"][x, y].set_value(
                             self.variables["available_" + n + "#g"][x, y].value
-                            + release[n]
+                            + release[n] * 1000
                         )
 
+                    # print("Nutrients after",self.variables['available_N#g'][x,y].value)
+
                 for c in cides:
-                    release = c.release((x, y))
+                    release = c.release((x, y))  # in kg
                     # self.variables['amount_pesticide#g'][x, y] += release * c.parameters['pests']
                     # self.variables['amount_herbicide#g'][x, y] += release * c.parameters['weeds']
 
@@ -401,6 +405,8 @@ class Soil(Entity_API):
                         )
                     # self.variables['microlife_health_index#%'][x, y].set_value(max(0,self.variables['microlife_health_index#%'][x,y].value - water_surplus/max_water_plot_capacity))
                     # print("PESTICIDE after leak", self.variables['amount_cide#g']['soil'][x, y].value)
+
+                    # print("Nutrients after leaching",self.variables['available_N#g'][x,y].value)
 
     def ground_evaporation(self, position, weather, plants, weeds, field):
         ET_0 = weather.evapo_coefficient(field)  # ml/m2

@@ -310,6 +310,17 @@ def make_monitor(variables):
                     "range_auto",
                 )
             )
+        if v == "fertilizer.amount#kg":
+            var.append(
+                (
+                    "Field-0",
+                    "Fertilizer-0",
+                    "amount#kg",
+                    lambda x: sum_value(x),
+                    "Fertilizer Amount (kg)",
+                    "range_auto",
+                )
+            )
 
     return var
 
@@ -401,7 +412,7 @@ def make_policy_water_harvest(amount):
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 0,
+                "delay": 1,
             }
         ],
     )
@@ -456,7 +467,7 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 0,
+                "delay": 1,
             }
         ],
     )
@@ -522,8 +533,96 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
     return p
 
 
+def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
+    triggered_observations = []
+    policy_observe = (
+        [[]],
+        [
+            ("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)]),
+            ("BasicFarmer-0", "Field-0", "Weeds-0", "grow#nb", [(0, 0)]),
+        ],
+    )
+    triggered_observations.append(policy_observe)
+
+    triggered_interventions = []
+    policy_harvest = (
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
+        [
+            {
+                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+                "delay": 1,
+            }
+        ],
+    )
+    triggered_interventions.append(policy_harvest)
+    policy_harvest = (
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
+        [
+            {
+                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+                "delay": 18,
+            }
+        ],
+    )
+    triggered_interventions.append(policy_harvest)
+    if amount_fertilizer > 0.0:
+        policy_fertilize = (
+            [
+                [
+                    (
+                        ("Field-0", "Weather-0", "day#int365", []),
+                        lambda x: x % frequency,
+                        "==",
+                        0,
+                    )
+                ]
+            ],
+            [
+                {
+                    "action": (
+                        "BasicFarmer-0",
+                        "Field-0",
+                        "Fertilizer-0",
+                        "scatter",
+                        {"plot": (0, 0), "amount#kg": amount_fertilizer},
+                    ),
+                    "delay": 0,
+                }
+            ],
+        )
+
+        # policy_herbicide= ([[(("Field-0", 'Weeds-0', 'grow#nb', [(0, 0)]), lambda x: x, ">=", 2.),(("Field-0", 'Weather-0', 'day#int365', []), lambda x: x%f, "==", 0)]], [{'action':('BasicFarmer-0', 'Field-0', 'Cide-0', 'scatter', {'plot': (0,0), 'amount#kg':amount_herbicide}),'delay':2}])
+        triggered_interventions.append(policy_fertilize)
+
+    if amount_water > 0.0:
+        policy_water = (
+            [[]],
+            [
+                {
+                    "action": (
+                        "BasicFarmer-0",
+                        "Field-0",
+                        "Soil-0",
+                        "water_continuous",
+                        {"plot": (0, 0), "amount#L": amount_water, "duration#min": 60},
+                    ),
+                    "delay": 0,
+                }
+            ],
+        )
+        triggered_interventions.append(policy_water)
+    p = policy_API("", triggered_observations, triggered_interventions)
+    p.reset()
+    return p
+
+
 if __name__ == "__main__":
-    from farmgym.v2.games.rungame import run_xps, run_policy_xp, run_randomactions
+    from farmgym.v2.games.rungame import (
+        run_xps,
+        run_policy_xp,
+        run_randomactions,
+        run_policy,
+    )
 
     # policies = make_policies_water_harvest([0.,8.,2.])
     # f1 = make_farm("blatest",
@@ -592,7 +691,6 @@ if __name__ == "__main__":
 
     ###
     # Herbicides
-
     f2 = make_farm(
         "herbtest",
         {
@@ -600,7 +698,7 @@ if __name__ == "__main__":
             "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
         },
         [
-            (Weather, "dry"),
+            (Weather, "rainy"),
             (Soil, "clay"),
             (Plant, "corn"),
             (Pollinators, "bee"),
@@ -644,4 +742,55 @@ if __name__ == "__main__":
         )
     )
 
-    run_randomactions(f2, max_steps=60, render=True, monitoring=True)
+    f3 = make_farm(
+        "ferttest",
+        {
+            "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+            "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+        },
+        [
+            (Weather, "rainy"),
+            (Soil, "clay"),
+            (Plant, "corn"),
+            (Pollinators, "bee"),
+            (Weeds, "base_weed"),
+            (Fertilizer, "fast_all"),
+        ],
+        init_values=[
+            ("Field-0", "Weather-0", "day#int365", 120),
+            ("Field-0", "Plant-0", "stage", "seed"),
+            ("Field-0", "Soil-0", "available_N#g", 500),
+            ("Field-0", "Soil-0", "available_P#g", 500),
+            ("Field-0", "Soil-0", "available_K#g", 500),
+            ("Field-0", "Soil-0", "available_C#g", 500),
+        ],
+    )
+    f3.add_monitoring(
+        make_monitor(
+            [
+                "soil.available_Water#L",
+                "soil.available_N#g",
+                "soil.microlife_health_index#%",
+                "plant.pollinator_visits#nb",
+                "plant.size#cm",
+                "plant.flowers_per_plant#nb",
+                "plant.flowers_pollinated_per_plant#nb",
+                "plant.cumulated_water#L",
+                "plant.cumulated_stress_water#L",
+                "plant.cumulated_nutrients_N#g",
+                "plant.cumulated_stress_nutrients_N#g",
+                "plant.fruits_per_plant#nb",
+                "plant.fruit_weight#g",
+                "weeds.seeds#nb",
+                "weeds.grow#nb",
+                "weeds.flowers#nb",
+                "fertilizer.amount#kg",
+            ]
+        )
+    )
+
+    # policy = make_policy_herbicide(0.005, 10, 8)
+    # run_policy(f2, policy, max_steps=60, render=True, monitoring=True)
+
+    policy = make_policy_fertilize(0.5, 10, 2)
+    run_policy(f3, policy, max_steps=60, render=True, monitoring=True)
