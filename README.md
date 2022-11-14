@@ -2,20 +2,10 @@
 
 FarmGym is a Farming Environment Gym factory intended to model sequential decision-making on farms seen as dynamical system with many entities interacting.
 FarmGym offers the possibility to build ad-hoc games by specifying a farm with different entities, different rules and scores.
-This enables to consider from very simple to highly complicated environments.
+This enables to consider from very simple to highly complicated environments. 
+The following [user-guide](FarmGym.pdf) contains detailed presentation of FarmGym. 
 
 
-## Citing FarmGym
-If you use `FarmGym` in your publications, please cite us following this Bibtex entry:
-
-```bibtex
-@article{maillard2022farmgym,
-title={Farm-Gym: A modular reinforcement learning platform for agronomy games.},
-author={Maillard, Odalric-Ambrym},
-year={2022},
-school={Inria Lille}
-    }
-```
 
 
 ## About this project
@@ -41,15 +31,27 @@ We thank the contribution of Thomas Carta, who started working on an earlier ver
 We thank Romain Gautron (CIRAD/CGIAR) and Timothée Mathieu (Inria) for valuable inputs.
 
 
+### Citing FarmGym
+If you use `FarmGym` in your publications, please cite us following this Bibtex entry:
+
+```bibtex
+@article{maillard2022farmgym,
+title={Farm-Gym: A modular reinforcement learning platform for agronomy games.},
+author={Maillard, Odalric-Ambrym},
+year={2022},
+school={Inria Lille}
+        }
+```
+
 #### Contributing
-Any new issue is welcomed! If you want to actively contribute, you can check issues the **wishlist** tag.
+Any new issue is welcomed! If you want to actively contribute, you can check issues with the **wishlist** tag.
 
 
 ## Getting started
 
 The following [user-guide](FarmGym.pdf) contains detailed presentation of FarmGym. 
 
-## Illustrative notebooks
+### Illustrative notebooks
 
 As a first illustration of farm-gym, one can look at the following colab notebooks: the first is an "Interactive farm" [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1tcP9Y6fsNMxglOoZfdP9YQ-phpDw7XrP?usp=sharing) the second is a notebook in which we train a basic PPO agent on the same farm [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1AauxwIGebI11fF1sJgZp9nYx5M1SoPfV?usp=sharing). The first notebook allow a user to be the agent, by inputing manually the actions to play on a 1x1 farm containing beans with pests and weeds. The second notebook is a very basic implementation of PPO on the same farm. These notebooks were made using [rlberry-farms](https://github.com/farm-gym/rlberry-farms) which is a collection of two very simple farms on which one can try some classical RL algorithms with [rlberry](https://github.com/rlberry-py/rlberry) library. 
 
