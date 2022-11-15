@@ -5,7 +5,7 @@ from farmgym.v2.field import Field
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer
 from farmgym.v2.scorings.BasicScore import BasicScore
 from farmgym.v2.rules.BasicRule import BasicRule
-from farmgym.v2.policy_api import policy_API
+from farmgym.v2.policy_api import Policy_API
 
 from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
@@ -393,7 +393,7 @@ def make_policies_water_harvest(amounts):
             )
             triggered_interventions.append(policy_water)
 
-        policies.append(policy_API("", triggered_observations, triggered_interventions))
+        policies.append(Policy_API("", triggered_observations, triggered_interventions))
 
     return policies
 
@@ -445,7 +445,7 @@ def make_policy_water_harvest(amount):
             ],
         )
         triggered_interventions.append(policy_water)
-    p = policy_API("", triggered_observations, triggered_interventions)
+    p = Policy_API("", triggered_observations, triggered_interventions)
     p.reset()
     return p
 
@@ -528,7 +528,7 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
             ],
         )
         triggered_interventions.append(policy_water)
-    p = policy_API("", triggered_observations, triggered_interventions)
+    p = Policy_API("", triggered_observations, triggered_interventions)
     p.reset()
     return p
 
@@ -611,7 +611,7 @@ def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
             ],
         )
         triggered_interventions.append(policy_water)
-    p = policy_API("", triggered_observations, triggered_interventions)
+    p = Policy_API("", triggered_observations, triggered_interventions)
     p.reset()
     return p
 

@@ -4,7 +4,7 @@ import itertools as it
 from gym.spaces import Discrete, Box, Dict, Tuple
 
 
-class policy_API:
+class Policy_API:
     def __init__(self, policy, triggered_observations, triggered_interventions):
 
         self.policy_configuration = policy

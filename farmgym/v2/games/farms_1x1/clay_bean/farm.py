@@ -7,7 +7,7 @@ from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
 from farmgym.v2.entities.Plant import Plant
 from farmgym.v2.entities.Weeds import Weeds
-from farmgym.v2.policy_api import policy_API
+from farmgym.v2.policy_api import Policy_API
 
 from farmgym.v2.rendering.monitoring import mat2d_value, sum_value
 
@@ -101,7 +101,7 @@ def env():
             ]
         triggered_interventions.append((trigger_water, action_water))
 
-        policies.append(policy_API("", triggered_observations, triggered_interventions))
+        policies.append(Policy_API("", triggered_observations, triggered_interventions))
 
     farm = Farm(
         fields=[field1],

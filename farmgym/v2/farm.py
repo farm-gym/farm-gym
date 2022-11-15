@@ -33,6 +33,24 @@ from farmgym.v2.specifications.specification_manager import (
 
 
 class Farm(gym.Env):
+    """
+    Instanciates a farm environment.
+
+    Parameters
+    ----------
+    fields : a list of fields, that is instances of the class Field.
+
+    farmers: a list of farmers, that is instances of a class implementing the Farmer_API.
+
+    scoring: an instance of the Scoring_API
+
+    rules: an instance of the Rules_API
+
+    policies: a list of policies, that is instances of a class implementing the Policy_API.
+
+    seed: an integer, defining the seed used by the random-number generator.
+
+    """
     def __init__(self, fields, farmers, scoring, rules, policies=None, seed=None):
         # Name fields uniquely:
         cpt = {}
@@ -199,6 +217,9 @@ class Farm(gym.Env):
         # print(self.name)
 
     def build_name(self):
+        """
+        Builds a standardized name for the farm as a string.
+        """
         str = "Farm_Fields["
         for fi in self.fields:
             str += fi + "["

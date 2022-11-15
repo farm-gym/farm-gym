@@ -317,7 +317,7 @@ if __name__ == "__main__":
     understand_the_farm(cb.env())
     # run_randomactions(cb.env(), max_steps=100, render=True, monitoring=False)
 
-    from farmgym.v2.policy_api import policy_API
+    from farmgym.v2.policy_api import Policy_API
 
     def make_policy():
         triggered_observations = []
@@ -357,7 +357,7 @@ if __name__ == "__main__":
         ]
         triggered_interventions.append((trigger_bloom, action_schedule3))
 
-        return policy_API(
+        return Policy_API(
             "config-file", triggered_observations, triggered_interventions
         )
 
