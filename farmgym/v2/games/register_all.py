@@ -61,4 +61,4 @@ if __name__ == "__main__":
     farm = env.unwrapped
     ##understand_the_farm(farm)
     # Run some example:
-    run_randomactions(farm, max_steps=100, render=False, monitoring=True)
+    # run_randomactions(farm, max_steps=100, render=False, monitoring=True)
