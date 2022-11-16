@@ -51,6 +51,7 @@ class Farm(gym.Env):
     seed: an integer, defining the seed used by the random-number generator.
 
     """
+
     def __init__(self, fields, farmers, scoring, rules, policies=None, seed=None):
         # Name fields uniquely:
         cpt = {}

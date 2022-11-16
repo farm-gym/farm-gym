@@ -25,7 +25,6 @@ def compute_sizeobservation(variable):
 # print(c)
 
 
-
 def sum_value(value_array):
     sum = 0
     it = np.nditer(value_array, flags=["multi_index", "refs_ok"])

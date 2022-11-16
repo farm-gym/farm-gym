@@ -72,7 +72,16 @@ def env():
 
         triggered_interventions = []
         policy_harvest = (
-            [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
+            [
+                [
+                    (
+                        ("Field-0", "Plant-0", "stage", [(0, 0)]),
+                        lambda x: x,
+                        "in",
+                        ["fruit"],
+                    )
+                ]
+            ],
             [
                 {
                     "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),

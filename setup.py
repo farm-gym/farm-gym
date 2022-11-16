@@ -13,16 +13,27 @@ packages = find_packages(exclude=["tests"])
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setup(name='farmgym',
-      version=__version__,
-      packages=packages,
-      install_requires=['gym', 'numpy','pillow', 'scipy', 'pyyaml', 'pandas', 'matplotlib', 'mpld3', 'opencv-python'],  # And any other dependencies foo needs
-      include_package_data=True,
-      author="Odalric-Ambrym Maillard",
-      license="BSD-3",
-      description="Farming environments gym factory",
-      long_description=long_description,
-      long_description_content_type="text/markdown"
+setup(
+    name="farmgym",
+    version=__version__,
+    packages=packages,
+    install_requires=[
+        "gym",
+        "numpy",
+        "pillow",
+        "scipy",
+        "pyyaml",
+        "pandas",
+        "matplotlib",
+        "mpld3",
+        "opencv-python",
+    ],  # And any other dependencies foo needs
+    include_package_data=True,
+    author="Odalric-Ambrym Maillard",
+    license="BSD-3",
+    description="Farming environments gym factory",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
 )
 #
 # setup(
@@ -48,10 +59,9 @@ setup(name='farmgym',
 #     install_requires=install_requires,
 #     extras_require=extras_require,
 #     zip_safe=False,
-#)
-
+# )
 
 
 # run with: pip install -e .
 # python setup.py bdist_wheel
-#python -m pip install dist/farmgym-0.2.9-py3-none-any.whl
+# python -m pip install dist/farmgym-0.2.9-py3-none-any.whl
