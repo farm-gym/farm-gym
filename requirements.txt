@@ -1,0 +1,9 @@
+gym
+numpy
+pillow
+scipy
+pyyaml
+pandas
+matplotlib
+mpld3
+opencv-python
