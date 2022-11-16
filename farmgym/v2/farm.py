@@ -16,7 +16,7 @@ from pathlib import Path
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
 
-## Here is the reason why you should use dictionaries instead of lists as much as possible: https://towardsdatascience.com/faster-lookups-in-python-1d7503e9cd38
+## Here is the reason why you should use dictionalries instead of lists as much as possible: https://towardsdatascience.com/faster-lookups-in-python-1d7503e9cd38
 
 
 def yml_tuple_constructor(v, f=float):

@@ -13,6 +13,6 @@ Installation
 ------------
 TODO
 
-Gym/Gymnasium
--------------
+Gym version
+-----------
 TODO

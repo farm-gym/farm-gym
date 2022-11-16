@@ -39,7 +39,7 @@ def yaml_to_doc():
     for spec_file in spec_paths:
         spec_str = parse_yaml(spec_file)
         spec_name = os.path.basename(os.path.splitext(spec_file)[0])
-        spec_str = "(" + spec_name + ")=\n# "+spec_name+"\n" + spec_str
+        spec_str = "# "+spec_name+"\n" + spec_str
         with open("spec_yaml/"+ spec_name + ".md", "w") as f:
             f.write(spec_str)
 
