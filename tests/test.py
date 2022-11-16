@@ -1,3 +1,4 @@
+import pytest
 
 def test_farmgym():
     print("\nSTART")
