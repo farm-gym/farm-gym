@@ -42,7 +42,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install .
       - name: Test with pytest
-        run: pytest --cov=farmgym --cov-report xml tests/test.py
-      - name: coverage
-        - uses: actions/checkout@master
-        - uses: codecov/codecov-action@v3
+        run: |
+          pytest --cov=farmgym --cov-report xml  tests/test.py
+      - name: Coverage
+        uses: actions/checkout@master
+        uses: codecov/codecov-action@v3
