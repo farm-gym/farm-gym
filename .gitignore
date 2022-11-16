@@ -75,6 +75,7 @@ instance/
 docs/_build/
 docs/generated/
 docs/auto_examples/
+docs/spec_yaml
 
 # PyBuilder
 .pybuilder/
