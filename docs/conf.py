@@ -12,12 +12,17 @@
 #
 import os
 import sys
+import glob
 
 import sphinx_gallery  # noqa
 from sphinx_gallery.sorting import ExplicitOrder
 
+
+
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
+
+from yaml_to_table import parse_yaml
 
 # -- Project information -----------------------------------------------------
 
@@ -26,8 +31,23 @@ copyright = "2022, farm-gym team"
 author = "farm-gym team"
 
 
+def yaml_to_doc():
+    spec_paths = glob.glob("../farmgym/v2/specifications/*.yaml")+glob.glob("../farmgym/v2/specifications/*.yml")
+    try:
+        os.mkdir("spec_yaml")
+    except:
+        pass
+    for spec_file in spec_paths:
+        spec_str = parse_yaml(spec_file)
+        spec_name = os.path.basename(os.path.splitext(spec_file)[0])
+        spec_str = "(" + spec_name + ")=\n# "+spec_name+"\n" + spec_str
+        with open("spec_yaml/"+ spec_name + ".md", "w") as f:
+            f.write(spec_str)
 
-release = '0.0.1'
+
+yaml_to_doc()
+
+release = "0.0.1"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be

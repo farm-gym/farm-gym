@@ -7,3 +7,5 @@ User guide
 ==========
 
 In construction.
+
+Specs: :ref:`Specifications <specifications>`
