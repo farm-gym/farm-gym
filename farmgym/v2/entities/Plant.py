@@ -1,7 +1,8 @@
 from PIL import Image
 
-from farmgym.v2.entity_api import *
+from farmgym.v2.entity_api import Entity_API, Range, fillarray, checkissubclass, expglm, expglmnoisy
 import logging
+import numpy as np
 
 logger = logging.getLogger()
 

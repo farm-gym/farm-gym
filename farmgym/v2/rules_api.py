@@ -1,4 +1,3 @@
-import numpy as np
 import yaml
 
 
@@ -15,7 +14,7 @@ class Rules_API:
 
         :param first_day:
         :param last_day:
-        :param terminal_CNF_conditions:  This is a boolean formula in CNF. E.g. [ [a1,a2],[a3],[a4,a5]]] means (a1 & a2) & (a3) or (a4 & a5) Each condition is a copmarison between a variable value and a target value.
+        :param terminal_CNF_conditions: This is a boolean formula in CNF. E.g. [ [a1,a2],[a3],[a4,a5]]] means (a1 & a2) & (a3) or (a4 & a5) Each condition is a copmarison between a variable value and a target value.
         :param max_action_schedule_cost:
         """
         self.init_configuration = init_configuration

@@ -1,7 +1,8 @@
 import farmgym.v2.specifications.specification_manager as sm
 
-from farmgym.v2.entity_api import *
-
+from farmgym.v2.entity_api import Entity_API, Range
+from PIL import Image
+import numpy as np
 
 class Weather(Entity_API):
     wind_directions = ["NW", "N", "NE", "W", "E", "SW", "S", "SE"]

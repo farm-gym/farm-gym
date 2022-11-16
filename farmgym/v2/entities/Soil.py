@@ -1,4 +1,6 @@
-from farmgym.v2.entity_api import *
+from farmgym.v2.entity_api import Entity_API, Range, fillarray, checkissubclass, expglm
+import numpy as np
+from PIL import Image
 
 
 class Soil(Entity_API):

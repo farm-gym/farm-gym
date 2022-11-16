@@ -1,4 +1,5 @@
-from farmgym.v2.entity_api import *
+import numpy as np
+from farmgym.v2.entity_api import Entity_API, Range
 
 
 class Pests(Entity_API):

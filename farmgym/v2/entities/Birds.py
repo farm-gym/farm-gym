@@ -1,4 +1,4 @@
-from farmgym.v2.entity_api import *
+from farmgym.v2.entity_api import Entity_API, Range
 
 
 class Birds(Entity_API):

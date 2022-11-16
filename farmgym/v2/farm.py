@@ -800,7 +800,6 @@ class Farm(gym.Env):
         ]
 
         from PIL import Image, ImageDraw, ImageFont
-        import matplotlib.pyplot as plt
 
         im_width, im_height = 1216, 1216
         XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])

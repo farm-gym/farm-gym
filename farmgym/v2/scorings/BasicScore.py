@@ -1,14 +1,10 @@
-from farmgym.v2.specifications.specification_manager import load_yaml
-
 from farmgym.v2.scoring_api import Scoring_API
 from farmgym.v2.entities.Birds import Birds
-from farmgym.v2.entities.Facilities import Facility
 from farmgym.v2.entities.Fertilizer import Fertilizer
 from farmgym.v2.entities.Pests import Pests
 from farmgym.v2.entities.Plant import Plant
 from farmgym.v2.entities.Pollinators import Pollinators
 from farmgym.v2.entities.Soil import Soil
-from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Weeds import Weeds
 
 import numpy as np
@@ -28,7 +24,6 @@ def compute_sizeobservation(variable):
 # c= compute_allobservationcost( {'bla': np.zeros((2,3)), 'bli': np.zeros((1,4)) }, 1)
 # print(c)
 
-import yaml
 
 
 def sum_value(value_array):
