@@ -1,5 +1,5 @@
 import numpy as np
-from farmgym.v2.entity_api import Entity_API, Range, fillarray, checkissubclass
+from farmgym.v2.entity_api import Entity_API, Range, fillarray, checkissubclass, expglm
 
 
 class Pests(Entity_API):

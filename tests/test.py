@@ -1,3 +1,4 @@
+import gym
 
 from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
@@ -10,7 +11,16 @@ from farmgym.v2.entities.Facilities import Facility
 from farmgym.v2.entities.Fertilizer import Fertilizer
 from farmgym.v2.entities.Pollinators import Pollinators
 
+from farmgym.v2.games.register_all import register_all
+from farmgym.v2.games.rungame import run_randomactions
+
+
 import pytest
+
+# TODO:
+# - make all games deterministic (see test_games below, two env fail)
+# - split this file in several files for better readability.
+
 
 def test_farmgym():
     print("\nSTART")
@@ -283,7 +293,19 @@ def test_make_farm(entities):
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     }, entities)
-    
+
+
+
+
+ENV_NAMES = register_all()
+
+@pytest.mark.parametrize("env_name", ENV_NAMES)
+def test_games(env_name):
+    if env_name not in ["farms_1x1_clay_bean-v0", "farms_3x4_clay_corn_weeds-v0"]:
+        env = gym.make(env_name, 100)
+        farm = env.unwrapped
+        run_randomactions(farm, max_steps=3, render=False, monitoring=False)
+
 
 if __name__ == "__main__":
     pass

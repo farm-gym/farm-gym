@@ -1,4 +1,5 @@
-from farmgym.v2.entity_api import Entity_API, Range, fillarray
+import numpy as np
+from farmgym.v2.entity_api import Entity_API, Range, fillarray, checkissubclass, expglm
 
 
 class Pollinators(Entity_API):
