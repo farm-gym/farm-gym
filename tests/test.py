@@ -1,3 +1,15 @@
+
+from farmgym.v2.entities.Weather import Weather
+from farmgym.v2.entities.Soil import Soil
+from farmgym.v2.entities.Plant import Plant
+from farmgym.v2.entities.Weeds import Weeds
+from farmgym.v2.entities.Pests import Pests
+from farmgym.v2.entities.Cide import Cide
+from farmgym.v2.entities.Birds import Birds
+from farmgym.v2.entities.Facilities import Facility
+from farmgym.v2.entities.Fertilizer import Fertilizer
+from farmgym.v2.entities.Pollinators import Pollinators
+
 import pytest
 
 def test_farmgym():
@@ -227,6 +239,51 @@ def test_farmgym_policy():
         nb_steps+=1
 
     print("DONE")
+
+ENTITIES = [    [(Weather, "dry"), (Soil, "clay"), (Plant, "corn")],
+            [(Weather, "dry"), (Soil, "sand"), (Plant, "corn")],
+            [(Weather, "dry"), (Soil, "clay"), (Plant, "corn"), (Pollinators, "bee")],
+                [(Weather, "dry"), (Soil, "clay"), (Plant, "tomato")],
+                [
+        (Weather, "dry"),
+        (Soil, "clay"),
+        (Plant, "tomato"),
+        (Pollinators, "bee"),
+        (Weeds, "base_weed"),
+        (Pests, "basic"),
+        (Cide, "herbicide_slow"),
+    ],
+                    [
+        (Weather, "dry"),
+        (Soil, "clay"),
+        (Plant, "tomato"),
+        (Pollinators, "bee"),
+        (Weeds, "base_weed"),
+        (Cide, "herbicide_slow"),
+                    ],
+                        [
+        (Weather, "dry"),
+        (Soil, "clay"),
+        (Plant, "corn"),
+        (Pollinators, "bee"),
+        (Weeds, "base_weed"),
+        (Cide, "herbicide_slow"),
+        (Cide, "pesticide"),
+        (Facility, "base_facility"),
+        (Birds, "base_bird"),
+                            (Fertilizer, "basic_N"),
+                            
+                    ],
+            ]
+
+@pytest.mark.parametrize("entities", ENTITIES)
+def test_make_farm(entities):
+    from farmgym.v2.games.make_farm import make_farm
+    farm = make_farm("farm_test", {
+        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+    }, entities)
+    
 
 if __name__ == "__main__":
     pass
