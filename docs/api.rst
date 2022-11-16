@@ -14,8 +14,8 @@ Main classes
     v2.farm.Farm
     v2.field.Field
     v2.farmers.BasicFarmer.BasicFarmer
-    v2.rules.BasicRules.BasicRules
-    v2.scoring.BasicScoring.BasicScoring
+    v2.rules.BasicRule.BasicRule
+    v2.scorings.BasicScore.BasicScore
 
     
 Entities
@@ -30,10 +30,10 @@ Entities
     v2.entities.Weather.Weather
     v2.entities.Weeds.Weeds
     v2.entities.Pests.Pests
-    v2.entities.Facilities.Facilities
+    v2.entities.Facilities.Facility
     v2.entities.Fertilizer.Fertilizer
     v2.entities.Cide.Cide  
-    v2.entities.Birds.Birds2
+    v2.entities.Birds.Birds
     v2.entities.Pollinators.Pollinators
 
 
