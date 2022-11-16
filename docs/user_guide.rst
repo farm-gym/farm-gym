@@ -8,4 +8,8 @@ User guide
 
 In construction.
 
-Specs: :ref:`Specifications <specifications>`
+
+Parameters of Farm-Gym
+----------------------
+
+The farm, plants, entities are parameterized using yaml files. You can find the list of all specification files in the :ref:`Specifications <specifications>` section.

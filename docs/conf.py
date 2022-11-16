@@ -18,7 +18,6 @@ import sphinx_gallery  # noqa
 from sphinx_gallery.sorting import ExplicitOrder
 
 
-
 sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath("../"))
 
