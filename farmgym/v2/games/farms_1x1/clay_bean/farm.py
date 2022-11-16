@@ -71,35 +71,34 @@ def env():
         triggered_observations.append((trigger_constant, action_schedule_observe))
 
         triggered_interventions = []
-        # trigger_water = [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["entered_grow","entered_bloom","entered_fruit","entered_ripe"])]]
-
-        trigger_harvest = [
+        policy_harvest = (
+            [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
             [
-                (
-                    ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                    lambda x: x,
-                    "in",
-                    ["fruit", "entered_ripe", "ripe"],
-                )
-            ]
-        ]
-        # or age_ripe#day =  3
-        action_harvest = [("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {})]
-        triggered_interventions.append((trigger_harvest, action_harvest))
+                {
+                    "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+                    "delay": 18,
+                }
+            ],
+        )
+        triggered_interventions.append(policy_harvest)
 
-        trigger_water = [[]]
-        action_water = []
         if i > 0:
-            action_water = [
-                (
-                    "BasicFarmer-0",
-                    "Field-0",
-                    "Soil-0",
-                    "water_discrete",
-                    {"plot": (0, 0), "amount#L": i, "duration#min": 60},
-                )
-            ]
-        triggered_interventions.append((trigger_water, action_water))
+            policy_water = (
+                [[]],
+                [
+                    {
+                        "action": (
+                            "BasicFarmer-0",
+                            "Field-0",
+                            "Soil-0",
+                            "water_continuous",
+                            {"plot": (0, 0), "amount#L": i, "duration#min": 60},
+                        ),
+                        "delay": 0,
+                    }
+                ],
+            )
+            triggered_interventions.append(policy_water)
 
         policies.append(Policy_API("", triggered_observations, triggered_interventions))
 
