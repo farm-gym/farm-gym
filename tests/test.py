@@ -20,7 +20,7 @@ import pytest
 # TODO:
 # - make all games deterministic (see test_games below, two env fail)
 # - split this file in several files for better readability.
-
+# - Actually assert things to check that it works and don't check only Runtime Error.
 
 def test_farmgym():
     print("\nSTART")
@@ -306,7 +306,59 @@ def test_games(env_name):
         farm = env.unwrapped
         run_randomactions(farm, max_steps=3, render=False, monitoring=False)
 
+INIT_STAGE= [
+        "none",
+        "seed",
+        "entered_grow",
+        "grow",
+        "entered_bloom",
+        "bloom",
+        "entered_fruit",
+        "fruit",
+        "entered_ripe",
+        "ripe",
+        "entered_seed",
+        "harvested",
+        "dead",
+    ]
 
+FULL_ENTITY = [
+        (Weather, "dry"),
+        (Soil, "clay"),
+        (Plant, "corn"),
+        (Pollinators, "bee"),
+        (Weeds, "base_weed"),
+        (Cide, "herbicide_slow"),
+        (Cide, "pesticide"),
+        (Facility, "base_facility"),
+        (Birds, "base_bird"),
+                            (Fertilizer, "basic_N"),
+                            
+                    ]
+
+@pytest.mark.parametrize("stage", INIT_STAGE)
+def test_stages(stage):
+    from farmgym.v2.games.make_farm import make_farm
+    from farmgym.v2.games.rungame import run_randomactions
+    f = make_farm(
+        "dry_clay_bean",
+        {
+            "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+            "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+        },
+        FULL_ENTITY,
+        init_values=[
+            ("Field-0", "Weather-0", "day#int365", 120),
+            ("Field-0", "Plant-0", "stage", stage),
+            ("Field-0", "Soil-0", "available_N#g", 5000),
+            ("Field-0", "Soil-0", "available_P#g", 5000),
+            ("Field-0", "Soil-0", "available_K#g", 5000),
+            ("Field-0", "Soil-0", "available_C#g", 5000),
+        ],
+    )
+    run_randomactions(f, max_steps=5)
+    
+        
 if __name__ == "__main__":
     pass
 

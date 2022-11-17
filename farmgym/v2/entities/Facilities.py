@@ -1,5 +1,5 @@
 from farmgym.v2.entity_api import Entity_API, Range
-
+from PIL import Image
 
 class Facility(Entity_API):
     def __init__(self, field, parameters):

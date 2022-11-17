@@ -1,4 +1,5 @@
 from farmgym.v2.entity_api import Entity_API, Range, checkissubclass
+from PIL import Image
 
 
 class Birds(Entity_API):

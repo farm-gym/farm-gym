@@ -1,4 +1,5 @@
 from farmgym.v2.entity_api import Entity_API, Range, fillarray
+from PIL import Image
 
 
 class Cide(Entity_API):
