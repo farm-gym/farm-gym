@@ -1,3 +1,4 @@
+![](https://img.shields.io/codecov/c/github/farm-gym/farm-gym)
 # FarmGym
 
 FarmGym is a Farming Environment Gym factory intended to model sequential decision-making on farms seen as dynamical system with many entities interacting.
