@@ -7,17 +7,16 @@ from pathlib import Path
 import oyaml as yaml
 from prettytable import PrettyTable, MARKDOWN
 
-def get_sentences(a,b):
+
+def get_sentences(a, b):
     return " "
 
 
-
-
-SPACE_CHAR = '~'
+SPACE_CHAR = "~"
 
 
 def listToString(inList):
-    """ Convert list to String """
+    """Convert list to String"""
     ret = ""
     for line in inList:
         ret = ret + line
@@ -26,15 +25,17 @@ def listToString(inList):
 
 def printDic(inDictionary, inPTable, indent):
     """
-        Iterate over Dictionary
-           If needed call same function again (recursively) until we key : value dictionary
-           Add key , value , isItRequired , description to pretty table object (inPTable)
+    Iterate over Dictionary
+       If needed call same function again (recursively) until we key : value dictionary
+       Add key , value , isItRequired , description to pretty table object (inPTable)
     """
     global SPACE_CHAR  # No space character that will be replaced when we print this table to text/html
 
     # Go ver dictionary
     for item in inDictionary:
-        if isinstance(item, dict):  # If it again dictionary call same function with this new dictionary
+        if isinstance(
+            item, dict
+        ):  # If it again dictionary call same function with this new dictionary
             inPTable.add_row([SPACE_CHAR, SPACE_CHAR])
             printDic(item, inPTable, indent)
         else:
@@ -44,12 +45,12 @@ def printDic(inDictionary, inPTable, indent):
             elif isinstance(inDictionary, list):
                 # If it simple array/list we just print all it's value and we are done
                 for _item in inDictionary:
-                    inPTable.add_row([indent + _item, SPACE_CHAR+SPACE_CHAR])
+                    inPTable.add_row([indent + _item, SPACE_CHAR + SPACE_CHAR])
                 break
 
             # if it is dictionary or list process them accordingly
             if isinstance(moreStuff, dict):
-                inPTable.add_row([indent + item, SPACE_CHAR+SPACE_CHAR ])
+                inPTable.add_row([indent + item, SPACE_CHAR + SPACE_CHAR])
                 printDic(moreStuff, inPTable, SPACE_CHAR + SPACE_CHAR + indent)
             elif isinstance(moreStuff, list):
 
@@ -61,7 +62,15 @@ def printDic(inDictionary, inPTable, indent):
                 for dicInDic in moreStuff:
                     if dicInDic is not None:
                         if isinstance(dicInDic, dict):
-                            printDic(dicInDic, inPTable, SPACE_CHAR + SPACE_CHAR + SPACE_CHAR + SPACE_CHAR + indent)
+                            printDic(
+                                dicInDic,
+                                inPTable,
+                                SPACE_CHAR
+                                + SPACE_CHAR
+                                + SPACE_CHAR
+                                + SPACE_CHAR
+                                + indent,
+                            )
             else:
                 # Most of the call will end-up eventually here -
                 # this will print - key,value,isItRequired, Lorem ipsum (description)
@@ -104,13 +113,14 @@ def parse_yaml(in_file):
                 yaml_snippet = yaml.dump({key: dic})
 
             if isinstance(yaml_file_object, dict):
-                final_str += "\n ## "+key + "\n"
+                final_str += "\n ## " + key + "\n"
 
             final_str += str(prettyTable).replace(SPACE_CHAR, "&ensp;")
         return final_str
 
+
 if __name__ == "__main__":
-    
+
     in_file = Path(sys.argv[1])
     final_str = parse_yaml(in_file)
     print(final_str)

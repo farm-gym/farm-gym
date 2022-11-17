@@ -31,7 +31,9 @@ author = "farm-gym team"
 
 
 def yaml_to_doc():
-    spec_paths = glob.glob("../farmgym/v2/specifications/*.yaml")+glob.glob("../farmgym/v2/specifications/*.yml")
+    spec_paths = glob.glob("../farmgym/v2/specifications/*.yaml") + glob.glob(
+        "../farmgym/v2/specifications/*.yml"
+    )
     try:
         os.mkdir("spec_yaml")
     except:
@@ -39,8 +41,8 @@ def yaml_to_doc():
     for spec_file in spec_paths:
         spec_str = parse_yaml(spec_file)
         spec_name = os.path.basename(os.path.splitext(spec_file)[0])
-        spec_str = "# "+spec_name+"\n" + spec_str
-        with open("spec_yaml/"+ spec_name + ".md", "w") as f:
+        spec_str = "# " + spec_name + "\n" + spec_str
+        with open("spec_yaml/" + spec_name + ".md", "w") as f:
             f.write(spec_str)
 
 
