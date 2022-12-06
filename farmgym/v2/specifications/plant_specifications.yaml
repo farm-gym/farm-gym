@@ -41,6 +41,9 @@ bean:
     sensitivity_grow_0: 0
     grow_rate_sigma2: 0.05
     grow_rate_min#: 0.1
+
+    N_air_storage#g.mm-1: 0.02
+    C_air_storage#g.mm-1: 0.015
     N_grow_consumption#g.mm-1: 0.1
     K_grow_consumption#g.mm-1: 0.1
     P_grow_consumption#g.mm-1: 0.1
@@ -185,6 +188,8 @@ corn:
       sensitivity_grow_0: 0
       grow_rate_sigma2: 0.05
       grow_rate_min#: 0.1
+      N_air_storage#g.mm-1: 0.012
+      C_air_storage#g.mm-1: 0.015
       N_grow_consumption#g.mm-1: 0.3
       K_grow_consumption#g.mm-1: 0.2
       P_grow_consumption#g.mm-1: 0.1
@@ -327,6 +332,8 @@ tomato:
       sensitivity_grow_0: 0.02
       grow_rate_sigma2: 0.05
       grow_rate_min#: 0.1
+      N_air_storage#g.mm-1: 0.005
+      C_air_storage#g.mm-1: 0.005
       N_grow_consumption#g.mm-1: 0.2
       K_grow_consumption#g.mm-1: 0.2
       P_grow_consumption#g.mm-1: 0.1

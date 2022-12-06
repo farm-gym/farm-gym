@@ -25,6 +25,10 @@ base_weed:
     sensitivity_death_herbicide: 2.
     death_herbicide_max#g: 10
 
+
+    N_air_storage#g.mm-1: 0.01
+    C_air_storage#g.mm-1: 0.01
+
     N_grow_consumption#g.mm-1: 0.5
     K_grow_consumption#g.mm-1: 0.5
     P_grow_consumption#g.mm-1: 0.5

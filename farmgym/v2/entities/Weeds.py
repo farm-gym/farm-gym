@@ -24,15 +24,9 @@ class Weeds(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
-        self.variables["grow#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["seeds#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["flowers#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["grow#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["seeds#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["flowers#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
 
         #
         self.variables["total_cumulated_plot_population#nb"] = Range((0, 10000), 0.0)
@@ -53,30 +47,16 @@ class Weeds(Entity_API):
     def reset(self):
         X = self.field.X
         Y = self.field.Y
-        self.variables["grow#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["seeds#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["flowers#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["grow#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["seeds#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["flowers#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
         self.variables["total_cumulated_plot_population#nb"] = Range((0, 10000), 0.0)
         self.initialize_variables(self.initial_conditions)
 
     def update_variables(self, field, entities):
 
-        weather = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Weather")
-        ][0]
-        soil = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Soil")
-        ][0]
+        weather = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Weather")][0]
+        soil = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Soil")][0]
 
         p = 1.0 / (0.0 + self.parameters["time_to_grow#day"])
         # Pick some positions:
@@ -126,12 +106,8 @@ class Weeds(Entity_API):
             p_appear = expglm(p["sensitivity_0"], q)
             # print("WEEDS",p_appear,field.distance_to_edge((x, y)))
 
-            z = self.np_random.binomial(
-                self.parameters["max_new_seeds#nb"], p_appear, 1
-            )[0]
-            self.variables["seeds#nb"][x, y].set_value(
-                self.variables["seeds#nb"][x, y].value + z
-            )
+            z = self.np_random.binomial(self.parameters["max_new_seeds#nb"], p_appear, 1)[0]
+            self.variables["seeds#nb"][x, y].set_value(self.variables["seeds#nb"][x, y].value + z)
 
         for pos in pos_seed:  # Flowers to Seed
             x, y = pos
@@ -144,22 +120,16 @@ class Weeds(Entity_API):
                 self.parameters["flower_to_seed#%"],
                 1,
             )[0]
-            self.variables["flowers#nb"][x, y].set_value(
-                self.variables["flowers#nb"][x, y].value - z
-            )
+            self.variables["flowers#nb"][x, y].set_value(self.variables["flowers#nb"][x, y].value - z)
 
             nb_seeds = z * self.parameters["seed_per_flower#nb"]
             pneighbors = 1.0 / (len(neighbors) + 1)
             zz = self.np_random.binomial(nb_seeds, pneighbors, 1)[0]
-            self.variables["seeds#nb"][x, y].set_value(
-                self.variables["seeds#nb"][x, y].value + zz
-            )
+            self.variables["seeds#nb"][x, y].set_value(self.variables["seeds#nb"][x, y].value + zz)
             nb_seeds -= zz
             for k in neighbors.keys():
                 zz = self.np_random.binomial(nb_seeds, pneighbors, 1)[0]
-                self.variables["seeds#nb"][neighbors[k]].set_value(
-                    self.variables["seeds#nb"][neighbors[k]].value + zz
-                )
+                self.variables["seeds#nb"][neighbors[k]].set_value(self.variables["seeds#nb"][neighbors[k]].value + zz)
                 nb_seeds -= zz
 
         for pos in pos_grow:  # Seed to Grow
@@ -202,15 +172,9 @@ class Weeds(Entity_API):
             p_grow = expglm(p["sensitivity_grow_0"], q)
             # print("WEEDS",p_grow,weather.variables['air_temperature']['mean#°C'].value,soil.variables['available_N#g'][(x, y)].value)
 
-            nb_sprouts = self.np_random.binomial(
-                self.variables["seeds#nb"][x, y].value, p_grow, 1
-            )[0]
-            self.variables["grow#nb"][x, y].set_value(
-                self.variables["grow#nb"][x, y].value + nb_sprouts
-            )
-            self.variables["seeds#nb"][x, y].set_value(
-                self.variables["seeds#nb"][x, y].value - nb_sprouts
-            )
+            nb_sprouts = self.np_random.binomial(self.variables["seeds#nb"][x, y].value, p_grow, 1)[0]
+            self.variables["grow#nb"][x, y].set_value(self.variables["grow#nb"][x, y].value + nb_sprouts)
+            self.variables["seeds#nb"][x, y].set_value(self.variables["seeds#nb"][x, y].value - nb_sprouts)
             self.variables["total_cumulated_plot_population#nb"].set_value(
                 self.variables["total_cumulated_plot_population#nb"].value + nb_sprouts
             )
@@ -231,18 +195,11 @@ class Weeds(Entity_API):
             p_flowers = expglm(
                 self.parameters["sensitivity_flowers_0"], q
             )  # np.exp(-self.parameters['sensitivity_flowers_0'])
-            z = self.np_random.binomial(
-                self.variables["grow#nb"][x, y].value, p_flowers, 1
-            )[0]
-            self.variables["grow#nb"][x, y].set_value(
-                self.variables["grow#nb"][x, y].value - z
-            )
+            z = self.np_random.binomial(self.variables["grow#nb"][x, y].value, p_flowers, 1)[0]
+            self.variables["grow#nb"][x, y].set_value(self.variables["grow#nb"][x, y].value - z)
             self.variables["flowers#nb"][x, y].set_value(
                 self.variables["flowers#nb"][x, y].value
-                + z
-                * self.np_random.binomial(
-                    self.parameters["flowers_per_plant#nb"], p_flowers, 1
-                )[0]
+                + z * self.np_random.binomial(self.parameters["flowers_per_plant#nb"], p_flowers, 1)[0]
             )
 
         for pos in positions:
@@ -308,9 +265,7 @@ class Weeds(Entity_API):
                 )
             )
             p_stayalive = expglm(p["sensitivity_death_0"], q)
-            z = self.np_random.binomial(
-                self.variables["grow#nb"][x, y].value, p_stayalive, 1
-            )[0]
+            z = self.np_random.binomial(self.variables["grow#nb"][x, y].value, p_stayalive, 1)[0]
 
             # print(x, y, "N", soil.variables['available_N#g'][(x, y)], "stayalive", p_stayalive, "grow#nb",  self.variables["grow#nb"][x, y], z)
             self.variables["grow#nb"][x, y].set_value(z)
@@ -318,10 +273,7 @@ class Weeds(Entity_API):
     def act_on_variables(self, action_name, action_params):
         if action_name == "remove":
             position = action_params["plot"]
-            s = (
-                self.variables["grow#nb"][position].value
-                + self.variables["flowers#nb"][position].value
-            )
+            s = self.variables["grow#nb"][position].value + self.variables["flowers#nb"][position].value
             self.variables["grow#nb"][position].set_value(0)
             self.variables["flowers#nb"][position].set_value(0)
             # if (s>0):
@@ -338,12 +290,21 @@ class Weeds(Entity_API):
             "Water#L": nb * p["Water_grow_consumption#mL.mm-1"] * 0.001,
         }
 
+    def release_nutrients(self, position, soil):
+        r = {"N#g": 0.0, "K#g": 0.0, "P#g": 0.0, "C#g": 0.0}  # 'Water':(0.,1.)}
+
+        nb = self.variables["grow#nb"][position].value
+        nb += self.variables["flowers#nb"][position].value
+
+        p = self.parameters["grow_conditions"]
+        estimated_size = (self.parameters["size#cm"] * 10) / 2
+        r["N#g"] = nb * p["N_air_storage#g.mm-1"] * estimated_size
+        r["C#g"] = nb * p["C_air_storage#g.mm-1"] * estimated_size
+        return r
+
     def compute_shadowsurface(self, position):
         # returns shadow effective size in m2
-        n = (
-            self.variables["grow#nb"][position].value
-            + self.variables["flowers#nb"][position].value
-        )
+        n = self.variables["grow#nb"][position].value + self.variables["flowers#nb"][position].value
         # Consider a plant is a ball of diameter size#cm
         r = self.parameters["size#cm"] * 0.01 / 2.0
         return np.pi * r * r * n  # * self.parameters['shadow_coeff#%']
@@ -358,16 +319,8 @@ class Weeds(Entity_API):
         for x in range(self.field.X):
             for y in range(self.field.Y):
                 # print("XY",x,y,self.variables['wet_surface#m2.day-1'][x,y].value)
-                if (
-                    self.variables["grow#nb"][x, y].value
-                    + self.variables["flowers#nb"][x, y].value
-                    > 0
-                ):
-                    if (
-                        self.variables["grow#nb"][x, y].value
-                        + self.variables["flowers#nb"][x, y].value
-                        > 3
-                    ):
+                if self.variables["grow#nb"][x, y].value + self.variables["flowers#nb"][x, y].value > 0:
+                    if self.variables["grow#nb"][x, y].value + self.variables["flowers#nb"][x, y].value > 3:
                         image.paste(self.images["many"], (im_width * x, im_height * y))
                     else:
                         image.paste(self.images["few"], (im_width * x, im_height * y))
