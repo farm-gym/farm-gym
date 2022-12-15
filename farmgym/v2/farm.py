@@ -16,7 +16,7 @@ from pathlib import Path
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
 
-## Here is the reason why you should use dictionalries instead of lists as much as possible: https://towardsdatascience.com/faster-lookups-in-python-1d7503e9cd38
+## Here is the reason why you should use dictionaries instead of lists as much as possible: https://towardsdatascience.com/faster-lookups-in-python-1d7503e9cd38
 
 
 def yml_tuple_constructor(v, f=float):
@@ -38,17 +38,19 @@ class Farm(gym.Env):
 
     Parameters
     ----------
-    fields : a list of fields, that is instances of the class Field.
+    fields : a list of fields, that is instances of the class Field  :class:`~farmgym.v2.field`
 
-    farmers: a list of farmers, that is instances of a class implementing the Farmer_API.
+    farmers: a list of farmers, that is instances of a class implementing the Farmer_API :class:`~farmgym.v2.farmer_api`
 
-    scoring: an instance of the Scoring_API
+    scoring: an instance of the Scoring_API :class:`~farmgym.v2.scoring_api`
 
-    rules: an instance of the Rules_API
+    rules: an instance of the Rules_API  :class:`~farmgym.v2.rules_api`
 
-    policies: a list of policies, that is instances of a class implementing the Policy_API.
+    policies: a list of policies, that is instances of a class implementing the Policy_API  :class:`~farmgym.v2.policy_api`
 
     seed: an integer, defining the seed used by the random-number generator.
+
+    At creation, automatically generates yaml configuration files to help customize the farm. One file to specify the list of allowed actions, one file to initialize state variables, and one file to specify the score.
 
     """
 
@@ -213,7 +215,7 @@ class Farm(gym.Env):
 
     def build_name(self):
         """
-        Builds a standardized name for the farm as a string.
+        Builds a standardized name for the farm as a string. example: Farm_Fields[Field-0[Weather-0_Soil-0_Plant-0]]_Farmers[BasicFarmer-0]
         """
         str = "Farm_Fields["
         for fi in self.fields:
@@ -232,6 +234,11 @@ class Farm(gym.Env):
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
 
     def build_configurations(self, dir, name):
+        """
+        dir: path
+        name: string used to name the farm in the yaml filename.
+        Generates yaml configuration files to help customize the farm. One file to specify the list of allowed actions, one file to initialize state variables, and one file to specify the score.
+        """
         init_file = name + "_init.yaml"
         filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
 
@@ -248,13 +255,26 @@ class Farm(gym.Env):
         build_scoreyaml(filepath, self.fields)
 
     def add_monitoring(self, list_of_variables):
+        """
+        Adds a Monitor to the farm, allowing to observe evolution of some state variables with time.
+        list_of_variables: the list of variables to be monitored.
+        The format for one variable is (field,entity,variable,function,name,option).
+        For instance:
+        ("Field-0","Plant-0","fruits_per_plant#nb",lambda x: sum_value(x),"Fruits (nb)","range_auto")
+        """
         self.monitor = Monitor(self, list_of_variables)
 
     def reset(self, seed=None, return_info=False, options=None):
+        """
+        Resets the environment.
+        """
         super().reset(seed=seed, return_info=return_info, options=options)
         return self.gym_reset(seed, return_info, options)
 
     def gym_reset(self, seed=None, return_info=False, options=None):
+        """
+        Resets the environment.
+        """
 
         self.last_farmgym_action = None
         if return_info:
@@ -281,6 +301,9 @@ class Farm(gym.Env):
             return observations
 
     def farmgym_reset(self, seed=None, return_info=False, options=None):
+        """
+        Resets the environment.
+        """
 
         self.last_farmgym_action = None
         self.np_random, seed = seeding.np_random(seed)
@@ -304,46 +327,38 @@ class Farm(gym.Env):
         else:
             return observations
 
-    # def reset(self):#, seed, return_info, options):
-    #     self.is_new_day = True
-    #
-    #     #TODO: Make proper reset of each entity: inittial conditions may not necessarily be coherent
-    #     for f in self.fields.values():
-    #         f.reset()
-    #
-    #     #Then specify each value one by one:
-    #     for fi in self.rules.initial_conditions:
-    #         for e in self.rules.initial_conditions[fi]:
-    #             self.fields[fi].entities[e].init_variables(self.rules.initial_conditions[fi][e])
-    #
-    #     observations = []
-    #     # Add free observations if any
-    #     obs_vec = self.rules.get_free_observations(self)
-    #     [observations.append(o) for o in obs_vec]
-    #
-    #     return observations
-
-    def get_free_observations(self):
-        return self.rules.get_free_observations(self)
-
     def seed(self, seed=None):
+        """
+        Modifies the seed of the random generators used in the environment.
+        """
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
+    def get_free_observations(self):
+        """
+        Outputs free observations available at the current time.
+        """
+        return self.rules.get_free_observations(self)
+
     def step(self, action):
+        """
+        Performs a step evolution of the system, from current stage to next state given the input action.
+        """
         return self.gym_step(action)
 
     def gym_step(self, gym_action):
-
+        """
+        Performs a step evolution of the system, from current stage to next state given the input action.
+        It follows the gym signature, and outputs observations, reward, is_done, information.
+        Farmgym observations are added in information["farmgym observations"].
+        """
         farmgym_observations, reward, is_done, farmgym_information = self.farmgym_step(
             self.gymaction_to_farmgymaction(gym_action)
         )
-        # print("GYM_STEP",gym_action,farmgym_observations)
 
         observations = []
         observation_information = []
         for fo in farmgym_observations:
-            # print("FO",fo)
             fa_key, fi_key, e_key, variable_key, path, value = fo
             gym_value = self.fields[fi_key].entities[e_key].gym_observe_variable(variable_key, path)
             observations.append(gym_value)
@@ -354,11 +369,13 @@ class Farm(gym.Env):
         return observations, reward, is_done, information
 
     def farmgym_step(self, action_schedule):
+        """
+        Performs a step evolution of the system, from current stage to next state given the input action.
+        A farm gym step alternates between observation step and action step before moving to next day.
+        """
         self.last_farmgym_action = action_schedule
         filtered_action_schedule = self.rules.filter_actions(self, action_schedule, self.is_new_day)
         self.rules.assert_actions(filtered_action_schedule)
-        # print("[Farmgym] Filtered action schedule:")
-        # [print("[Farmgym]\t",a) for a in filtered_action_schedule]
         if self.is_new_day:
             output = self.observation_step(filtered_action_schedule)
             self.is_new_day = False
@@ -369,6 +386,9 @@ class Farm(gym.Env):
             return output
 
     def observation_step(self, observation_schedule):
+        """
+        Performs an observation step, one of the two types of farmgym steps.
+        """
         observations = []
 
         # Add free observations if any
@@ -399,6 +419,9 @@ class Farm(gym.Env):
         # return (observation, reward, terminated, truncated, info) or  (observation, reward, done, info)
 
     def intervention_step(self, action_schedule):
+        """
+        Performs an intervention step, one of the two types of farmgym steps.
+        """
         observations = []
 
         # Perform action
@@ -448,9 +471,11 @@ class Farm(gym.Env):
         )
 
     def gymaction_to_farmgymaction(self, actions):
-        # print("Actions to be converted",actions)
         # TODO: Check it on all cases.
-        """By construction, this only generates actions in the subset of available actions specified by the configuration file"""
+        """
+        Converts actions given in gym format to actions in farmgym format.
+        By construction, this only generates actions in the subset of available actions specified by the configuration file.
+        """
 
         def convert(value, ranges):
             if type(ranges) == list:
@@ -490,6 +515,9 @@ class Farm(gym.Env):
         return fg_actions
 
     def random_allowed_intervention(self):
+        """
+        Outputs a randomly generated intervention, in farmgym format.
+        """
         n = self.np_random.randint(len(self.farmgym_intervention_actions))
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
         fa, fi, e, inter, params, gym_space = self.farmgym_intervention_actions[n]
@@ -552,6 +580,9 @@ class Farm(gym.Env):
     #     return fa, fi, e, key, p
 
     def random_allowed_observation(self):
+        """
+        Outputs a randomly generated observation-action (action to collect observation), in farmgym format.
+        """
         n = self.np_random.randint(len(self.farmgym_observation_actions))
         return self.farmgym_observation_actions[n]
 
@@ -584,6 +615,10 @@ class Farm(gym.Env):
     #     return fa,fi,e, key, path
 
     def build_farmgym_intervention_actions(self, action_yaml):
+        """
+        Generates a list of all possible farmgym intervention-actions allowed by the configuration file action_yaml.
+        """
+
         def make(action):
             #            print("ACTION",action, type(action))
             if type(action) == str:
@@ -624,6 +659,10 @@ class Farm(gym.Env):
         return actions
 
     def build_farmgym_observation_actions(self, action_yaml):
+        """
+        Generates a list of all possible farmgym observation-actions allowed by the configuration file action_yaml.
+        """
+
         def make(dictio, variables):
             if type(dictio) == list:
                 actions = {}
@@ -685,7 +724,9 @@ class Farm(gym.Env):
         return actions
 
     def build_gym_state_space(self):
-        # Concatenates all variables in a big Union space.
+        """
+        Outputs a state space in gym Tuple format built from all state variables.
+        """
         def to_gym(range):
             if type(range) == tuple:
                 m, M = range
@@ -732,6 +773,9 @@ class Farm(gym.Env):
         return Tuple(state_space)
 
     def build_gym_observation_space(self):
+        """
+        Outputs an observation space in gym MultiUnion format from all possible observations.
+        """
         def make_space(x):
             if type(x) == dict:
                 xspace = {}
@@ -770,7 +814,10 @@ class Farm(gym.Env):
         return MultiUnion(observation_space)
 
     def render(self, mode="human"):
-        # print(self)
+        """
+        Renders the farm at current time for human display as an image. The image is stored as a png file. Not everything is displayed, depending on display availability of each entity of the farm.
+        The method considerably slows down the code execution hence should only be called for visualization purpose.
+        """
 
         max_display_actions = self.rules.actions_allowed["params"]["max_action_schedule_size"]
 
@@ -917,6 +964,9 @@ class Farm(gym.Env):
         # plt.pause(0.01)
 
     def __str__(self):
+        """
+        Outputs a string showing a snapshot of the farm at the given time. All state variables of each entity, farmers information as well ws all free observations, available observations and available interventions.
+        """
         s = "Farm: " + self.name + "\n"
         s += "Fields:" + "\n"
 
@@ -962,6 +1012,9 @@ import cv2
 
 
 def generate_video(image_folder=".", video_name="farm.avi"):
+    """
+    Generates an avi video from a collection of png files generated when rendering a farm with farm.render()
+    """
     # os.chdir("/home/ganesh/Desktop/video")
     images = [
         img
@@ -1011,6 +1064,10 @@ def generate_video(image_folder=".", video_name="farm.avi"):
 
 
 def generate_gif(image_folder=".", video_name="farm.gif"):
+    """
+    Generates an animated gif from a collection of png files generated when rendering a farm with farm.render().
+    This way of generating gif is very slow, inefficient, and unreliable. An alternative should be found.
+    """
     import imageio.v2 as imageio
 
     # TODO: This way of generating gif is very slow, inefficient, and unreliable. An alternative should be found.

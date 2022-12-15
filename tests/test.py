@@ -31,6 +31,8 @@ def test_farmgym():
     farm = env()
     farm.farmgym_reset()
 
+    print("NAME", farm.build_name())
+
     is_done = False
     nb_steps = 0
     while (not is_done) and (nb_steps < 10):
