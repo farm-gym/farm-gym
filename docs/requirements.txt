@@ -3,5 +3,5 @@ numpydoc
 myst-parser
 matplotlib
 oyaml
-oprettytable
+prettytable
 git+https://github.com/farm-gym/farm-gym-games
