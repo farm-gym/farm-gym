@@ -13,9 +13,7 @@ class Union(Space):
     def __init__(self, spaces):
         self.spaces = spaces
         for space in spaces:
-            assert isinstance(
-                space, Space
-            ), "Elements of the tuple must be instances of gym.Space"
+            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
         super(Union, self).__init__(None, None)
 
     def seed(self, seed=None):
@@ -62,9 +60,7 @@ class MultiUnion(Space):
         self.spaces = spaces
         self.maxnonzero = maxnonzero
         for space in spaces:
-            assert isinstance(
-                space, Space
-            ), "Elements of the tuple must be instances of gym.Space"
+            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
         super(MultiUnion, self).__init__(None, None)
 
     def seed(self, seed=None):
@@ -105,9 +101,7 @@ class MultiUnion(Space):
         return True
 
     def __repr__(self):
-        s = "MultiUnion" + (
-            ("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else ""
-        )
+        s = "MultiUnion" + (("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else "")
         return s + "(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
     def to_jsonable(self, sample_n):

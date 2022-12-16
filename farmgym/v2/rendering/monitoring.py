@@ -69,15 +69,8 @@ class Monitor:
         for i in range(len(self.variables)):
             v = self.variables[i]
             fi_key, entity_key, var_key, map_v, name_to_display, v_range = v
-            day = (
-                self.farm.fields[fi_key]
-                .entities["Weather-0"]
-                .variables["day#int365"]
-                .value
-            )
-            value = map_v(
-                self.farm.fields[fi_key].entities[entity_key].variables[var_key]
-            )
+            day = self.farm.fields[fi_key].entities["Weather-0"].variables["day#int365"].value
+            value = map_v(self.farm.fields[fi_key].entities[entity_key].variables[var_key])
 
             days, values = self.history_variables[v]
 

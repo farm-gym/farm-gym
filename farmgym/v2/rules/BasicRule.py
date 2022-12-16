@@ -70,15 +70,11 @@ class BasicRule(Rules_API):
             total_cost = self.current_day_action_schedule_cost
             for intervention_item in actions_schedule:
                 fa_key, fi_key, entity_key, action_name, params = intervention_item
-                cost = farm.scoring.intervention_cost(
-                    fa_key, fi_key, entity_key, action_name, params
-                )
+                cost = farm.scoring.intervention_cost(fa_key, fi_key, entity_key, action_name, params)
                 if total_cost + cost <= self.max_action_schedule_cost:
                     filtered.append(intervention_item)
                     total_cost += cost
                 else:
                     print("[Rules] Intervention is too costly", str(intervention_item))
-            self.current_day_action_schedule_cost = (
-                0  # End of day: reset cost for next day.
-            )
+            self.current_day_action_schedule_cost = 0  # End of day: reset cost for next day.
             return filtered

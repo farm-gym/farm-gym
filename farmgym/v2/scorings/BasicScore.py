@@ -41,9 +41,7 @@ class BasicScore(Scoring_API):
     # TODO: Define a "default_cost" in the yaml file, so that each missing entry is given this value!
 
     def intervention_cost(self, farmer, field_key, entity_key, action_key, params):
-        return self.score_parameters["intervention-cost"][field_key][entity_key][
-            action_key
-        ]
+        return self.score_parameters["intervention-cost"][field_key][entity_key][action_key]
         # action_cost=0
         # return action_cost
         # e= field.entities[entity]
@@ -59,19 +57,12 @@ class BasicScore(Scoring_API):
         # action_cost += cost
         # return action_cost
 
-    def observation_cost(
-        self, farmer, field, field_key, entity_key, variable_key, path
-    ):
+    def observation_cost(self, farmer, field, field_key, entity_key, variable_key, path):
         var = field.entities[entity_key].variables[variable_key]
         for p in path:
             var = var[p]
         # return 0
-        return (
-            compute_sizeobservation(var)
-            * self.score_parameters["observation-cost"][field_key][entity_key][
-                variable_key
-            ]
-        )
+        return compute_sizeobservation(var) * self.score_parameters["observation-cost"][field_key][entity_key][variable_key]
 
     def reward(self, entities_list: list):
         r_stage = 0
@@ -117,18 +108,10 @@ class BasicScore(Scoring_API):
             r_resource += f.variables["total_cumulated_scattered_amount#kg"].value
         for s in soil:
             r_resource += s.variables["total_cumulated_added_water#L"].value
-            r_resource += (
-                s.variables["total_cumulated_added_cide#g"]["pollinators"].value * 0.001
-            )
-            r_resource += (
-                s.variables["total_cumulated_added_cide#g"]["pests"].value * 0.001
-            )
-            r_resource += (
-                s.variables["total_cumulated_added_cide#g"]["soil"].value * 0.001
-            )
-            r_resource += (
-                s.variables["total_cumulated_added_cide#g"]["weeds"].value * 0.001
-            )
+            r_resource += s.variables["total_cumulated_added_cide#g"]["pollinators"].value * 0.001
+            r_resource += s.variables["total_cumulated_added_cide#g"]["pests"].value * 0.001
+            r_resource += s.variables["total_cumulated_added_cide#g"]["soil"].value * 0.001
+            r_resource += s.variables["total_cumulated_added_cide#g"]["weeds"].value * 0.001
 
         r_soil = sum_value(soil[0].variables["microlife_health_index#%"]) / 100
 
@@ -145,21 +128,12 @@ class BasicScore(Scoring_API):
                     if p.variables["stage"][x, y].value == "sprout":
                         rr += 2.0
                     elif p.variables["stage"][x, y].value == "grow":
-                        rr += (
-                            p.variables["size#cm"][x, y].value
-                            / p.parameters["size_max#cm"]
-                        )
+                        rr += p.variables["size#cm"][x, y].value / p.parameters["size_max#cm"]
 
                     elif p.variables["stage"][x, y].value == "flower":
-                        rr += (
-                            p.variables["nb_pollinated_flowers"][x, y].value
-                            / p.parameters["nb_flowers"]
-                        )
+                        rr += p.variables["nb_pollinated_flowers"][x, y].value / p.parameters["nb_flowers"]
                     elif p.variables["stage"][x, y].value == "fruit":
-                        rr += (
-                            p.variables["fruit_weight#g"][x, y].value
-                            / p.parameters["fruit_weight_max#g"]
-                        )
+                        rr += p.variables["fruit_weight#g"][x, y].value / p.parameters["fruit_weight_max#g"]
 
             r_stage += rr / (p.field.X * p.field.Y)
 

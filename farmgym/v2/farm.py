@@ -178,7 +178,9 @@ class Farm(gym.Env):
         self.rules.setup(self)
         self.policies = policies
 
-        self.farmgym_observation_actions = self.build_farmgym_observation_actions(self.rules.actions_allowed["observations"])
+        self.farmgym_observation_actions = self.build_farmgym_observation_actions(
+            self.rules.actions_allowed["observations"]
+        )
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
             self.rules.actions_allowed["interventions"]
         )
@@ -727,6 +729,7 @@ class Farm(gym.Env):
         """
         Outputs a state space in gym Tuple format built from all state variables.
         """
+
         def to_gym(range):
             if type(range) == tuple:
                 m, M = range
@@ -776,6 +779,7 @@ class Farm(gym.Env):
         """
         Outputs an observation space in gym MultiUnion format from all possible observations.
         """
+
         def make_space(x):
             if type(x) == dict:
                 xspace = {}
@@ -830,7 +834,9 @@ class Farm(gym.Env):
                 self.fields[fi].Y
                 + (int)(
                     np.ceil(
-                        len([1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None])
+                        len(
+                            [1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None]
+                        )
                         / self.fields[fi].X
                     )
                 )
@@ -920,7 +926,10 @@ class Farm(gym.Env):
                     index += 1
 
             offset_field_y = (
-                offset_header + self.fields[fi].Y * im_height + offset_sep + ((index - 1) // self.fields[fi].X + 1) * im_height
+                offset_header
+                + self.fields[fi].Y * im_height
+                + offset_sep
+                + ((index - 1) // self.fields[fi].X + 1) * im_height
             )
             d.rectangle(
                 [

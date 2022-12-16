@@ -65,9 +65,7 @@ def env():
     for i in range(10):
         triggered_observations = []
         trigger_constant = [[]]
-        action_schedule_observe = [
-            ("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])
-        ]
+        action_schedule_observe = [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])]
         triggered_observations.append((trigger_constant, action_schedule_observe))
 
         triggered_interventions = []
@@ -192,5 +190,5 @@ def env():
 if __name__ == "__main__":
     from farmgym.v2.games.rungame import run_randomactions
 
-    run_randomactions(env(),max_steps=100,render=False, monitoring=True)
-    #run_randomactions(env(), max_steps=60, render=True, monitoring=False)
+    run_randomactions(env(), max_steps=100, render=False, monitoring=True)
+    # run_randomactions(env(), max_steps=60, render=True, monitoring=False)

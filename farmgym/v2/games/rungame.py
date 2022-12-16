@@ -326,12 +326,8 @@ if __name__ == "__main__":
         action_schedule1 = [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])]
         triggered_observations.append((trigger_constant, action_schedule1))
 
-        trigger_periodic = [
-            [(("Field-0", "Weather-0", "day#int365", []), lambda x: x % 7, "==", 0)]
-        ]
-        action_schedule2 = [
-            ("BasicFarmer-0", "Field-0", "Weather-0", "rain_amount", [])
-        ]
+        trigger_periodic = [[(("Field-0", "Weather-0", "day#int365", []), lambda x: x % 7, "==", 0)]]
+        action_schedule2 = [("BasicFarmer-0", "Field-0", "Weather-0", "rain_amount", [])]
         triggered_observations.append((trigger_periodic, action_schedule2))
 
         triggered_interventions = []
@@ -357,9 +353,7 @@ if __name__ == "__main__":
         ]
         triggered_interventions.append((trigger_bloom, action_schedule3))
 
-        return Policy_API(
-            "config-file", triggered_observations, triggered_interventions
-        )
+        return Policy_API("config-file", triggered_observations, triggered_interventions)
 
     policy = make_policy()
     # run_policy(cb.env(), policy, max_steps=20, render=True, monitoring=False)

@@ -15,7 +15,9 @@ class Soil(Entity_API):
         self.variables["available_P#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
         self.variables["available_K#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
         self.variables["available_C#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
-        self.variables["available_Water#L"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
+        self.variables["available_Water#L"] = fillarray(
+            X, Y, (0, 10000), 0.0
+        )  # np.full((X,Y),fill_value=Range((0,10000),0.))
 
         self.variables["wet_surface#m2.day-1"] = fillarray(
             X, Y, (0, 1000), 0.0
@@ -118,7 +120,8 @@ class Soil(Entity_API):
                 # Natural water input (rain)
                 if weather.variables["rain_amount"].value == "Light":
                     water_after_input = (
-                        self.variables["available_Water#L"][x, y].value + 0.5 * self.np_random.rand() * max_water_plot_capacity
+                        self.variables["available_Water#L"][x, y].value
+                        + 0.5 * self.np_random.rand() * max_water_plot_capacity
                     )
                     self.variables["available_Water#L"][x, y].set_value(min(max_water_plot_capacity, water_after_input))
                     water_surplus = water_after_input - self.variables["available_Water#L"][x, y].value
@@ -362,7 +365,8 @@ class Soil(Entity_API):
                     self.variables["amount_cide#g"][n][x, y].set_value(
                         max(
                             0,
-                            self.variables["amount_cide#g"][n][x, y].value * np.exp(-water_surplus / max_water_plot_capacity),
+                            self.variables["amount_cide#g"][n][x, y].value
+                            * np.exp(-water_surplus / max_water_plot_capacity),
                         )
                     )
 

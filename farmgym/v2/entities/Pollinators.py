@@ -36,44 +36,18 @@ class Pollinators(Entity_API):
 
     def update_variables(self, field, entities):
 
-        weather = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Weather")
-        ][0]
-        soil = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Soil")
-        ][0]
-        plants = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Plant")
-        ]
-        birds = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Birds")
-        ]
+        weather = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Weather")][0]
+        soil = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Soil")][0]
+        plants = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Plant")]
+        birds = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Birds")]
         nb_birds_eating_pollinators = np.sum(
-            [
-                b.variables["population#nb"].value
-                for b in birds
-                if b.parameters["pollinator_eater"]
-            ]
+            [b.variables["population#nb"].value for b in birds if b.parameters["pollinator_eater"]]
         )
         for x in range(self.field.X):
             for y in range(self.field.Y):
 
                 flowers = np.sum(
-                    [
-                        1
-                        if p.variables["stage"][x, y].value
-                        in ["entered_blossom", "blossom"]
-                        else 0.0
-                        for p in plants
-                    ]
+                    [1 if p.variables["stage"][x, y].value in ["entered_blossom", "blossom"] else 0.0 for p in plants]
                 )
 
                 p = self.parameters["visit_conditions"]
@@ -131,9 +105,7 @@ class Pollinators(Entity_API):
                 # print("POLLINATOR appearance proba",q_appear)
 
                 self.variables["occurrence#bin"][x, y].set_value(
-                    "True"
-                    if self.np_random.binomial(flowers, q_appear, 1) > 0
-                    else "False"
+                    "True" if self.np_random.binomial(flowers, q_appear, 1) > 0 else "False"
                 )
                 if self.variables["occurrence#bin"][x, y].value == "True":
                     self.variables["total_cumulated_occurrence#nb"].set_value(

@@ -307,9 +307,7 @@ def plot_results(farms, policy_parameters, results, title):
 
     nc = (int)(np.ceil(np.sqrt(nb_f)))
     nr = nb_f // nc
-    fig, mat_axes = plt.subplots(
-        nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1)
-    )
+    fig, mat_axes = plt.subplots(nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1))
 
     axes = mat_axes.flatten()
 
@@ -377,9 +375,7 @@ def plot_results2(farms, policy_parameters, results, title):
 
     nc = 3
     nr = 1
-    fig, mat_axes = plt.subplots(
-        nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1)
-    )
+    fig, mat_axes = plt.subplots(nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1))
 
     axes = mat_axes.flatten()
 
@@ -428,9 +424,7 @@ def plot_results2(farms, policy_parameters, results, title):
         ".",
     )
 
-    axes[1].legend(
-        [bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"]
-    )
+    axes[1].legend([bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"])
     axes[1].set_title("Pollinators in beans")
     axes[1].set_ylabel("Rewards")
     axes[1].set_xlabel(title)
@@ -456,9 +450,7 @@ def plot_results2(farms, policy_parameters, results, title):
         ".",
     )
 
-    axes[2].legend(
-        [bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"]
-    )
+    axes[2].legend([bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"])
     axes[2].set_title("Pollinators in corn")
     axes[2].set_ylabel("Rewards")
     axes[2].set_xlabel(title)
@@ -493,9 +485,7 @@ def plot_results3(farms, policy_parameters, results, title):
 
     nc = 2
     nr = 1
-    fig, mat_axes = plt.subplots(
-        nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1)
-    )
+    fig, mat_axes = plt.subplots(nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1))
 
     axes = mat_axes.flatten()
 

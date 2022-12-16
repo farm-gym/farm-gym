@@ -18,9 +18,7 @@ class Scoring_API:
     def intervention_cost(self, farmer, field_key, entity_key, action_key, params):
         return 0
 
-    def observation_cost(
-        self, farmer, field, field_key, entity_key, variable_key, path
-    ):
+    def observation_cost(self, farmer, field, field_key, entity_key, variable_key, path):
         return 0
 
     def reward(self, entities_list: list):

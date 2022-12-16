@@ -22,29 +22,21 @@ class Birds(Entity_API):
             self.variables["population#nb"].set_value(0.0)
 
     def update_variables(self, field, entities):
-        facilities = [
-            entities[e]
-            for e in entities
-            if checkissubclass(entities[e].__class__, "Facility")
-        ]
+        facilities = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Facility")]
 
         strength_scarecrow = 0
         for f in facilities:
-            strength_scarecrow += f.parameters["scarecrow_strength"][
-                f.variables["scarecrow"].value
-            ]
+            strength_scarecrow += f.parameters["scarecrow_strength"][f.variables["scarecrow"].value]
 
         self.variables["population#nb"].set_value(
             max(
-                self.np_random.randint(0, self.parameters["max_population"])
-                - strength_scarecrow,
+                self.np_random.randint(0, self.parameters["max_population"]) - strength_scarecrow,
                 0,
             )
         )
 
         self.variables["total_cumulated_birds#nb"].set_value(
-            self.variables["total_cumulated_birds#nb"].value
-            + self.variables["population#nb"].value
+            self.variables["total_cumulated_birds#nb"].value + self.variables["population#nb"].value
         )
 
     def act_on_variables(self, action_name, action_params):

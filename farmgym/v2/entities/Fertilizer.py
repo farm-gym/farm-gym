@@ -9,9 +9,7 @@ class Fertilizer(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
-        self.variables["amount#kg"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["amount#kg"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
 
         #
         self.variables["total_cumulated_scattered_amount#kg"] = Range((0, 10000), 0.0)
@@ -31,9 +29,7 @@ class Fertilizer(Entity_API):
         X = self.field.X
         Y = self.field.Y
 
-        self.variables["amount#kg"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["amount#kg"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
         self.initialize_variables(self.initial_conditions)
 
     def update_variables(self, field, entities):
@@ -50,9 +46,7 @@ class Fertilizer(Entity_API):
         )
         for n in ["N", "K", "P", "C"]:
             r[n] = self.parameters[n + "#%"] * amount
-        self.variables["amount#kg"][position].set_value(
-            max(0, self.variables["amount#kg"][position].value - amount)
-        )
+        self.variables["amount#kg"][position].set_value(max(0, self.variables["amount#kg"][position].value - amount))
         return r
 
     def act_on_variables(self, action_name, action_params):
@@ -63,15 +57,13 @@ class Fertilizer(Entity_API):
                 self.variables["amount#kg"][x, y].value + action_params["amount#kg"]
             )
             self.variables["total_cumulated_scattered_amount#kg"].set_value(
-                self.variables["total_cumulated_scattered_amount#kg"].value
-                + action_params["amount#kg"]
+                self.variables["total_cumulated_scattered_amount#kg"].value + action_params["amount#kg"]
             )
 
         elif action_name == "scatter_bag":
             x, y = action_params["plot"]
             self.variables["amount#kg"][x, y].set_value(
-                self.variables["amount#kg"][x, y].value
-                + action_params["amount#bag"] * self.parameters["bag#kg"]
+                self.variables["amount#kg"][x, y].value + action_params["amount#bag"] * self.parameters["bag#kg"]
             )
             self.variables["total_cumulated_scattered_amount#kg"].set_value(
                 self.variables["total_cumulated_scattered_amount#kg"].value

@@ -83,9 +83,7 @@ class Rules_API:
 
         for fo in self.free_observations:
             fa_key, fi_key, e_key, variable_key, path = fo
-            value = (
-                farm.fields[fi_key].entities[e_key].observe_variable(variable_key, path)
-            )
+            value = farm.fields[fi_key].entities[e_key].observe_variable(variable_key, path)
             observations.append((fa_key, fi_key, e_key, variable_key, path, value))
 
         return observations

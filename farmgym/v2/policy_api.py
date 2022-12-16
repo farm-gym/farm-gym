@@ -53,9 +53,7 @@ class Policy_API:
         action_schedule = []
         for trigger, actions in self.triggered_observations:
             # Trigger is CNF
-            trigger_on = any(
-                [self.is_trigger_on(trigger, obs) for obs in observations]
-            ) or trigger == [[]]
+            trigger_on = any([self.is_trigger_on(trigger, obs) for obs in observations]) or trigger == [[]]
             if trigger_on:
                 [action_schedule.append(action) for action in actions]
         return action_schedule
@@ -66,9 +64,7 @@ class Policy_API:
         action_schedule = []
         for trigger, actions in self.triggered_interventions:
             # Trigger is CNF
-            trigger_on = any(
-                [self.is_trigger_on(trigger, obs) for obs in observations]
-            ) or trigger == [[]]
+            trigger_on = any([self.is_trigger_on(trigger, obs) for obs in observations]) or trigger == [[]]
             if trigger_on:
                 # [action_schedule.append(action) for action in actions]
                 [self.delayed_actions.append(action) for action in actions]

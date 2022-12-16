@@ -27,9 +27,7 @@ def tile(im1, length, wide):
 def one_frame(plant):
     images = {}
     for stage in ["growing", "blooming", "fruiting", "fruit", "dead"]:
-        images[stage] = Image.open(
-            CURRENT_DIR / ("sprites/" + plant.parameters["sprite"][stage])
-        )
+        images[stage] = Image.open(CURRENT_DIR / ("sprites/" + plant.parameters["sprite"][stage]))
     # 1216x1216
 
     X = plant.field.shape["length"]
@@ -86,9 +84,7 @@ def dashboard(stage_growth, nb_of_day, q_level, day, name_plant="corn"):
     axis[0, 0].set_title("q", fontsize=200)
 
     figure.canvas.draw()
-    graphs = Image.frombytes(
-        "RGB", figure.canvas.get_width_height(), figure.canvas.tostring_rgb()
-    )
+    graphs = Image.frombytes("RGB", figure.canvas.get_width_height(), figure.canvas.tostring_rgb())
     dashboard_picture.paste(graphs, (im_soil.width * wide, im_soil.height))
 
     return dashboard_picture

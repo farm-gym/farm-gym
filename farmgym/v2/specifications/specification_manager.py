@@ -210,19 +210,9 @@ def build_actionsyaml(filepath, fields):
             s += "    " + e + ":\n"
             for v in fields[fi].entities[e].variables:
                 if type(fields[fi].entities[e].variables[v]) == np.ndarray:
-                    s += (
-                        "      "
-                        + v
-                        + ": "
-                        + make_s(fields[fi].entities[e].variables[v], indent="      ")
-                    )
+                    s += "      " + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="      ")
                 else:
-                    s += (
-                        "      "
-                        + v
-                        + ": "
-                        + make_s(fields[fi].entities[e].variables[v], indent="      ")
-                    )
+                    s += "      " + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="      ")
 
     def make_a(x, indent):
         s = "\n"
@@ -236,12 +226,7 @@ def build_actionsyaml(filepath, fields):
         for e in fields[fi].entities:
             ss = ""
             for a in fields[fi].entities[e].actions:
-                ss += (
-                    "      "
-                    + a
-                    + ": "
-                    + make_a(fields[fi].entities[e].actions[a], indent="        ")
-                )
+                ss += "      " + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="        ")
             if ss != "":
                 s += ("    " + e + ":\n") + ss
 
