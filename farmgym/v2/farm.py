@@ -38,18 +38,26 @@ class Farm(gym.Env):
 
     Parameters
     ----------
-    fields : a list of fields, that is instances of the class Field  :class:`~farmgym.v2.field`
+    fields : a list of fields, that is instances of the class :class:`~farmgym.v2.field.Field`
+        Field used to define the farm.
 
-    farmers: a list of farmers, that is instances of a class implementing the Farmer_API :class:`~farmgym.v2.farmer_api`
+    farmers: a list of farmers, that is instances of a class implementing the :class:`~farmgym.v2.farmer_api.Farmer_API`
+        Farmers used to define the farm.
 
-    scoring: an instance of the Scoring_API :class:`~farmgym.v2.scoring_api`
+    scoring: an instance of the :class:`~farmgym.v2.scoring_api.Scoring_API`
+        Scoring function used to generate the reward of the farm.
 
-    rules: an instance of the Rules_API  :class:`~farmgym.v2.rules_api`
+    rules: an instance of the   :class:`~farmgym.v2.rules_api.Rules_API`
+        Rules used to define the farm (i.e. allowed actions, how to filter actions...)
 
-    policies: a list of policies, that is instances of a class implementing the Policy_API  :class:`~farmgym.v2.policy_api`
+    policies: a list of policies, that is instances of a class implementing the :class:`~farmgym.v2.policy_api.Policy_API`
+        Expert policies defined in the farm
 
-    seed: an integer, defining the seed used by the random-number generator.
+    seed: an integer,
+        seed used by the random-number generator.
 
+    Notes
+    -----
     At creation, automatically generates yaml configuration files to help customize the farm. One file to specify the list of allowed actions, one file to initialize state variables, and one file to specify the score.
 
     """
