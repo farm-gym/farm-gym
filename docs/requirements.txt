@@ -1,6 +1,7 @@
 sphinx-gallery
 numpydoc
 myst-parser
+nbsphinx
 matplotlib
 oyaml
 prettytable

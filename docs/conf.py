@@ -65,6 +65,7 @@ extensions = [
     "numpydoc",
     "sphinx_gallery.gen_gallery",
     "myst_parser",
+    "nbsphinx",
 ]
 
 
