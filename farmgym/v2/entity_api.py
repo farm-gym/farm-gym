@@ -36,7 +36,7 @@ def expglm(theta0, params):
 
 
 def expglmnoisy(theta0, params, sigma2, np_random=np.random):
-    return expglm(theta0, params) + np_random.randn() * sigma2
+    return expglm(theta0, params) + np_random.normal() * sigma2
 
 
 class Range:
@@ -174,7 +174,7 @@ class Entity_API:
                         if k in value.keys():
                             if type(value[k]) == tuple:
                                 m, M = value[k]
-                                var[k].set_value(m + self.np_random.rand() * (M - m))
+                                var[k].set_value(m + self.np_random.random() * (M - m))
                             elif type(value[k]) == list:
                                 var[k].set_value(self.np_random.choice(list(value[k])))
                             else:
@@ -184,7 +184,7 @@ class Entity_API:
                     m, M = value
                     it = np.nditer(var, flags=["multi_index", "refs_ok"])
                     for x in it:
-                        var[it.multi_index].set_value(m + self.np_random.rand() * (M - m))
+                        var[it.multi_index].set_value(m + self.np_random.random() * (M - m))
                 elif type(value) == list:
                     it = np.nditer(var, flags=["multi_index", "refs_ok"])
                     for x in it:

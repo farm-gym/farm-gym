@@ -1,4 +1,4 @@
-gym==0.25.2
+gym
 numpy
 pillow
 scipy

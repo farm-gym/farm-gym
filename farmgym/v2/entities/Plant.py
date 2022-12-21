@@ -170,7 +170,7 @@ class Plant(Entity_API):
                     self.variables["size#cm"][x, y].set_value(0.1)
                 elif self.variables["stage"][x, y].value == "grow":
                     self.variables["population#nb"][x, y].set_value(1)
-                    self.variables["size#cm"][x, y].set_value(self.np_random.rand() * self.parameters["size_max#cm"])
+                    self.variables["size#cm"][x, y].set_value(self.np_random.random() * self.parameters["size_max#cm"])
                 elif self.variables["stage"][x, y].value == "entered_bloom":
                     self.variables["population#nb"][x, y].set_value(1)
                     self.variables["size#cm"][x, y].set_value(self.parameters["size_max#cm"])
@@ -217,7 +217,7 @@ class Plant(Entity_API):
                     )
 
                     self.variables["fruit_weight#g"][x, y].set_value(
-                        self.np_random.rand() * self.parameters["fruit_weight_max#g"]
+                        self.np_random.random() * self.parameters["fruit_weight_max#g"]
                     )
                 elif self.variables["stage"][x, y].value == "entered_ripe":
                     self.variables["population#nb"][x, y].set_value(1)

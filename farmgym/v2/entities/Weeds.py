@@ -70,7 +70,7 @@ class Weeds(Entity_API):
                 # print("b",b)
                 if b == 1:
                     positions.append((x, y))
-                    i = self.np_random.randint(0, 3)
+                    i = self.np_random.integers(0, 3)
                     # print("i",i)
                     if i == 0:
                         pos_seed.append((x, y))

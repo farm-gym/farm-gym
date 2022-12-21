@@ -274,24 +274,20 @@ class Farm(gym.Env):
         """
         self.monitor = Monitor(self, list_of_variables)
 
-    def reset(self, seed=None, return_info=False, options=None):
+    def reset(self, seed=None, options=None):
         """
         Resets the environment.
         """
-        super().reset(seed=seed, return_info=return_info, options=options)
-        return self.gym_reset(seed, return_info, options)
+        super().reset(seed=seed,  options=options)
+        return self.gym_reset(seed, options)
 
-    def gym_reset(self, seed=None, return_info=False, options=None):
+    def gym_reset(self, seed=None, options=None):
         """
         Resets the environment.
         """
 
         self.last_farmgym_action = None
-        if return_info:
-            farmgym_observations, farmgym_information = self.farmgym_reset(seed, return_info, options)
-        else:
-            farmgym_observations = self.farmgym_reset(seed, return_info, options)
-            farmgym_information = {}
+        farmgym_observations, farmgym_information = self.farmgym_reset(seed,  options)
 
         observations = []
         observation_information = []
@@ -303,14 +299,10 @@ class Farm(gym.Env):
         information = farmgym_information
         information["farmgym observations"] = observation_information
 
-        if return_info:
-            # print("RESET+info", observations,information)
-            return observations, information
-        else:
-            # print("RESET", observations)
-            return observations
+        return observations, information
 
-    def farmgym_reset(self, seed=None, return_info=False, options=None):
+
+    def farmgym_reset(self, seed=None, options=None):
         """
         Resets the environment.
         """
@@ -331,11 +323,8 @@ class Farm(gym.Env):
         # observations, _, _, info = self.farmgym_step([])
         # _, _, _, _ = self.farmgym_step([])
 
-        if return_info:
-            info = {"intervention cost": 0}
-            return observations, info
-        else:
-            return observations
+        info = {"intervention cost": 0}
+        return observations, info
 
     def seed(self, seed=None):
         """
@@ -528,7 +517,7 @@ class Farm(gym.Env):
         """
         Outputs a randomly generated intervention, in farmgym format.
         """
-        n = self.np_random.randint(len(self.farmgym_intervention_actions))
+        n = self.np_random.integers(len(self.farmgym_intervention_actions))
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
         fa, fi, e, inter, params, gym_space = self.farmgym_intervention_actions[n]
         o = gym_space.sample()
@@ -593,7 +582,7 @@ class Farm(gym.Env):
         """
         Outputs a randomly generated observation-action (action to collect observation), in farmgym format.
         """
-        n = self.np_random.randint(len(self.farmgym_observation_actions))
+        n = self.np_random.integers(len(self.farmgym_observation_actions))
         return self.farmgym_observation_actions[n]
 
     # def random_observation(self):

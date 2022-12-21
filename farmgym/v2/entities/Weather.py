@@ -109,15 +109,15 @@ class Weather(Entity_API):
         self.variables["humidity_index#%"].set_value(
             self.year_weather["RH"][day % 365] + self.np_random.normal(0, self.parameters["humidity_index_noise"], 1)[0]
         )
-        self.variables["wind"]["speed#km.h-1"].set_value(self.year_weather["U"][day % 365] + self.np_random.rand())
+        self.variables["wind"]["speed#km.h-1"].set_value(self.year_weather["U"][day % 365] + self.np_random.random())
         self.variables["wind"]["direction"].set_value(self.np_random.choice(Weather.wind_directions, 1)[0])
-        self.variables["sun_exposure#int5"].set_value(self.np_random.randint(5))
+        self.variables["sun_exposure#int5"].set_value(self.np_random.integers(5))
         is_rain = self.year_weather["Rain"][day % 365]
         if is_rain:
             self.variables["consecutive_dry#day"].set_value(0)
             self.variables["sun_exposure#int5"].set_value(0)
             self.variables["rain_amount"].set_value(
-                "Light" if self.np_random.rand() <= self.parameters["rain_lightheavy_proba"] else "Heavy"
+                "Light" if self.np_random.random() <= self.parameters["rain_lightheavy_proba"] else "Heavy"
             )
             self.variables["rain_intensity"].set_value(
                 self.parameters["rain_leakageintensity_light#%"]

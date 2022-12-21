@@ -30,7 +30,7 @@ class Birds(Entity_API):
 
         self.variables["population#nb"].set_value(
             max(
-                self.np_random.randint(0, self.parameters["max_population"]) - strength_scarecrow,
+                self.np_random.integers(0, self.parameters["max_population"]) - strength_scarecrow,
                 0,
             )
         )

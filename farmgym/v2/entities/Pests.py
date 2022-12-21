@@ -91,9 +91,9 @@ class Pests(Entity_API):
             for y in range(self.field.Y):
                 # pests randomly move to neighbor locations:
                 neighbors = field.get_neighbors((x, y))
-                w = {"H": self.np_random.rand()}
+                w = {"H": self.np_random.random()}
                 for k in neighbors.keys():
-                    w[k] = self.np_random.rand()
+                    w[k] = self.np_random.random()
                     # Adding wind effect
                     if weather.variables["wind"]["direction"].value == k:
                         w[k] += weather.variables["wind"]["speed#km.h-1"].value / 10.0
@@ -116,7 +116,7 @@ class Pests(Entity_API):
                 # nb_edge_arrival =self.parameters['min_population#nb']+ np.ceil( (self.parameters['max_population#nb']-self.parameters['min_population#nb'])*max(np.sin(self.parameters['arrival_frequency#day-1']* weather.variables['day#int365'].value),0))
                 is_arrival = self.np_random.binomial(1, self.parameters["arrival_frequency#day-1"], 1)[0] == 1
                 if is_arrival:
-                    nb_edge_arrival = self.np_random.randint(
+                    nb_edge_arrival = self.np_random.integers(
                         self.parameters["min_population#nb"],
                         self.parameters["max_population#nb"],
                     )

@@ -76,12 +76,12 @@ class Soil(Entity_API):
         # Generate a random soil
         for x in range(self.field.X):
             for y in range(self.field.Y):
-                self.variables["available_N#g"][x, y].set_value(self.np_random.rand() * 100 * self.field.plotsurface)
-                self.variables["available_P#g"][x, y].set_value(self.np_random.rand() * 100 * self.field.plotsurface)
-                self.variables["available_K#g"][x, y].set_value(self.np_random.rand() * 100 * self.field.plotsurface)
-                self.variables["available_C#g"][x, y].set_value(self.np_random.rand() * 100 * self.field.plotsurface)
+                self.variables["available_N#g"][x, y].set_value(self.np_random.random() * 100 * self.field.plotsurface)
+                self.variables["available_P#g"][x, y].set_value(self.np_random.random() * 100 * self.field.plotsurface)
+                self.variables["available_K#g"][x, y].set_value(self.np_random.random() * 100 * self.field.plotsurface)
+                self.variables["available_C#g"][x, y].set_value(self.np_random.random() * 100 * self.field.plotsurface)
                 self.variables["available_Water#L"][x, y].set_value(
-                    (0.5 + 0.5 * self.np_random.rand())
+                    (0.5 + 0.5 * self.np_random.random())
                     * self.parameters["max_water_capacity#L.m-3"]
                     * self.field.plotsurface
                     * self.parameters["depth#m"]
@@ -121,7 +121,7 @@ class Soil(Entity_API):
                 if weather.variables["rain_amount"].value == "Light":
                     water_after_input = (
                         self.variables["available_Water#L"][x, y].value
-                        + 0.5 * self.np_random.rand() * max_water_plot_capacity
+                        + 0.5 * self.np_random.random() * max_water_plot_capacity
                     )
                     self.variables["available_Water#L"][x, y].set_value(min(max_water_plot_capacity, water_after_input))
                     water_surplus = water_after_input - self.variables["available_Water#L"][x, y].value
