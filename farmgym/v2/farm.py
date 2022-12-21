@@ -278,7 +278,7 @@ class Farm(gym.Env):
         """
         Resets the environment.
         """
-        super().reset(seed=seed,  options=options)
+        super().reset(seed=seed, options=options)
         return self.gym_reset(seed, options)
 
     def gym_reset(self, seed=None, options=None):
@@ -287,7 +287,7 @@ class Farm(gym.Env):
         """
 
         self.last_farmgym_action = None
-        farmgym_observations, farmgym_information = self.farmgym_reset(seed,  options)
+        farmgym_observations, farmgym_information = self.farmgym_reset(seed, options)
 
         observations = []
         observation_information = []
@@ -300,7 +300,6 @@ class Farm(gym.Env):
         information["farmgym observations"] = observation_information
 
         return observations, information
-
 
     def farmgym_reset(self, seed=None, options=None):
         """
