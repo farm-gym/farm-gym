@@ -76,10 +76,10 @@ if __name__ == "__main__":
     init_time = time.time()
     manager.fit()
     print("training time in s is ", time.time()-init_time)
-    
-    data = plot_writer_data(manager, tag="episode_rewards", smooth_weight=0.8) # smoothing tensorboard-style
+    fig, ax = plt.subplots(figsize=(12,6))
+    data = plot_writer_data(manager, tag="episode_rewards", smooth_weight=0.8, ax = ax) # smoothing tensorboard-style
 
-    plt.savefig('ppo_regret.pdf')
+    fig.savefig('ppo_regret.pdf')
 
     agent = manager.agent_handlers[0] # select the agent from the manager
     env = gym_make('Farm1-v0')
