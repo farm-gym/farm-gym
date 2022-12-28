@@ -20,11 +20,21 @@ def load_yaml(spec_file, parameter_string):
 
 
 def load_weather_table(filename):
-    # string = CURRENT_DIR / 'specifications'/filename
-    string = CURRENT_DIR / filename
-    # with open(string, 'r') as file:
-    table = pandas.read_csv(string)
-    return table
+    if type(filename) == dict:
+        tables = []
+        alphas = []
+        for k in filename.keys():
+            string = CURRENT_DIR / k
+            # with open(string, 'r') as file:
+            tables.append(pandas.read_csv(string))
+            alphas.append(filename[k])
+        return tables, alphas
+    else:
+        # string = CURRENT_DIR / 'specifications'/filename
+        string = CURRENT_DIR / filename
+        # with open(string, 'r') as file:
+        table = pandas.read_csv(string)
+        return [table], [1]
 
 
 def build_scoreyaml(filepath, fields):
