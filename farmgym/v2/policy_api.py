@@ -2,6 +2,9 @@ import yaml
 
 
 class Policy_API:
+    """
+    Class used to define an expert policy. Expert policies can then be attached to a farm.
+    """
     def __init__(self, policy, triggered_observations, triggered_interventions):
 
         self.policy_configuration = policy

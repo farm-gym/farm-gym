@@ -13,12 +13,34 @@ class Plot:
 
 
 class Field:
-    def __init__(self, localization, shape, entity_managers: list):
-        """
+    """
+    Instantiate a Field. One or several fields are included in a farm and one field includes several plants. 
 
-        :param localization: (latitude, longitude, altitude)
-        :param shape: (length (int), width (int), scale of 1 unit in meter)
-        """
+    Parameters
+    ----------
+    localization: (latitude, longitude, altitude)
+        localisation of the field
+
+    shape: (length (int), width (int), scale (multiples of 1 unit in meter))
+        Shape of the field. Each field of shape (width,length,scale) contains width × length many plots each of size scale
+
+    entity_managers: list
+        list of couples (entity, name) used to construct the field.
+    
+    Examples
+    --------
+    >>> from farmgym.v2.field import Field
+    >>> from farmgym.v2.entities.Weather import Weather
+    >>> from farmgym.v2.entities.Soil import Soil
+    >>> from farmgym.v2.entities.Plant import Plant
+    >>> entities = [(Weather, "lille"), (Soil, "clay"), (Plant, "bean")]
+    >>> field1 = Field(localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+    >>>                shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+    >>>                entity_managers=entities)
+    
+    """
+    def __init__(self, localization, shape, entity_managers: list):
+
         self.name = "Field"
         self.localization = localization
         assert list(localization.keys()) == ["latitude#°", "longitude#°", "altitude#m"]
@@ -52,6 +74,9 @@ class Field:
                 self.entities[name].name = name
 
     def reset(self):
+        """
+        Reset to initial values
+        """
         for e in self.entities.values():
             e.reset()
 
@@ -89,6 +114,9 @@ class Field:
         return min(x, y)
 
     def update_to_next_day(self):
+        """
+        Update internal variables of the field after an increment of 1 day.
+        """
         for e in self.entities.values():
             e.update_variables(self, self.entities)
 

@@ -1,4 +1,7 @@
 class Farmer_API:
+    """
+    class for farmer definition
+    """
     def __init__(self):
         self.name = "Farmer"
         self.fields = {}

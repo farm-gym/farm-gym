@@ -2,26 +2,29 @@
 
 .. _user_guide:
 
-==========
-User guide
-==========
+
+
+
+
+Guides
+------
+
+
+
+.. toctree::
+   :maxdepth: 1
+
+   installation.rst
+   api.rst
+   games.rst
+   specifications.rst
+
 
 Tutorials
 ---------
+The following notebook tutorials illustrate some basic uses of farm-gym.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
    notebooks/notebook_ppo.ipynb
-
-
-Parameters of Farm-Gym
-----------------------
-
-The farm, plants, entities are parameterized using yaml files. You can find the list of all specification files in the :ref:`Specifications <specifications>` section.
-
-Pre-made farms
---------------
-
-For pre-made farms, see :ref:`Pre-Made Farms page <games>`

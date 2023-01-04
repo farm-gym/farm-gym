@@ -2,6 +2,9 @@ import yaml
 
 
 class Scoring_API:
+    """
+    class for scoring definition
+    """
     def __init__(self, score_configuration=""):
 
         self.score_configuration = score_configuration

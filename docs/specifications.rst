@@ -2,6 +2,12 @@
 
 .. _specifications:
 
+=======================
+Entities Specifications
+=======================
+
+The :ref:`entities <entities_api>` present in the farm are described through yaml files that you can see `farmgym/v2/specifications <https://github.com/farm-gym/farm-gym/tree/main/farmgym/v2/specifications>`_. These yaml files are imported here for completness of the documentation. 
+
 Basic Specifications
 --------------------
 
