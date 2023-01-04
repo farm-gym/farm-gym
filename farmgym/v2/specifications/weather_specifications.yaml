@@ -26,6 +26,21 @@ lille:
   forecast_lookahead: 5
   forecast_noise: 0.1
 
+mixed:
+  sprites:
+    rain-light: 'weather-t-rain-light.png'
+    rain-heavy: 'weather-t-rain-heavy.png'
+    sun: 'weather-t-sun.png'
+  one_year_data_filename:
+    weather_data_montpellier.csv : 0.3
+    weather_data_lille.csv : 0.7
+  air_temperature_noise: 0
+  humidity_index_noise: 0
+  rain_lightheavy_proba: 0.5
+  rain_leakageintensity_light#%: 0.01
+  rain_leakageintensity_heavy#%: 0.1
+  forecast_lookahead: 5
+  forecast_noise: 0.1
 
 rainy:
   sprites:

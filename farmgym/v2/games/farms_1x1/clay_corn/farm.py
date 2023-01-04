@@ -19,7 +19,7 @@ CURRENT_DIR = file_path.parent
 def env():
     ##########################################################################
     entities1 = []
-    entities1.append((Weather, "montpellier"))
+    entities1.append((Weather, "mixed"))
     entities1.append((Soil, "clay"))
     entities1.append((Plant, "corn"))
 

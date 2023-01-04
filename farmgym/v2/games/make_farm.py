@@ -340,10 +340,7 @@ def make_policies_water_harvest(amounts):
             [
                 [
                     (
-                        ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                        lambda x: x,
-                        "in",
-                        ["ripe"],
+                        ("Field-0", "Plant-0", "stage", [(0, 0)]),lambda x: x,"in",["ripe"],
                     )
                 ]
             ],

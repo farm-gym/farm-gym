@@ -50,7 +50,8 @@ class Weather(Entity_API):
             ),
         }
 
-        self.year_weather = sm.load_weather_table(self.parameters["one_year_data_filename"])
+        # self.year_weather = sm.load_weather_table(self.parameters["one_year_data_filename"])
+        self.year_weathers, self.weather_alphas = sm.load_weather_table(self.parameters["one_year_data_filename"])
         # Local weather
 
         # Actions
@@ -97,9 +98,9 @@ class Weather(Entity_API):
         self.variables["day#int365"].set_value(((day) % 365))
 
         eps = self.np_random.normal(0, self.parameters["air_temperature_noise"], 1)[0]
-        self.variables["air_temperature"]["mean#°C"].set_value(self.year_weather["T"][day % 365] + eps)
-        self.variables["air_temperature"]["min#°C"].set_value(self.year_weather["Tmin"][day % 365] + eps)
-        self.variables["air_temperature"]["max#°C"].set_value(self.year_weather["Tmax"][day % 365] + eps)
+        self.variables["air_temperature"]["mean#°C"].set_value(self.read_weathercsv("T", day % 365) + eps)
+        self.variables["air_temperature"]["min#°C"].set_value(self.read_weathercsv("Tmin", day % 365) + eps)
+        self.variables["air_temperature"]["max#°C"].set_value(self.read_weathercsv("Tmax", day % 365) + eps)
 
         if self.variables["air_temperature"]["min#°C"].value < 0:
             self.variables["consecutive_frost#day"].set_value(self.variables["consecutive_frost#day"].value + 1)
@@ -107,13 +108,13 @@ class Weather(Entity_API):
             self.variables["consecutive_frost#day"].set_value(0)
 
         self.variables["humidity_index#%"].set_value(
-            self.year_weather["RH"][day % 365] + self.np_random.normal(0, self.parameters["humidity_index_noise"], 1)[0]
+            self.read_weathercsv("RH", day % 365) + self.np_random.normal(0, self.parameters["humidity_index_noise"], 1)[0]
         )
-        self.variables["wind"]["speed#km.h-1"].set_value(self.year_weather["U"][day % 365] + self.np_random.random())
+        self.variables["wind"]["speed#km.h-1"].set_value(self.read_weathercsv("U", day % 365) + self.np_random.random())
         self.variables["wind"]["direction"].set_value(self.np_random.choice(Weather.wind_directions, 1)[0])
         self.variables["sun_exposure#int5"].set_value(self.np_random.integers(5))
-        is_rain = self.year_weather["Rain"][day % 365]
-        if is_rain:
+        is_rain = self.read_weathercsv("Rain", day % 365)
+        if is_rain > 0:
             self.variables["consecutive_dry#day"].set_value(0)
             self.variables["sun_exposure#int5"].set_value(0)
             self.variables["rain_amount"].set_value(
@@ -145,14 +146,22 @@ class Weather(Entity_API):
                 1,
             )[0]
             self.variables["air_temperature.forecast"]["mean#°C"][i].set_value(
-                (self.year_weather["T"][(day + i) % 365] + eps)
+                (self.read_weathercsv("T", (day + i) % 365) + eps)
             )
             self.variables["air_temperature.forecast"]["min#°C"][i].set_value(
-                (self.year_weather["Tmin"][(day + i) % 365] + eps)
+                (self.read_weathercsv("Tmin", (day + i) % 365) + eps)
             )
             self.variables["air_temperature.forecast"]["max#°C"][i].set_value(
-                (self.year_weather["Tmax"][(day + i) % 365] + eps)
+                (self.read_weathercsv("Tmax", (day + i) % 365) + eps)
             )
+
+    def read_weathercsv(self, variable, day):
+        value = 0
+        # In case there are many weather files, this enables to interpolate between the values of each file:
+        for i in range(len(self.weather_alphas)):
+            #print("VAR",variable,"DAY",day,i,self.year_weathers[i][variable][day],self.weather_alphas[i])
+            value += self.year_weathers[i][variable][day] * self.weather_alphas[i]
+        return value
 
     def act_on_variables(self, action_name, action_params):
         pass
