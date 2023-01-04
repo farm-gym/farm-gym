@@ -14,7 +14,7 @@ class Plot:
 
 class Field:
     """
-    Instantiate a Field. One or several fields are included in a farm and one field includes several plants. 
+    Instantiate a Field. One or several fields are included in a farm and one field includes several plants.
 
     Parameters
     ----------
@@ -26,7 +26,7 @@ class Field:
 
     entity_managers: list
         list of couples (entity, name) used to construct the field.
-    
+
     Examples
     --------
     >>> from farmgym.v2.field import Field
@@ -37,8 +37,9 @@ class Field:
     >>> field1 = Field(localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
     >>>                shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     >>>                entity_managers=entities)
-    
+
     """
+
     def __init__(self, localization, shape, entity_managers: list):
 
         self.name = "Field"

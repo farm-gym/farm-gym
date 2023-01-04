@@ -51,7 +51,7 @@ actions_txt = [
 ]
 
 
-env_ctor, env_kwargs = gym_make, {"id":"GymV26Environment-v0", "env_id": "Farm1-v0"}
+env_ctor, env_kwargs = gym_make, {"id": "GymV26Environment-v0", "env_id": "Farm1-v0"}
 
 if __name__ == "__main__":
     manager = AgentManager(

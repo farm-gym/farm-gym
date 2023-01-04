@@ -133,7 +133,7 @@ def fillarray(x, y, myrange, value):
 class Entity_API:
     """
     class for entity definition
-    
+
     Naming conventions:
     For variables and parameter names, please use "name_of_the_variable#name_of_the_unit" or "name_of_the_parameter#name_of_the_unit" in case there is a unit.
     """

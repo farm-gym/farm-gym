@@ -8,14 +8,15 @@ class Rules_API:
     Parameters
     ----------
     first_day: int
-    
+
     last_day: int
 
     terminal_CNF_conditions:
         This is a boolean formula in CNF. E.g. [ [a1,a2],[a3],[a4,a5]]] means (a1 & a2) & (a3) or (a4 & a5) Each condition is a copmarison between a variable value and a target value.
-    
+
     max_action_schedule_cost:
     """
+
     def __init__(
         self,
         init_configuration,

@@ -159,7 +159,7 @@ class Weather(Entity_API):
         value = 0
         # In case there are many weather files, this enables to interpolate between the values of each file:
         for i in range(len(self.weather_alphas)):
-            #print("VAR",variable,"DAY",day,i,self.year_weathers[i][variable][day],self.weather_alphas[i])
+            # print("VAR",variable,"DAY",day,i,self.year_weathers[i][variable][day],self.weather_alphas[i])
             value += self.year_weathers[i][variable][day] * self.weather_alphas[i]
         return value
 
