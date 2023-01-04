@@ -308,6 +308,7 @@ def test_make_farm(entities):
         },
         entities,
     )
+    
 
 
 ENV_NAMES = register_all()
@@ -319,6 +320,7 @@ def test_games(env_name):
         env = gym.make(env_name, 100)
         farm = env.unwrapped
         run_randomactions(farm, max_steps=3, render=False, monitoring=False)
+        
 
 
 INIT_STAGE = [
@@ -374,6 +376,28 @@ def test_stages(stage):
     )
     run_randomactions(f, max_steps=5)
 
+def test_build_config():
+    from farmgym.v2.games.make_farm import make_farm
+
+    f = make_farm(
+        "dry_clay_bean",
+        {
+            "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+            "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+        },
+        FULL_ENTITY,
+        init_values=[
+            ("Field-0", "Weather-0", "day#int365", 120),
+            ("Field-0", "Plant-0", "stage", "seed"),
+            ("Field-0", "Soil-0", "available_N#g", 5000),
+            ("Field-0", "Soil-0", "available_P#g", 5000),
+            ("Field-0", "Soil-0", "available_K#g", 5000),
+            ("Field-0", "Soil-0", "available_C#g", 5000),
+        ],
+    )
+    
+    f.build_configurations("tests/test_farm", "farm")
+    
 
 if __name__ == "__main__":
     pass
