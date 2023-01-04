@@ -14,7 +14,7 @@ class Plot:
 
 class Field:
     """
-    Instantiate a Field. One or several fields are included in a farm and one field includes several plants.
+    Instanciate a Field. One or several fields are included in a farm and one field includes several plants.
 
     Parameters
     ----------
