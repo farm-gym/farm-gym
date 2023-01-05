@@ -34,7 +34,7 @@ from farmgym.v2.specifications.specification_manager import (
 
 class Farm(gym.Env):
     """
-    Instanciates a Farm environment.
+    Instaniates a Farm environment.
     Constructed from one or several fields (:class:`~farmgym.v2.field.Field`), farmers (:class:`~farmgym.v2.farmer_api.Farmer_API`), a score (:class:`~farmgym.v2.scoring_api.Scoring_API`) and  a set of rules (:class:`~farmgym.v2.rules_api.Rules_API`). The farm can then be constructed through ``farm=Farm(fields,farmers,scoring,rules)``.
 
     Parameters
