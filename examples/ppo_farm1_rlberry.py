@@ -17,8 +17,6 @@ from rlberry.agents.torch import PPOAgent
 from rlberry.manager import AgentManager, evaluate_agents, plot_writer_data
 from rlberry.agents.torch.utils.training import model_factory_from_env
 
-import gymnasium as gym
-
 import pandas as pd
 import seaborn as sns
 import time
@@ -50,8 +48,7 @@ actions_txt = [
     "remove weeds by hand",
 ]
 
-
-env_ctor, env_kwargs = gym_make, {"id": "GymV26Environment-v0", "env_id": "Farm1-v0"}
+env_ctor, env_kwargs = gym_make, {"id": "OldV21Farm1-v0"} # compatibility version
 
 if __name__ == "__main__":
     manager = AgentManager(

@@ -36,7 +36,7 @@ actions_txt = [
 ]
 
 
-env_ctor, env_kwargs = gym_make, {"id": "Farm1-v0"}
+env_ctor, env_kwargs = gym_make, {"id": "OldV21Farm1-v0"}
 
 if __name__ == "__main__":
     manager = AgentManager(
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     init_time = time.time()
     manager.fit()
     print("training time in s is ", time.time() - init_time)
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(8, 4))
     data = plot_writer_data(manager, tag="episode_rewards", smooth_weight=0.8, ax=ax)  # smoothing tensorboard-style
 
     fig.savefig("dqn_regret.pdf")
@@ -84,6 +84,6 @@ if __name__ == "__main__":
 
         print(rew)
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(8, 4))
     sns.countplot(data=episode, x="action", order=episode["action"].value_counts().index, ax=ax)
     fig.savefig("dqn_barplot.pdf")
