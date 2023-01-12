@@ -57,6 +57,7 @@ if __name__ == "__main__":
 
     init_time = time.time()
     manager.fit()
+    manager.save()
     print("training time in s is ", time.time() - init_time)
     fig, ax = plt.subplots(figsize=(8, 4))
     data = plot_writer_data(manager, tag="episode_rewards", smooth_weight=0.8, ax=ax)  # smoothing tensorboard-style
