@@ -310,7 +310,7 @@ class Weeds(Entity_API):
         return np.pi * r * r * n  # * self.parameters['shadow_coeff#%']
 
     def to_fieldimage(self):
-        im_width, im_height = 32, 32
+        im_width, im_height = 64, 64
         image = Image.new(
             "RGBA",
             (im_width * self.field.X, im_height * self.field.Y),

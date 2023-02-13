@@ -1285,7 +1285,7 @@ class Plant(Entity_API):
     #     return images
 
     def to_fieldimage(self):
-        im_width, im_height = 32, 32
+        im_width, im_height = 64, 64
         image = Image.new(
             "RGBA",
             (im_width * self.field.X, im_height * self.field.Y),
@@ -1302,7 +1302,7 @@ class Plant(Entity_API):
 
 def to_image(stages, images):
     X, Y = np.shape(stages)
-    im_width, im_height = 32, 32
+    im_width, im_height = 64, 64
     image = Image.new("RGBA", (im_width * X, im_height * Y), (255, 255, 255, 0))
     for x in range(X):
         for y in range(Y):

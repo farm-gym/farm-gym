@@ -43,7 +43,7 @@ class Birds(Entity_API):
         pass
 
     def to_thumbnailimage(self):
-        im_width, im_height = 32, 32
+        im_width, im_height = 64, 64
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
         if self.variables["population#nb"].value > 0:
             if self.variables["population#nb"].value > 2:

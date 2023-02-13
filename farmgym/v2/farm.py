@@ -825,7 +825,7 @@ class Farm(gym.Env):
 
         from PIL import Image, ImageDraw, ImageFont
 
-        im_width, im_height = 32, 32
+        im_width, im_height = 64, 64
         XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])
         YY = np.max(
             [

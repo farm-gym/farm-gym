@@ -35,7 +35,7 @@ def one_frame(plant):
     # im_soil = Image.open(CURRENT_DIR / "sprites/soil.png")
     # image = tile(im_soil, X, Y)
 
-    im_width, im_height = 32, 32
+    im_width, im_height = 64, 64
     image = Image.new("RGB", im_width * Y, im_height * X)
     for x in range(X):
         for y in range(Y):
