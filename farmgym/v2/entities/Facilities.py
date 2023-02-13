@@ -1,4 +1,4 @@
-*from farmgym.v2.entity_api import Entity_API, Range
+from farmgym.v2.entity_api import Entity_API, Range
 from PIL import Image
 
 
