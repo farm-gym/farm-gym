@@ -825,7 +825,7 @@ class Farm(gym.Env):
 
         from PIL import Image, ImageDraw, ImageFont
 
-        im_width, im_height = 1216, 1216
+        im_width, im_height = 32, 32
         XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])
         YY = np.max(
             [
@@ -1031,7 +1031,7 @@ def generate_video(image_folder=".", video_name="farm.avi"):
 
     fourcc = cv2.VideoWriter_fourcc(*"DIVX")
 
-    maxX, maxY = 1216 * 6, 1216 * 6
+    maxX, maxY = 32 * 6, 32 * 6
 
     # Array images should only consider
     # the image files ignoring others if any

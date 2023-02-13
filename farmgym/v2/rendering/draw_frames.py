@@ -28,14 +28,14 @@ def one_frame(plant):
     images = {}
     for stage in ["growing", "blooming", "fruiting", "fruit", "dead"]:
         images[stage] = Image.open(CURRENT_DIR / ("sprites/" + plant.parameters["sprite"][stage]))
-    # 1216x1216
+    # 32x32
 
     X = plant.field.shape["length"]
     Y = plant.field.shape["width"]
     # im_soil = Image.open(CURRENT_DIR / "sprites/soil.png")
     # image = tile(im_soil, X, Y)
 
-    im_width, im_height = 1216, 1216
+    im_width, im_height = 32, 32
     image = Image.new("RGB", im_width * Y, im_height * X)
     for x in range(X):
         for y in range(Y):

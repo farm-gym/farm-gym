@@ -316,7 +316,7 @@ class Entity_API:
                 self.images[key] = Image.open(CURRENT_DIR / ("specifications/sprites/" + self.parameters["sprites"][key]))
 
     def to_fieldimage(self):
-        im_width, im_height = 1216, 1216
+        im_width, im_height = 32, 32
         image = Image.new(
             "RGBA",
             (im_width * self.field.X, im_height * self.field.Y),
@@ -328,7 +328,7 @@ class Entity_API:
         return image
 
     def to_thumbnailimage(self):
-        im_width, im_height = 1216, 1216
+        im_width, im_height = 32, 32
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
         return None
 

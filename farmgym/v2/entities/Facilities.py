@@ -1,4 +1,4 @@
-from farmgym.v2.entity_api import Entity_API, Range
+*from farmgym.v2.entity_api import Entity_API, Range
 from PIL import Image
 
 
@@ -42,7 +42,7 @@ class Facility(Entity_API):
             self.variables["scarecrow"].set_value("none")
 
     def to_thumbnailimage(self):
-        im_width, im_height = 1216, 1216
+        im_width, im_height = 32, 32
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
         if self.variables["scarecrow"].value != "none":
             image.paste(self.images["scarecrow-" + self.variables["scarecrow"].value], (0, 0))

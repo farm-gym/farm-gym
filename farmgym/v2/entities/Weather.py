@@ -199,7 +199,7 @@ class Weather(Entity_API):
         )
 
     def to_thumbnailimage(self):
-        im_width, im_height = 1216, 1216
+        im_width, im_height = 32, 32
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
         if self.variables["rain_amount"].value == "None":
             image.paste(self.images["sun"], (0, 0))
