@@ -40,8 +40,7 @@ If you use `FarmGym` in your publications, please cite us following this Bibtex 
 title={Farm-Gym: A modular reinforcement learning platform for agronomy games.},
 author={Maillard, Odalric-Ambrym},
 year={2022},
-school={Inria Lille}
-        }
+school={Inria Lille}}
 ```
 
 #### Contributing

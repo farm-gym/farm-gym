@@ -34,7 +34,7 @@ from farmgym.v2.specifications.specification_manager import (
 
 class Farm(gym.Env):
     """
-    Instaniates a Farm environment.
+    Instantiates a Farm environment.
     Constructed from one or several fields (:class:`~farmgym.v2.field.Field`), farmers (:class:`~farmgym.v2.farmer_api.Farmer_API`), a score (:class:`~farmgym.v2.scoring_api.Scoring_API`) and  a set of rules (:class:`~farmgym.v2.rules_api.Rules_API`). The farm can then be constructed through ``farm=Farm(fields,farmers,scoring,rules)``.
 
     Parameters
@@ -188,9 +188,7 @@ class Farm(gym.Env):
         self.rules.setup(self)
         self.policies = policies
 
-        self.farmgym_observation_actions = self.build_farmgym_observation_actions(
-            self.rules.actions_allowed["observations"]
-        )
+        self.farmgym_observation_actions = self.build_farmgym_observation_actions(self.rules.actions_allowed["observations"])
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
             self.rules.actions_allowed["interventions"]
         )
@@ -825,16 +823,16 @@ class Farm(gym.Env):
 
         from PIL import Image, ImageDraw, ImageFont
 
-        im_width, im_height = 64, 64
+        sprite_width, sprite_height = 64, 64
+        scale_factor = 2
+        im_width, im_height = sprite_width * scale_factor, sprite_height * scale_factor
         XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])
         YY = np.max(
             [
                 self.fields[fi].Y
                 + (int)(
                     np.ceil(
-                        len(
-                            [1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None]
-                        )
+                        len([1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None])
                         / self.fields[fi].X
                     )
                 )
@@ -909,12 +907,15 @@ class Farm(gym.Env):
             index = 0
             for e in self.fields[fi].entities:
                 image = self.fields[fi].entities[e].to_fieldimage()
+                image = image.resize((image.width * scale_factor, image.height * scale_factor))
+                # image = image.resize((im_width, im_height))
                 dashboard_picture.paste(image, (offsetx, offset_header), image)
 
                 j = index // self.fields[fi].X
                 i = index - j * self.fields[fi].X
                 image_t = self.fields[fi].entities[e].to_thumbnailimage()
                 if image_t != None:
+                    image_t = image_t.resize((image_t.width * scale_factor, image_t.height * scale_factor))
                     dd = ImageDraw.Draw(image_t)
                     # dd.rectangle(((2,2),(im_width-2,im_height-2)), fill="#ff000000", outline="red")
                     xx = offsetx + i * im_width
@@ -924,10 +925,7 @@ class Farm(gym.Env):
                     index += 1
 
             offset_field_y = (
-                offset_header
-                + self.fields[fi].Y * im_height
-                + offset_sep
-                + ((index - 1) // self.fields[fi].X + 1) * im_height
+                offset_header + self.fields[fi].Y * im_height + offset_sep + ((index - 1) // self.fields[fi].X + 1) * im_height
             )
             d.rectangle(
                 [
