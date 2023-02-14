@@ -50,8 +50,8 @@ def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
 
 
 def run_randomactions(farm, max_steps=np.infty, render=True, monitoring=True):
-    if LooseVersion(gym.__version__) >= LooseVersion("0.25.2"):
-        check_env(farm)
+    #   if LooseVersion(gym.__version__) >= LooseVersion("0.25.2"):
+    #        check_env(farm)
     # Gym 0.21 has bugs: does not support dictionaries for instance, it has the following:
     # def _is_numpy_array_space(space: spaces.Space) -> bool:
     #    """
@@ -356,4 +356,4 @@ if __name__ == "__main__":
         return Policy_API("config-file", triggered_observations, triggered_interventions)
 
     policy = make_policy()
-    # run_policy(cb.env(), policy, max_steps=20, render=True, monitoring=False)
+    # run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)

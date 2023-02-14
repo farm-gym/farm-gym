@@ -34,7 +34,7 @@ from farmgym.v2.specifications.specification_manager import (
 
 class Farm(gym.Env):
     """
-    Instaniates a Farm environment.
+    Instantiates a Farm environment.
     Constructed from one or several fields (:class:`~farmgym.v2.field.Field`), farmers (:class:`~farmgym.v2.farmer_api.Farmer_API`), a score (:class:`~farmgym.v2.scoring_api.Scoring_API`) and  a set of rules (:class:`~farmgym.v2.rules_api.Rules_API`). The farm can then be constructed through ``farm=Farm(fields,farmers,scoring,rules)``.
 
     Parameters
@@ -188,9 +188,7 @@ class Farm(gym.Env):
         self.rules.setup(self)
         self.policies = policies
 
-        self.farmgym_observation_actions = self.build_farmgym_observation_actions(
-            self.rules.actions_allowed["observations"]
-        )
+        self.farmgym_observation_actions = self.build_farmgym_observation_actions(self.rules.actions_allowed["observations"])
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
             self.rules.actions_allowed["interventions"]
         )
@@ -832,9 +830,7 @@ class Farm(gym.Env):
                 self.fields[fi].Y
                 + (int)(
                     np.ceil(
-                        len(
-                            [1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None]
-                        )
+                        len([1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None])
                         / self.fields[fi].X
                     )
                 )
@@ -924,10 +920,7 @@ class Farm(gym.Env):
                     index += 1
 
             offset_field_y = (
-                offset_header
-                + self.fields[fi].Y * im_height
-                + offset_sep
-                + ((index - 1) // self.fields[fi].X + 1) * im_height
+                offset_header + self.fields[fi].Y * im_height + offset_sep + ((index - 1) // self.fields[fi].X + 1) * im_height
             )
             d.rectangle(
                 [
