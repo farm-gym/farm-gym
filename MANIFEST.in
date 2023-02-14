@@ -2,3 +2,4 @@ recursive-include farmgym *.yaml
 recursive-include farmgym *.csv
 recursive-include farmgym *.png
 recursive-include farmgym *.ttf
+recursive-include tests *.yaml
