@@ -823,7 +823,9 @@ class Farm(gym.Env):
 
         from PIL import Image, ImageDraw, ImageFont
 
-        im_width, im_height = 64, 64
+        sprite_width, sprite_height = 64, 64
+        scale_factor = 2
+        im_width, im_height = sprite_width * scale_factor, sprite_height * scale_factor
         XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])
         YY = np.max(
             [
@@ -905,12 +907,15 @@ class Farm(gym.Env):
             index = 0
             for e in self.fields[fi].entities:
                 image = self.fields[fi].entities[e].to_fieldimage()
+                image = image.resize((image.width * scale_factor, image.height * scale_factor))
+                # image = image.resize((im_width, im_height))
                 dashboard_picture.paste(image, (offsetx, offset_header), image)
 
                 j = index // self.fields[fi].X
                 i = index - j * self.fields[fi].X
                 image_t = self.fields[fi].entities[e].to_thumbnailimage()
                 if image_t != None:
+                    image_t = image_t.resize((image_t.width * scale_factor, image_t.height * scale_factor))
                     dd = ImageDraw.Draw(image_t)
                     # dd.rectangle(((2,2),(im_width-2,im_height-2)), fill="#ff000000", outline="red")
                     xx = offsetx + i * im_width
