@@ -80,4 +80,4 @@ def env():
 if __name__ == "__main__":
     from farmgym.v2.games.rungame import run_randomactions
 
-    run_randomactions(env(), max_steps=5, render=True, monitoring=False)
+    run_randomactions(env(), max_steps=50, render=True, monitoring=False)

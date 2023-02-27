@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt, mpld3
 import numpy as np
 
 from PIL import Image, ImageDraw, ImageFont
+import re
 import time
 
 
@@ -36,12 +37,40 @@ def sum_value(value_array):
     return sum
 
 
-def mat2d_value(value_array, X, Y):
+def mat2d_value(value_array):
+    X, Y = value_array.shape
     mat = np.zeros((X, Y))
     for x in range(X):
         for y in range(Y):
             mat[x, y] = value_array[x, y].value
     return mat
+
+
+def image_value(stages, entity):
+    X, Y = np.shape(stages)
+    im_width, im_height = 64, 64
+    image = Image.new("RGBA", (im_width * X, im_height * Y), (255, 255, 255, 0))
+    for x in range(X):
+        for y in range(Y):
+            image.paste(
+                entity.images[stages[x, y].value],
+                (im_width * x, im_height * y),
+                mask=entity.images[stages[x, y].value],
+            )
+    return image
+
+
+# def make_images(self):
+#     from farmgym.v2.entities.Plant import Plant
+#     import os
+#     from pathlib import Path
+#
+#     file_path = Path(os.path.realpath(__file__))
+#     CURRENT_DIR = file_path.parent
+#     images = {}
+#     for stage in Plant.stages:
+#         images[stage] = Image.open(CURRENT_DIR / ("../specifications/sprites/" + self.parameters["sprites"][stage]))
+#     return images
 
 
 class Monitor:
@@ -86,6 +115,7 @@ class Monitor:
                 self.history_variables[v] = (days[-2:], values[-2:])
                 ax.imshow(self.history_variables[v][1][-1])
             elif isinstance(value, (float, int, np.integer, np.float)):
+                print("V", v, value)
                 self.history_variables[v] = (days[-20:], values[-20:])
                 ax.plot(self.history_variables[v][0], self.history_variables[v][1])
                 if v_range != "range_auto":
@@ -113,11 +143,11 @@ class Monitor:
 
             # plt.xticks(rotation=45, ha='right')
             plt.subplots_adjust(bottom=0.30, wspace=0.8, hspace=0.8)
-            plt.title(f"{fi_key}, {entity_key}\n {var_key}")
+            plt.title(f"{fi_key}, {entity_key}\n {name_to_display}")
             plt.ylabel(f"{name_to_display}")
             plt.xlabel("day")
             plt.show(block=False)
-        plt.pause(0.001)
+        plt.pause(0.1)
 
     def stop(self):
         plt.savefig(self.filename)
@@ -297,3 +327,54 @@ class Monitor:
 #     # Set up plot to call animate() function periodically
 #     ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
 #    plt.show()
+
+
+def make_variables_to_be_monitored(variables):
+    """
+    Input exemple:
+    variables= ["f0.soil.available_Water#L", "f0.weeds.flowers#nb","f0.weeds.flowers#nb.mat","f1.fertilizer.amount#kg"]
+    Output:
+    list of variables var ready to be used in farm.add_monitoring(var)
+    """
+    myfunc = {"sum": sum_value, "mat": mat2d_value}
+    var = []
+    for v in variables:
+
+        v_parts = v.split(".")
+        fi = v_parts[0]
+        en = v_parts[1]
+        va = v_parts[2]
+        if len(v_parts) > 3:
+            print("PARTS", v_parts)
+            me = myfunc[v_parts[3]]
+        else:
+            me = myfunc["sum"]
+
+        # Field:
+        sfi = fi.split("f")
+        var_fi = "Field-" + sfi[1]
+
+        # Entity:
+        sen = re.findall("[0-9]", en)
+        varen = ""
+        for s in sen:
+            varen = varen + s
+        if varen != "":
+            s2en = (en.split(varen))[0]
+            var_en = s2en[0].upper() + s2en[1:] + "-" + varen
+        else:
+            var_en = en[0].upper() + en[1:] + "-0"
+
+        # Title:
+        sva = va.split("#")
+        ssva = sva[0].split("_")
+        tva = ""
+        for s in ssva:
+            tva += s[0].upper() + s[1:] + " "
+        if len(sva) > 1:
+            tva += "(" + sva[1] + ")"
+        else:
+            tva = tva[:-1]
+
+        var.append((var_fi, var_en, va, me, tva, "range_auto"))
+    return var

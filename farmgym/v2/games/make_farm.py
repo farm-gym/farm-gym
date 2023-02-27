@@ -18,16 +18,15 @@ from farmgym.v2.entities.Facilities import Facility
 from farmgym.v2.entities.Fertilizer import Fertilizer
 from farmgym.v2.entities.Pollinators import Pollinators
 
-from farmgym.v2.rendering.monitoring import mat2d_value, sum_value
-
-import os
-from pathlib import Path
-
-file_path = Path(os.path.realpath(__file__))
-CURRENT_DIR = file_path.parent
+from farmgym.v2.rendering.monitoring import mat2d_value, sum_value, make_variables_to_be_monitored
 
 
-def make_farm(name, field, entities, init_values=None):
+import inspect
+
+
+def make_basicfarm(name, field, entities, init_values=None, farmers=[{"max_daily_interventions": 1}]):
+    # farm_call = " ".join(inspect.stack()[1].code_context[0].split("=")[0].split())
+    filep = "/".join(inspect.stack()[1].filename.split("/")[0:-1])
 
     name_score = name + "_score.yaml"
     name_init = name + "_init.yaml"
@@ -42,8 +41,10 @@ def make_farm(name, field, entities, init_values=None):
         entity_managers=entities1,
     )
 
-    farmer1 = BasicFarmer(max_daily_interventions=1)
-    scoring = BasicScore(score_configuration=CURRENT_DIR / name_score)
+    # farmer1 = BasicFarmer(max_daily_interventions=1)
+    ffarmers = [BasicFarmer(max_daily_interventions=f["max_daily_interventions"]) for f in farmers]
+    scoring = BasicScore(score_configuration=filep + "/" + name_score)
+    # scoring = BasicScore(score_configuration=CURRENT_DIR / name_score)
 
     free_observations = []
     free_observations.append(("Field-0", "Weather-0", "day#int365", []))
@@ -61,8 +62,8 @@ def make_farm(name, field, entities, init_values=None):
         ],
     ]
     rules = BasicRule(
-        init_configuration=CURRENT_DIR / name_init,
-        actions_configuration=CURRENT_DIR / name_actions,
+        init_configuration=filep + "/" + name_init,
+        actions_configuration=filep + "/" + name_actions,
         terminal_CNF_conditions=terminal_CNF_conditions,
         free_observations=free_observations,
         initial_conditions_values=init_values,
@@ -73,7 +74,7 @@ def make_farm(name, field, entities, init_values=None):
 
     farm = Farm(
         fields=[field1],
-        farmers=[farmer1],
+        farmers=ffarmers,
         scoring=scoring,
         rules=rules,
         policies=policies,
@@ -82,247 +83,316 @@ def make_farm(name, field, entities, init_values=None):
     return farm
 
 
-def make_monitor(variables):
+#
+# def make_monitor2(variables):
+#     myfunc = {"sum": sum_value, "mat": mat2d_value}
+#
+#     var = []
+#
+#     for v in variables:
+#         #print("VAR",v)
+#
+#         v_parts=v.split(".")
+#         #print("SPLIT",v_parts, len(v_parts))
+#         fi=v_parts[0]
+#         en=v_parts[1]
+#         va=v_parts[2]
+#         if (len(v_parts)>3):
+#             me=myfunc[v_parts[3]]
+#         else:
+#             me=myfunc["sum"]
+#
+#         #Field:
+#         sfi =fi.split("f")
+#         var_fi = "Field-"+ sfi[1]
+#
+#         #Entity:
+#         sen =re.findall("[0-9]",en)
+#         varen=""
+#         for s in sen:
+#             varen= varen + s
+#         if (varen != ""):
+#             s2en = (en.split(varen))[0]
+#             var_en=s2en[0].upper() + s2en[1:]+"-"+varen
+#         else:
+#             var_en=en[0].upper() + en[1:]+"-0"
+#
+#         #Title:
+#         sva=va.split("#")
+#         ssva=sva[0].split("_")
+#         tva=""
+#         for s in ssva:
+#             tva+=s[0].upper() + s[1:] +" "
+#         if (len(sva)>1):
+#             tva+="("+sva[1]+")"
+#         else:
+#             tva = tva[:-1]
+#
+#         var.append((var_fi,var_en,va,me,tva,"range_auto"))
+#         #print("ME",me)
+#
+#
+#     #print("Monitoring the variables:", var)
+#     return var
+#
+# def make_monitor(variables):
+#
+#     var = []
+#
+#     for v in variables:
+#         if v == "f0.soil0.available_N#g":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Soil-0",
+#                     "available_N#g",
+#                     lambda x: sum_value(x),
+#                     "Available Nitrogen (g)",
+#                     "range_auto",
+#                 )
+#             )
+#         # if (v=="soil.available_N#g.mat"):
+#         #    var.append(("Field-0", "Soil-0", "available_N#g", lambda x:mat2d_value(x,field1.shape['length#nb'],field1.shape['width#nb']), "Available N (g)", 'range_auto'))
+#         if v == "f0.soil.available_Water#L":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Soil-0",
+#                     "available_Water#L",
+#                     lambda x: sum_value(x),
+#                     "Available Water (L)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.soil.microlife_health_index#%":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Soil-0",
+#                     "microlife_health_index#%",
+#                     lambda x: sum_value(x),
+#                     "Microlife Health  (%)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.size#cm":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "size#cm",
+#                     lambda x: sum_value(x),
+#                     "Size (cm)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.cumulated_water#L":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "cumulated_water#L",
+#                     lambda x: sum_value(x),
+#                     "Cumulated water (L)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.cumulated_stress_water#L":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "cumulated_stress_water#L",
+#                     lambda x: sum_value(x),
+#                     "Cumulated stress water (L)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.cumulated_nutrients_N#g":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "cumulated_nutrients_N#g",
+#                     lambda x: sum_value(x),
+#                     "Cumulated  N (g)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.cumulated_stress_nutrients_N#g":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "cumulated_stress_nutrients_N#g",
+#                     lambda x: sum_value(x),
+#                     "Cumulated stress N (g)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.flowers_per_plant#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "flowers_per_plant#nb",
+#                     lambda x: sum_value(x),
+#                     "Flowers (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.pollinator_visits#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "pollinator_visits#nb",
+#                     lambda x: sum_value(x),
+#                     "Pollinator visits (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.flowers_pollinated_per_plant#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "flowers_pollinated_per_plant#nb",
+#                     lambda x: sum_value(x),
+#                     "Flowers pollinated (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.fruits_per_plant#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "fruits_per_plant#nb",
+#                     lambda x: sum_value(x),
+#                     "Fruits (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.plant.fruit_weight#g":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Plant-0",
+#                     "fruit_weight#g",
+#                     lambda x: sum_value(x),
+#                     "Fruit weight (g)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.weeds.grow#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Weeds-0",
+#                     "grow#nb",
+#                     lambda x: sum_value(x),
+#                     "Weeds grow (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.weeds.seeds#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Weeds-0",
+#                     "seeds#nb",
+#                     lambda x: sum_value(x),
+#                     "Weeds seeds (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.weeds.flowers#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Weeds-0",
+#                     "flowers#nb",
+#                     lambda x: sum_value(x),
+#                     "Weeds flowers (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#
+#         if v == "f0.weeds.flowers#nb_mat":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Weeds-0",
+#                     "flowers#nb",
+#                     lambda x: mat2d_value(x),
+#                     "Weeds flowers (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#
+#         if v == "f0.pests.plot_population#nb":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Pests-0",
+#                     "plot_population#nb",
+#                     lambda x: sum_value(x),
+#                     "Pest population (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.pests.onplant_population#nb.plant":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Pests-0",
+#                     "onplant_population#nb",
+#                     lambda x: sum_value(x["Plant-0"]),
+#                     "Pest on plant (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.pests.onplant_population#nb.weeds":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Pests-0",
+#                     "onplant_population#nb",
+#                     lambda x: sum_value(x["Weeds-0"]),
+#                     "Pest on weeds (nb)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.cides.amount#kg":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Cide-0",
+#                     "amount#kg",
+#                     lambda x: sum_value(x),
+#                     "Cide Amount (kg)",
+#                     "range_auto",
+#                 )
+#             )
+#         if v == "f0.fertilizer.amount#kg":
+#             var.append(
+#                 (
+#                     "Field-0",
+#                     "Fertilizer-0",
+#                     "amount#kg",
+#                     lambda x: sum_value(x),
+#                     "Fertilizer Amount (kg)",
+#                     "range_auto",
+#                 )
+#             )
+#
+#     return var
 
-    var = []
 
-    for v in variables:
-        if v == "soil.available_N#g":
-            var.append(
-                (
-                    "Field-0",
-                    "Soil-0",
-                    "available_N#g",
-                    lambda x: sum_value(x),
-                    "Available Nitrogen (g)",
-                    "range_auto",
-                )
-            )
-        # if (v=="soil.available_N#g.mat"):
-        #    var.append(("Field-0", "Soil-0", "available_N#g", lambda x:mat2d_value(x,field1.shape['length#nb'],field1.shape['width#nb']), "Available N (g)", 'range_auto'))
-        if v == "soil.available_Water#L":
-            var.append(
-                (
-                    "Field-0",
-                    "Soil-0",
-                    "available_Water#L",
-                    lambda x: sum_value(x),
-                    "Available Water (g)",
-                    "range_auto",
-                )
-            )
-        if v == "soil.microlife_health_index#%":
-            var.append(
-                (
-                    "Field-0",
-                    "Soil-0",
-                    "microlife_health_index#%",
-                    lambda x: sum_value(x),
-                    "Microlife Health  (%)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.size#cm":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "size#cm",
-                    lambda x: sum_value(x),
-                    "Size (cm)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.cumulated_water#L":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "cumulated_water#L",
-                    lambda x: sum_value(x),
-                    "Cumulated water (L)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.cumulated_stress_water#L":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "cumulated_stress_water#L",
-                    lambda x: sum_value(x),
-                    "Cumulated stress water (L)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.cumulated_nutrients_N#g":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "cumulated_nutrients_N#g",
-                    lambda x: sum_value(x),
-                    "Cumulated  N (g)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.cumulated_stress_nutrients_N#g":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "cumulated_stress_nutrients_N#g",
-                    lambda x: sum_value(x),
-                    "Cumulated stress N (g)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.flowers_per_plant#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "flowers_per_plant#nb",
-                    lambda x: sum_value(x),
-                    "Flowers (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.pollinator_visits#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "pollinator_visits#nb",
-                    lambda x: sum_value(x),
-                    "Pollinator visits (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.flowers_pollinated_per_plant#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "flowers_pollinated_per_plant#nb",
-                    lambda x: sum_value(x),
-                    "Flowers pollinated (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.fruits_per_plant#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "fruits_per_plant#nb",
-                    lambda x: sum_value(x),
-                    "Fruits (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "plant.fruit_weight#g":
-            var.append(
-                (
-                    "Field-0",
-                    "Plant-0",
-                    "fruit_weight#g",
-                    lambda x: sum_value(x),
-                    "Fruit weight (g)",
-                    "range_auto",
-                )
-            )
-        if v == "weeds.grow#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Weeds-0",
-                    "grow#nb",
-                    lambda x: sum_value(x),
-                    "Weeds grow (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "weeds.seeds#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Weeds-0",
-                    "seeds#nb",
-                    lambda x: sum_value(x),
-                    "Weeds seeds (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "weeds.flowers#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Weeds-0",
-                    "flowers#nb",
-                    lambda x: sum_value(x),
-                    "Weeds flowers (nb)",
-                    "range_auto",
-                )
-            )
-
-        if v == "pests.plot_population#nb":
-            var.append(
-                (
-                    "Field-0",
-                    "Pests-0",
-                    "plot_population#nb",
-                    lambda x: sum_value(x),
-                    "Pest population (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "pests.onplant_population#nb.plant":
-            var.append(
-                (
-                    "Field-0",
-                    "Pests-0",
-                    "onplant_population#nb",
-                    lambda x: sum_value(x["Plant-0"]),
-                    "Pest on plant (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "pests.onplant_population#nb.weeds":
-            var.append(
-                (
-                    "Field-0",
-                    "Pests-0",
-                    "onplant_population#nb",
-                    lambda x: sum_value(x["Weeds-0"]),
-                    "Pest on weeds (nb)",
-                    "range_auto",
-                )
-            )
-        if v == "cides.amount#kg":
-            var.append(
-                (
-                    "Field-0",
-                    "Cide-0",
-                    "amount#kg",
-                    lambda x: sum_value(x),
-                    "Cide Amount (kg)",
-                    "range_auto",
-                )
-            )
-        if v == "fertilizer.amount#kg":
-            var.append(
-                (
-                    "Field-0",
-                    "Fertilizer-0",
-                    "amount#kg",
-                    lambda x: sum_value(x),
-                    "Fertilizer Amount (kg)",
-                    "range_auto",
-                )
-            )
-
-    return var
+# when "field0.plant0.stage[(0,0)] in [ripe]" do "farmer0.field0.plant0.harvest {params}" with delay 0
+# > observation: field0.plant0.stage[(0,0)]
+# > intervenion: farmer0.field0.plant0.harvest {params} with delay 0
 
 
 def make_policies_water_harvest(amounts):
@@ -691,7 +761,7 @@ if __name__ == "__main__":
 
     ###
     # Herbicides
-    f2 = make_farm(
+    f2 = make_basicfarm(
         "herbtest",
         {
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -716,37 +786,37 @@ if __name__ == "__main__":
         ],
     )
     f2.add_monitoring(
-        make_monitor(
+        make_variables_to_be_monitored(
             [
-                "soil.available_Water#L",
-                "soil.available_N#g",
-                "soil.microlife_health_index#%",
-                "plant.pollinator_visits#nb",
-                "plant.size#cm",
-                "plant.flowers_per_plant#nb",
-                "plant.flowers_pollinated_per_plant#nb",
-                "plant.cumulated_water#L",
-                "plant.cumulated_stress_water#L",
-                "plant.cumulated_nutrients_N#g",
-                "plant.cumulated_stress_nutrients_N#g",
-                "plant.fruits_per_plant#nb",
-                "plant.fruit_weight#g",
-                "weeds.seeds#nb",
-                "weeds.grow#nb",
-                "weeds.flowers#nb",
-                "cides.amount#kg",
-                "pests.plot_population#nb",
-                "pests.onplant_population#nb.plant",
-                "pests.onplant_population#nb.weeds",
+                "f0.soil.available_Water#L",
+                "f0.soil.available_N#g",
+                "f0.soil.microlife_health_index#%",
+                "f0.plant.pollinator_visits#nb",
+                "f0.plant.size#cm",
+                "f0.plant.flowers_per_plant#nb",
+                "f0.plant.flowers_pollinated_per_plant#nb",
+                "f0.plant.cumulated_water#L",
+                "f0.plant.cumulated_stress_water#L",
+                "f0.plant.cumulated_nutrients_N#g",
+                "f0.plant.cumulated_stress_nutrients_N#g",
+                "f0.plant.fruits_per_plant#nb",
+                "f0.plant.fruit_weight#g",
+                "f0.weeds.seeds#nb",
+                "f0.weeds.grow#nb",
+                "f0.weeds.flowers#nb",
+                "f0.cides.amount#kg",
+                "f0.pests.plot_population#nb"
+                # "f0.pests.onplant_population#nb.plant", #TODO: handle this !
+                # "f0.pests.onplant_population#nb.weeds", #TODO: handle this !
             ]
         )
     )
 
-    f3 = make_farm(
+    f3 = make_basicfarm(
         "ferttest",
         {
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-            "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+            "shape": {"length#nb": 1, "width#nb": 2, "scale#m": 1.0},
         },
         [
             (Weather, "rainy"),
@@ -765,26 +835,52 @@ if __name__ == "__main__":
             ("Field-0", "Soil-0", "available_C#g", 500),
         ],
     )
+    # f3.add_monitoring(
+    #     make_monitor(
+    #         [
+    #             "soil.available_Water#L",
+    #             #    "soil.available_N#g",
+    #             #    "soil.microlife_health_index#%",
+    #             #    "plant.pollinator_visits#nb",
+    #             #    "plant.size#cm",
+    #             #    "plant.flowers_per_plant#nb",
+    #             #    "plant.flowers_pollinated_per_plant#nb",
+    #             #    "plant.cumulated_water#L",
+    #             #    "plant.cumulated_stress_water#L",
+    #             #    "plant.cumulated_nutrients_N#g",
+    #             #    "plant.cumulated_stress_nutrients_N#g",
+    #             #    "plant.fruits_per_plant#nb",
+    #             #    "plant.fruit_weight#g",
+    #             #    "weeds.seeds#nb",
+    #             #    "weeds.grow#nb",
+    #             #    "weeds.flowers#nb",
+    #             "weeds.flowers#nb_mat",
+    #             "fertilizer.amount#kg",
+    #         ]
+    #     )
+    # )
     f3.add_monitoring(
-        make_monitor(
+        make_variables_to_be_monitored(
             [
-                "soil.available_Water#L",
-                "soil.available_N#g",
-                "soil.microlife_health_index#%",
-                "plant.pollinator_visits#nb",
-                "plant.size#cm",
-                "plant.flowers_per_plant#nb",
-                "plant.flowers_pollinated_per_plant#nb",
-                "plant.cumulated_water#L",
-                "plant.cumulated_stress_water#L",
-                "plant.cumulated_nutrients_N#g",
-                "plant.cumulated_stress_nutrients_N#g",
-                "plant.fruits_per_plant#nb",
-                "plant.fruit_weight#g",
-                "weeds.seeds#nb",
-                "weeds.grow#nb",
-                "weeds.flowers#nb",
-                "fertilizer.amount#kg",
+                "f0.soil.available_Water#L",
+                #    "soil.available_N#g",
+                #    "soil.microlife_health_index#%",
+                #    "plant.pollinator_visits#nb",
+                #    "plant.size#cm",
+                #    "plant.flowers_per_plant#nb",
+                #    "plant.flowers_pollinated_per_plant#nb",
+                #    "plant.cumulated_water#L",
+                #    "plant.cumulated_stress_water#L",
+                #    "plant.cumulated_nutrients_N#g",
+                #    "plant.cumulated_stress_nutrients_N#g",
+                #    "plant.fruits_per_plant#nb",
+                #    "plant.fruit_weight#g",
+                #    "weeds.seeds#nb",
+                #    "weeds.grow#nb",
+                #    "weeds.flowers#nb",
+                "f0.weeds.flowers#nb",
+                "f0.weeds.flowers#nb.mat",
+                "f0.fertilizer.amount#kg.mat",
             ]
         )
     )
@@ -793,4 +889,62 @@ if __name__ == "__main__":
     # run_policy(f2, policy, max_steps=60, render=True, monitoring=True)
 
     policy = make_policy_fertilize(0.5, 10, 2)
-    run_policy(f3, policy, max_steps=60, render=True, monitoring=True)
+    run_policy(f3, policy, max_steps=60, render=False, monitoring=True)
+
+
+#
+# vari= make_monitor2(
+#             [
+#                 "f0.soil.available_Water#L",
+#                 #    "soil.available_N#g",
+#                 #    "soil.microlife_health_index#%",
+#                 #    "plant.pollinator_visits#nb",
+#                 #    "plant.size#cm",
+#                 #    "plant.flowers_per_plant#nb",
+#                 #    "plant.flowers_pollinated_per_plant#nb",
+#                 #    "plant.cumulated_water#L",
+#                 #    "plant.cumulated_stress_water#L",
+#                 #    "plant.cumulated_nutrients_N#g",
+#                 #    "plant.cumulated_stress_nutrients_N#g",
+#                 #    "plant.fruits_per_plant#nb",
+#                 #    "plant.fruit_weight#g",
+#                 #    "weeds.seeds#nb",
+#                 #    "weeds.grow#nb",
+#                 #    "weeds.flowers#nb",
+#                 "f0.weeds.flowers#nb",
+#                 "f0.weeds.flowers#nb.mat",
+#                 "f1.fertilizer.amount#kg",
+#             ]
+#         )
+# print(vari)
+
+
+## CRAZY PYTHON BUG:
+# def f1(x):
+#     return x
+# def f2(x):
+#     return 2*x
+# def f3(x):
+#     return 3*x
+#
+# input = ["one","one","two","three"]
+# myf = {"one": f1, "two": f2, "three": f3}
+# def mapi(input):
+#     output = []
+#     for i in input:
+#         output.append(lambda x: myf[i](x))
+#     return output
+#
+# output = mapi(input)
+# print(output)
+#
+# def apply(x):
+#     v=[]
+#     for f in output:
+#         v.append(f(x))
+#     return v
+#
+# xx =apply(2)
+# print(xx)
+# THIS produces [6,6,6,6], instead of [2,2,4,6], actually, all functions point to f3.
+# Fix: Replace "lambda x: myf[i](x)" with "myf[i]". But WHY???

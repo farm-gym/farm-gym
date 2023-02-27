@@ -298,9 +298,9 @@ ENTITIES = [
 
 @pytest.mark.parametrize("entities", ENTITIES)
 def test_make_farm(entities):
-    from farmgym.v2.games.make_farm import make_farm
+    from farmgym.v2.games.make_farm import make_basicfarm
 
-    farm = make_farm(
+    farm = make_basicfarm(
         "farm_test",
         {
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -308,7 +308,6 @@ def test_make_farm(entities):
         },
         entities,
     )
-    
 
 
 ENV_NAMES = register_all()
@@ -320,7 +319,6 @@ def test_games(env_name):
         env = gym.make(env_name, 100)
         farm = env.unwrapped
         run_randomactions(farm, max_steps=3, render=False, monitoring=False)
-        
 
 
 INIT_STAGE = [
@@ -355,10 +353,10 @@ FULL_ENTITY = [
 
 @pytest.mark.parametrize("stage", INIT_STAGE)
 def test_stages(stage):
-    from farmgym.v2.games.make_farm import make_farm
+    from farmgym.v2.games.make_farm import make_basicfarm
     from farmgym.v2.games.rungame import run_randomactions
 
-    f = make_farm(
+    f = make_basicfarm(
         "dry_clay_bean",
         {
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -376,10 +374,11 @@ def test_stages(stage):
     )
     run_randomactions(f, max_steps=5)
 
-def test_build_config():
-    from farmgym.v2.games.make_farm import make_farm
 
-    f = make_farm(
+def test_build_config():
+    from farmgym.v2.games.make_farm import make_basicfarm
+
+    f = make_basicfarm(
         "dry_clay_bean",
         {
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -395,9 +394,9 @@ def test_build_config():
             ("Field-0", "Soil-0", "available_C#g", 5000),
         ],
     )
-    
+
     f.build_configurations("tests/test_farm", "farm")
-    
+
 
 if __name__ == "__main__":
     pass

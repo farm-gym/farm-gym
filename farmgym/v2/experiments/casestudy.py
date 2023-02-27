@@ -3,10 +3,19 @@ from farmgym.v2.games.register_all import register_all
 from farmgym.v2.games.rungame import run_policy, run_policy_xp
 import numpy as np
 from farmgym.v2.games.rungame import run_xps
-from farmgym.v2.games.make_farm import make_farm
 
-from farmgym.v2.games.make_farm import *
+from farmgym.v2.games.make_farm import make_basicfarm, make_policy_water_harvest
 
+from farmgym.v2.entities.Weather import Weather
+from farmgym.v2.entities.Soil import Soil
+from farmgym.v2.entities.Plant import Plant
+from farmgym.v2.entities.Weeds import Weeds
+from farmgym.v2.entities.Pests import Pests
+from farmgym.v2.entities.Cide import Cide
+from farmgym.v2.entities.Birds import Birds
+from farmgym.v2.entities.Facilities import Facility
+from farmgym.v2.entities.Fertilizer import Fertilizer
+from farmgym.v2.entities.Pollinators import Pollinators
 
 # env_list=register_all()
 # print(env_list)
@@ -27,7 +36,7 @@ from farmgym.v2.games.make_farm import *
 # farms = [farm1,farm2,farm3,farm4,farm5,farm6]
 
 
-f1 = make_farm(
+f1 = make_basicfarm(
     "dry_clay_bean",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -43,7 +52,7 @@ f1 = make_farm(
         ("Field-0", "Soil-0", "available_C#g", 2500),
     ],
 )
-f7 = make_farm(
+f7 = make_basicfarm(
     "dry_clay_bean_pollinator",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -59,7 +68,7 @@ f7 = make_farm(
         ("Field-0", "Soil-0", "available_C#g", 2500),
     ],
 )
-f2 = make_farm(
+f2 = make_basicfarm(
     "dry_sand_bean",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -77,7 +86,7 @@ f2 = make_farm(
 )
 
 
-f3 = make_farm(
+f3 = make_basicfarm(
     "dry_clay_corn",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -93,7 +102,7 @@ f3 = make_farm(
         ("Field-0", "Soil-0", "available_C#g", 2500),
     ],
 )
-f8 = make_farm(
+f8 = make_basicfarm(
     "dry_clay_corn_pollinator",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -109,7 +118,7 @@ f8 = make_farm(
         ("Field-0", "Soil-0", "available_C#g", 2500),
     ],
 )
-f4 = make_farm(
+f4 = make_basicfarm(
     "dry_sand_corn",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -127,7 +136,7 @@ f4 = make_farm(
 )
 
 
-f5 = make_farm(
+f5 = make_basicfarm(
     "dry_clay_tomato",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -143,7 +152,7 @@ f5 = make_farm(
         ("Field-0", "Soil-0", "available_C#g", 2500),
     ],
 )
-f9 = make_farm(
+f9 = make_basicfarm(
     "dry_clay_tomato_pollinator",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -159,7 +168,7 @@ f9 = make_farm(
         ("Field-0", "Soil-0", "available_C#g", 2500),
     ],
 )
-f6 = make_farm(
+f6 = make_basicfarm(
     "dry_sand_tomato",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -177,7 +186,7 @@ f6 = make_farm(
 )
 
 
-ff1 = make_farm(
+ff1 = make_basicfarm(
     "coupling_weeds_pests",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -203,7 +212,7 @@ ff1 = make_farm(
     ],
 )
 
-ff2 = make_farm(
+ff2 = make_basicfarm(
     "coupling_weeds_nopests",
     {
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
@@ -526,8 +535,8 @@ def plot_results3(farms, policy_parameters, results, title):
     plt.savefig("fig.png")
 
 
-farms, policy_parameters, results = xp_watering()
-plot_results2(farms, policy_parameters, results, "Watering policy (daily input in L)")
+# farms, policy_parameters, results = xp_watering()
+# plot_results2(farms, policy_parameters, results, "Watering policy (daily input in L)")
 
 
 # farms,policy_parameters,results = xp_coupling()
