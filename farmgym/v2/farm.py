@@ -231,7 +231,7 @@ class Farm(gym.Env):
         for fi in self.fields:
             str += fi + "["
             for e in self.fields[fi].entities:
-                str += self.fields[fi].entities[e].name + "_"
+                str += self.fields[fi].entities[e].fullname + "_"
             str = str[:-1]
             str += "]"
         str += "]_Farmers["
@@ -247,11 +247,11 @@ class Farm(gym.Env):
         """
         short = "farm_"
         for fi in self.fields:
-            short += str(self.fields[fi].shape["length#nb"]) + "x" + str(self.fields[fi].shape["width#nb"]) + "["
+            short += str(self.fields[fi].shape["length#nb"]) + "x" + str(self.fields[fi].shape["width#nb"]) + "("
             for e in self.fields[fi].entities:
                 short += self.fields[fi].entities[e].shortname + "_"
             short = short[:-1]
-            short += "]"
+            short += ")"
         return short
 
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
@@ -699,7 +699,8 @@ class Farm(gym.Env):
                     #    print("KEY2")
                     #    actions[key]=['\'']
                     else:
-                        p = make(dictio[key], variables[key]) # TODO: Does not work with pests !!
+                        # print("DICTIO", dictio, "key", key, "VAR", variables)
+                        p = make(dictio[key], variables[key])
                         actions[key] = p
                 return actions
 

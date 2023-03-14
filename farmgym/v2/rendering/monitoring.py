@@ -46,6 +46,14 @@ def mat2d_value(value_array):
     return mat
 
 
+def dict_select(x, vars):
+    print("D:",x,vars)
+    y = x
+    for v in vars:
+        y = y[v]
+    return y
+
+
 def image_value(stages, entity):
     X, Y = np.shape(stages)
     im_width, im_height = 64, 64
@@ -59,6 +67,17 @@ def image_value(stages, entity):
             )
     return image
 
+
+def sname_to_name(text):
+        sen = re.findall("[0-9]", text)
+        varen = ""
+        for s in sen:
+            varen = varen + s
+        if varen != "":
+            s2en = (text.split(varen))[0]
+            return s2en[0].upper() + s2en[1:] + "-" + varen
+        else:
+            return text[0].upper() + text[1:] + "-0"
 
 # def make_images(self):
 #     from farmgym.v2.entities.Plant import Plant
@@ -336,6 +355,8 @@ def make_variables_to_be_monitored(variables):
     Output:
     list of variables var ready to be used in farm.add_monitoring(var)
     """
+
+
     myfunc = {"sum": sum_value, "mat": mat2d_value}
     var = []
     for v in variables:
@@ -355,15 +376,7 @@ def make_variables_to_be_monitored(variables):
         var_fi = "Field-" + sfi[1]
 
         # Entity:
-        sen = re.findall("[0-9]", en)
-        varen = ""
-        for s in sen:
-            varen = varen + s
-        if varen != "":
-            s2en = (en.split(varen))[0]
-            var_en = s2en[0].upper() + s2en[1:] + "-" + varen
-        else:
-            var_en = en[0].upper() + en[1:] + "-0"
+        var_en = sname_to_name(en)
 
         # Title:
         sva = va.split("#")
@@ -376,5 +389,22 @@ def make_variables_to_be_monitored(variables):
         else:
             tva = tva[:-1]
 
-        var.append((var_fi, var_en, va, me, tva, "range_auto"))
+        #Selector:
+        vas = va.split("[")
+        va0 = vas[0]
+        # TODO: using convention "f0.pests.onplant_population#nb[plant].mat"
+        if len(vas) > 1:
+            #print("VAS",vas)
+            myv = []
+            for v in vas[1:]:
+                s= v[:-1]
+                #print("v",s,sname_to_name(s))
+                myv.append(sname_to_name(v[:-1]))
+            print("[Monitor]VARS", myv)
+            mee = lambda x: me(dict_select(x, myv))
+
+            var.append((var_fi, var_en, va0, mee, tva, "range_auto"))
+        else:
+            var.append((var_fi, var_en, va0, me, tva, "range_auto"))
+        # should become "Field-0, Pests-0, onplant_population#nb["Plant-0"]" or onplant_population#nb, lambda x: sum_value(x["Plant-0"])?
     return var

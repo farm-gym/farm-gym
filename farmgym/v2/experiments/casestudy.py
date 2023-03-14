@@ -541,3 +541,6 @@ def plot_results3(farms, policy_parameters, results, title):
 
 # farms,policy_parameters,results = xp_coupling()
 # plot_results3(farms,policy_parameters,results,'Herbicide policy (every x day)')
+
+
+print(f1)

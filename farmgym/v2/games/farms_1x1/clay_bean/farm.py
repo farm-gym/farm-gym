@@ -7,6 +7,7 @@ from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
 from farmgym.v2.entities.Plant import Plant
 from farmgym.v2.entities.Weeds import Weeds
+from farmgym.v2.entities.Pests import Pests
 from farmgym.v2.policy_api import Policy_API
 
 from farmgym.v2.rendering.monitoring import mat2d_value, sum_value
@@ -27,11 +28,14 @@ def env():
     entities1.append((Weather, "lille"))
     entities1.append((Soil, "clay"))
     entities1.append((Plant, "bean"))
+    # entities1.append((Pests, "basic"))
     # entities1.append((Weeds,"base_weed"))
 
-    field1 = Field(localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+    field1 = Field(
+        localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-        entity_managers=entities1)
+        entity_managers=entities1,
+    )
 
     farmer1 = BasicFarmer(max_daily_interventions=1)
     scoring = BasicScore(score_configuration=CURRENT_DIR / "farm_score.yaml")
