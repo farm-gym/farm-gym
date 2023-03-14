@@ -345,7 +345,7 @@ def make_variables_to_be_monitored(variables):
         en = v_parts[1]
         va = v_parts[2]
         if len(v_parts) > 3:
-            print("PARTS", v_parts)
+            # print("PARTS", v_parts)
             me = myfunc[v_parts[3]]
         else:
             me = myfunc["sum"]

@@ -67,12 +67,14 @@ class Field:
                 cpt[e.__name__] += 1
                 name = e.__name__ + "-" + str(cpt[e.__name__])
                 self.entities[name] = e(self, param)
-                self.entities[name].name = name
+                self.entities[name].name = name + "(" + param + ")"
+                self.entities[name].shortname = param
             else:
                 cpt[e.__name__] = 0
                 name = e.__name__ + "-0"
                 self.entities[name] = e(self, param)
-                self.entities[name].name = name
+                self.entities[name].name = name + "(" + param + ")"
+                self.entities[name].shortname = param
 
     def reset(self):
         """

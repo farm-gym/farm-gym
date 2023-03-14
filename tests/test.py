@@ -219,6 +219,27 @@ def test_farmgym_render_register():
     print("DONE")
 
 
+def test_makefarm():
+    from farmgym.v2.games.make_farm import make_basicfarm
+
+    f1 = make_basicfarm(
+        "dry_clay_bean",
+        {
+            "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+            "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+        },
+        [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")],
+        init_values=[
+            ("Field-0", "Weather-0", "day#int365", 120),
+            ("Field-0", "Plant-0", "stage", "seed"),
+            ("Field-0", "Soil-0", "available_N#g", 2500),
+            ("Field-0", "Soil-0", "available_P#g", 2500),
+            ("Field-0", "Soil-0", "available_K#g", 2500),
+            ("Field-0", "Soil-0", "available_C#g", 2500),
+        ],
+    )
+
+
 def test_farmgym_policy():
     print("\nSTART")
     import gym
@@ -395,7 +416,8 @@ def test_build_config():
         ],
     )
 
-    f.build_configurations("tests/test_farm", "farm")
+
+#    f.build_configurations("tests/test_farm", "farm")
 
 
 if __name__ == "__main__":

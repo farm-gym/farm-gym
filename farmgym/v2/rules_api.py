@@ -45,10 +45,6 @@ class Rules_API:
         with open(self.actions_configuration, "r", encoding="utf8") as file:
             self.actions_allowed = yaml.safe_load(file)  # Note the safe_load
 
-    #
-    #        for fi in farm.fields:
-    #            for e in farm.fields[fi].entities:
-    #                farm.fields[fi].entities[e].init_variables(self.initial_conditions[fi][e])
 
     def is_terminal(self, fields):
         for and_conditions in self.terminal_CNF_conditions:

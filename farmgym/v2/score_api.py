@@ -1,7 +1,7 @@
 import yaml
 
 
-class Scoring_API:
+class Score_API:
     """
     class for scoring definition
     """

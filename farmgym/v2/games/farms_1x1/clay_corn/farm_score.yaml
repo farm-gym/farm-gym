@@ -21,9 +21,17 @@ intervention-cost:
       sow: 1
       harvest: 1
 reward-mix:
-     alpha_bio: 0.
-     alpha_resource: 0.
-     alpha_soil: 0.
-     alpha_harvest: 1.
-     alpha_stage: 0.
+     weight_biodiversitycounts: 0.
+     weight_resourceadded: 0.
+     weight_soilmicrolife: 0.
+     weight_harvest: 0.
+     weight_stagecount: 0.
+     weight_stagetransition: 1.
+final-reward-mix:
+     weight_biodiversitycounts: 0.
+     weight_resourceadded: 0.
+     weight_soilmicrolife: 0.
+     weight_harvest: 1.
+     weight_stagecount: 0.
+     weight_stagetransition: 0.
 

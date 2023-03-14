@@ -43,7 +43,8 @@ def make_basicfarm(name, field, entities, init_values=None, farmers=[{"max_daily
 
     # farmer1 = BasicFarmer(max_daily_interventions=1)
     ffarmers = [BasicFarmer(max_daily_interventions=f["max_daily_interventions"]) for f in farmers]
-    scoring = BasicScore(score_configuration=filep + "/" + name_score)
+    #scoring = BasicScore(score_configuration=filep + "/" + name_score)
+    scoring = BasicScore(score_configuration=name_score)
     # scoring = BasicScore(score_configuration=CURRENT_DIR / name_score)
 
     free_observations = []
@@ -54,16 +55,13 @@ def make_basicfarm(name, field, entities, init_values=None, farmers=[{"max_daily
         [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
         [
             (
-                ("Field-0", "Plant-0", "global_stage", []),
-                lambda x: x.value,
-                "in",
-                ["dead", "harvested"],
+                ("Field-0", "Plant-0", "global_stage", []), lambda x: x.value, "in", ["dead", "harvested"],
             )
         ],
     ]
     rules = BasicRule(
-        init_configuration=filep + "/" + name_init,
-        actions_configuration=filep + "/" + name_actions,
+        init_configuration=name_init,
+        actions_configuration=name_actions,
         terminal_CNF_conditions=terminal_CNF_conditions,
         free_observations=free_observations,
         initial_conditions_values=init_values,
@@ -948,3 +946,9 @@ if __name__ == "__main__":
 # print(xx)
 # THIS produces [6,6,6,6], instead of [2,2,4,6], actually, all functions point to f3.
 # Fix: Replace "lambda x: myf[i](x)" with "myf[i]". But WHY???
+
+#scoring = BasicScore(score_configuration="basic")
+#def myreward(entities_list):
+#    ()
+#scoring.reward = myreward
+

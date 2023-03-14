@@ -56,11 +56,20 @@ def build_scoreyaml(filepath, fields):
                 s += ("    " + e + ":\n") + ss
 
     s += "reward-mix:\n"
-    s += "     alpha_bio: 0.\n"
-    s += "     alpha_resource: 0.\n"
-    s += "     alpha_soil: 0.\n"
-    s += "     alpha_harvest: 1.\n"
-    s += "     alpha_stage: 0.\n"
+    s += "     weight_biodiversitycounts: 0.\n"
+    s += "     weight_resourceadded: 0.\n"
+    s += "     weight_soilmicrolife: 0.\n"
+    s += "     weight_harvest: 0.\n"
+    s += "     weight_stagecount: 0.\n"
+    s += "     weight_stagetransition: 1.\n"
+
+    s += "final-reward-mix:\n"
+    s += "     weight_biodiversitycounts: 0.\n"
+    s += "     weight_resourceadded: 0.\n"
+    s += "     weight_soilmicrolife: 0.\n"
+    s += "     weight_harvest: 1.\n"
+    s += "     weight_stagecount: 0.\n"
+    s += "     weight_stagetransition: 0.\n"
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)
 

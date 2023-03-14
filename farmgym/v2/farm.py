@@ -231,7 +231,7 @@ class Farm(gym.Env):
         for fi in self.fields:
             str += fi + "["
             for e in self.fields[fi].entities:
-                str += e + "_"
+                str += self.fields[fi].entities[e].name + "_"
             str = str[:-1]
             str += "]"
         str += "]_Farmers["
@@ -241,28 +241,41 @@ class Farm(gym.Env):
         str += "]"
         return str
 
+    def build_shortname(self):
+        """
+        Builds a standardized name for the farm as a string. example: Farm_Fields[Field-0[Weather-0_Soil-0_Plant-0]]_Farmers[BasicFarmer-0]
+        """
+        short = "farm_"
+        for fi in self.fields:
+            short += str(self.fields[fi].shape["length#nb"]) + "x" + str(self.fields[fi].shape["width#nb"]) + "["
+            for e in self.fields[fi].entities:
+                short += self.fields[fi].entities[e].shortname + "_"
+            short = short[:-1]
+            short += "]"
+        return short
+
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
 
-    def build_configurations(self, dir, name):
-        """
-        dir: path
-        name: string used to name the farm in the yaml filename.
-        Generates yaml configuration files to help customize the farm. One file to specify the list of allowed actions, one file to initialize state variables, and one file to specify the score.
-        """
-        init_file = name + "_init.yaml"
-        filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
-
-        build_inityaml(filepath, self.fields, mode="default")
-
-        init_file = name + "_actions.yaml"
-        filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
-
-        build_actionsyaml(filepath, self.fields)
-
-        init_file = name + "_score.yaml"
-        filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
-
-        build_scoreyaml(filepath, self.fields)
+    # def build_configurations(self, dir, name):
+    #     """
+    #     dir: path
+    #     name: string used to name the farm in the yaml filename.
+    #     Generates yaml configuration files to help customize the farm. One file to specify the list of allowed actions, one file to initialize state variables, and one file to specify the score.
+    #     """
+    #     init_file = name + "_init.yaml"
+    #     filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
+    #
+    #     build_inityaml(filepath, self.fields, mode="default")
+    #
+    #     init_file = name + "_actions.yaml"
+    #     filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
+    #
+    #     build_actionsyaml(filepath, self.fields)
+    #
+    #     init_file = name + "_score.yaml"
+    #     filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
+    #
+    #     build_scoreyaml(filepath, self.fields)
 
     def add_monitoring(self, list_of_variables):
         """
@@ -686,7 +699,7 @@ class Farm(gym.Env):
                     #    print("KEY2")
                     #    actions[key]=['\'']
                     else:
-                        p = make(dictio[key], variables[key])
+                        p = make(dictio[key], variables[key]) # TODO: Does not work with pests !!
                         actions[key] = p
                 return actions
 
@@ -972,7 +985,7 @@ class Farm(gym.Env):
         """
         Outputs a string showing a snapshot of the farm at the given time. All state variables of each entity, farmers information as well ws all free observations, available observations and available interventions.
         """
-        s = "Farm: " + self.name + "\n"
+        s = "Farm: " + self.name + "\nShort name: " + self.build_shortname() + "\n"
         s += "Fields:" + "\n"
 
         for f in self.fields:

@@ -29,11 +29,9 @@ def env():
     entities1.append((Plant, "bean"))
     # entities1.append((Weeds,"base_weed"))
 
-    field1 = Field(
-        localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+    field1 = Field(localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-        entity_managers=entities1,
-    )
+        entity_managers=entities1)
 
     farmer1 = BasicFarmer(max_daily_interventions=1)
     scoring = BasicScore(score_configuration=CURRENT_DIR / "farm_score.yaml")
@@ -190,5 +188,9 @@ def env():
 if __name__ == "__main__":
     from farmgym.v2.games.rungame import run_randomactions
 
+    farm = env()
+    print(farm)
+
     # run_randomactions(env(), max_steps=100, render=False, monitoring=True)
-    run_randomactions(env(), max_steps=60, render=True, monitoring=False)
+    #
+    # run_randomactions(env(), max_steps=60, render=True, monitoring=False)
