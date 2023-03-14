@@ -47,7 +47,7 @@ def mat2d_value(value_array):
 
 
 def dict_select(x, vars):
-    print("D:",x,vars)
+    #print("D:",x,vars)
     y = x
     for v in vars:
         y = y[v]
@@ -134,7 +134,7 @@ class Monitor:
                 self.history_variables[v] = (days[-2:], values[-2:])
                 ax.imshow(self.history_variables[v][1][-1])
             elif isinstance(value, (float, int, np.integer, np.float)):
-                print("V", v, value)
+                #print("V", v, value)
                 self.history_variables[v] = (days[-20:], values[-20:])
                 ax.plot(self.history_variables[v][0], self.history_variables[v][1])
                 if v_range != "range_auto":
@@ -400,7 +400,7 @@ def make_variables_to_be_monitored(variables):
                 s= v[:-1]
                 #print("v",s,sname_to_name(s))
                 myv.append(sname_to_name(v[:-1]))
-            print("[Monitor]VARS", myv)
+            #print("[Monitor]VARS", myv)
             mee = lambda x: me(dict_select(x, myv))
 
             var.append((var_fi, var_en, va0, mee, tva, "range_auto"))

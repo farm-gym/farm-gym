@@ -495,8 +495,8 @@ if __name__ == "__main__":
                 "f0.weeds.flowers#nb",
                 "f0.cide.amount#kg",
                 "f0.pests.plot_population#nb",
-                "f0.pests.onplant_population#nb[plant]",  # TODO: handle this !
-                # "f0.pests.onplant_population#nb.weeds", #TODO: handle this !
+                "f0.pests.onplant_population#nb[plant]",
+                "f0.pests.onplant_population#nb[weeds]",
             ]
         )
     )
