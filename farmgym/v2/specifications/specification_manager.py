@@ -186,6 +186,7 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
 def build_actionsyaml(filepath, fields):
     s = "params:\n"
     s += "  max_action_schedule_size: 5\n"
+    s += "  number_of_bins_to_discretize_continuous_actions: 10\n"
 
     def make_s(x, indent=""):
         s = ""

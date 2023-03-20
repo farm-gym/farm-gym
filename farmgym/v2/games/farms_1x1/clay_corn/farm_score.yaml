@@ -17,6 +17,7 @@ intervention-cost:
   Field-0:
     Soil-0:
       water_discrete: 1
+      water_continuous: 1
     Plant-0:
       sow: 1
       harvest: 1

@@ -162,8 +162,8 @@ def understand_the_farm(farm):
     print("#############INTERVENTIONS###############")
     actions = farm.farmgym_intervention_actions
     for ac in actions:
-        fa, fi, e, a, f_a, g = ac
-        print(ac, ":\t", (fa, fi, e, a, g.sample()))
+        fa, fi, e, a, f_a, g, ng  = ac
+        print(ac, ":\t", (fa, fi, e, a, g.sample(), ng))
     print("#############OBSERVATIONS###############")
     actions = farm.farmgym_observation_actions
     for ac in actions:
@@ -179,6 +179,10 @@ def understand_the_farm(farm):
     print("Random observation allowed by rules:\t", farm.random_allowed_observation())
     print("############RANDOM GYM ACTIONS################")
     print("Gym actions:", farm.action_space)
+    disc_space= farm.build_gym_discretized_action_space()
+    print("Gym discretized  actions:", disc_space)
+    print("Do nothing gym action schedule:","[]")
+    print(" corresponding farmgym action schedule:", farm.gymaction_to_farmgymaction([]))
     for i in range(25):
         a = farm.action_space.sample()
         if len(a) > 0:
@@ -187,6 +191,16 @@ def understand_the_farm(farm):
                 a,
                 "\n corresponding farmgym action schedule:",
                 farm.gymaction_to_farmgymaction(a),
+            )
+    print("--")
+    print("Discretized actions")
+    for i in range(25):
+        a = disc_space.sample()
+        print(
+                "Random gym discretized action schedule:\t\t",
+                a,
+                "\n corresponding farmgym action schedule:",
+                farm.gymaction_to_discretized_farmgymaction(a),
             )
 
     print("###############################")
@@ -312,7 +326,12 @@ def run_policy_xp(farm, policy, max_steps=np.infty):
 
 
 if __name__ == "__main__":
+    import farmgym.v2.games.farms_1x1.clay_corn.farm as cc
     import farmgym.v2.games.farms_1x1.clay_bean.farm as cb
+    import farmgym.v2.games.farms_3x4.clay_bean_weeds.farm as cbw
+
+    #understand_the_farm(cbw.env())
+    #understand_the_farm(cc.env())
 
     understand_the_farm(cb.env())
     # run_randomactions(cb.env(), max_steps=100, render=True, monitoring=False)

@@ -88,14 +88,13 @@ class Range:
     def to_gym_space(self):
         if type(self.range) == tuple:
             m, M = self.range
-            # TODO: BOX
             return Box(low=np.array([m]), high=np.array([M]), dtype=np.float32)
         else:
             return Discrete(len(self.range))
 
     def gym_value(self):
         if type(self.range) == tuple:
-            return [self.value]
+            return self.value
         else:
             return self.range.index(self.value)
 
@@ -279,8 +278,9 @@ class Entity_API:
         return make_obs(obs)
 
     def gym_observe_variable(self, variable_key, path):
-        # print("OBSERVE_VARIABLE:",variable_key,path)
+        #print("OBSERVE_VARIABLE:",variable_key,path)
         def make_obs(x):
+            #print("OBSERVE_VARIABLE:", x)
             if type(x) == Range:
                 return x.gym_value()
             elif type(x) == dict:
@@ -289,11 +289,13 @@ class Entity_API:
                     ob[k] = make_obs(x[k])
                 return ob
             elif type(x) == np.ndarray:
+                #print("OBS VARIABLE", x, " is array")
                 ob = []
                 for xx in x:
                     ob.append(make_obs(xx))
                 return ob
             else:
+                #print("OBS VARIABLE", x)
                 return x
 
         obs = self.variables[variable_key]

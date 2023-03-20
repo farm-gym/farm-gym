@@ -578,4 +578,4 @@ if __name__ == "__main__":
     # run_policy(f2, policy, max_steps=60, render=True, monitoring=True)
 
     policy = make_policy_fertilize(0.5, 10, 2)
-    run_policy(f2, policy, max_steps=60, render=False, monitoring=True)
+    run_policy(f3, policy, max_steps=60, render=False, monitoring=True)

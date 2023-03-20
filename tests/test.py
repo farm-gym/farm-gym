@@ -31,7 +31,7 @@ def test_farmgym():
     farm = env()
     farm.farmgym_reset()
 
-    print("NAME", farm.build_name())
+    print("NAME", farm.name, "\nSHORTNAME", farm.shortname)
 
     is_done = False
     nb_steps = 0
@@ -41,11 +41,22 @@ def test_farmgym():
         obs1, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
 
+
+        print("\tObservation actions:", observation_schedule)
+        [print("\tObservations:", o) for o in obs1]
+        print("\tInformation:", info)
+
         intervention_schedule = []
         intervention_schedule.append(farm.random_allowed_intervention())
         obs2, reward, is_done, info = farm.farmgym_step(intervention_schedule)
         int_cost = info["intervention cost"]
         nb_steps += 1
+
+
+        print("\tIntervention actions:", intervention_schedule)
+        [print("\tObservations:", o) for o in obs2]
+        print("\tReward:", reward)
+        print("\tInformation:", info)
 
     print("DONE")
 
@@ -77,6 +88,8 @@ def test_gym():
 
     farm = env()
     farm.reset()
+
+    print("NAME", farm.name, "\nSHORTNAME", farm.shortname)
 
     is_done = False
     nb_steps = 0

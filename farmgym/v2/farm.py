@@ -1,10 +1,12 @@
 import gym
 from gym.spaces import Discrete, Box, Dict, Tuple
 from gym.utils import seeding
-from farmgym.v2.gymUnion import Union, MultiUnion
+from farmgym.v2.gymUnion import Union, MultiUnion, Sequence
 import numpy as np
 from farmgym.v2.rendering.monitoring import Monitor
 
+
+from gym.spaces.utils import flatdim, flatten_space, flatten
 ######################################
 import inspect
 from textwrap import indent
@@ -188,19 +190,18 @@ class Farm(gym.Env):
         self.rules.setup(self)
         self.policies = policies
 
+        try:
+            self.discretization_nbins = self.rules.actions_allowed["params"]["number_of_bins_to_discretize_continuous_actions"]
+        except:
+            self.discretization_nbins = 10
+
         self.farmgym_observation_actions = self.build_farmgym_observation_actions(self.rules.actions_allowed["observations"])
-        self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
-            self.rules.actions_allowed["interventions"]
-        )
+        self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(self.rules.actions_allowed["interventions"])
         self.farmgym_state_space = self.build_gym_state_space()
 
         # GYM SPACES:
         self.observation_space = self.build_gym_observation_space()
-        self.action_space = MultiUnion(
-            [Discrete(1) for i in range(len(self.farmgym_observation_actions))]
-            + [g for fa, fi, e, a, f_a, g in self.farmgym_intervention_actions],
-            maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
-        )
+        self.action_space = self.build_gym_action_space() # build_gym_discretized_action_space()
 
         #
         # self.available_actions =[]
@@ -208,6 +209,9 @@ class Farm(gym.Env):
         #     for e in self.fields[f].entities:
         #         for a in self.fields[f].entities[e].actions:
         #           self.available_actions.append((f,e,a,self.fields[f].entities[e].actions[a]))
+
+        self.name = self.build_name()
+        self.shortname = self.build_shortname()
 
         for fi in self.rules.initial_conditions:
             for e in self.rules.initial_conditions[fi]:
@@ -220,8 +224,6 @@ class Farm(gym.Env):
                 self.fields[fi].entities[e].set_random(self.np_random)
 
         self.monitor = None
-        self.name = self.build_name()
-        # print(self.name)
 
     def build_name(self):
         """
@@ -255,27 +257,6 @@ class Farm(gym.Env):
         return short
 
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
-
-    # def build_configurations(self, dir, name):
-    #     """
-    #     dir: path
-    #     name: string used to name the farm in the yaml filename.
-    #     Generates yaml configuration files to help customize the farm. One file to specify the list of allowed actions, one file to initialize state variables, and one file to specify the score.
-    #     """
-    #     init_file = name + "_init.yaml"
-    #     filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
-    #
-    #     build_inityaml(filepath, self.fields, mode="default")
-    #
-    #     init_file = name + "_actions.yaml"
-    #     filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
-    #
-    #     build_actionsyaml(filepath, self.fields)
-    #
-    #     init_file = name + "_score.yaml"
-    #     filepath = dir + "/" + init_file if (type(dir) == str) else dir / init_file
-    #
-    #     build_scoreyaml(filepath, self.fields)
 
     def add_monitoring(self, list_of_variables):
         """
@@ -489,6 +470,8 @@ class Farm(gym.Env):
         """
 
         def convert(value, ranges):
+            if ranges== None:
+                return {}
             if type(ranges) == list:
                 if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
@@ -506,32 +489,114 @@ class Farm(gym.Env):
         fg_actions = []
         for action in actions:
             index, act = action
+            #print("I,A",index,act,len(self.farmgym_observation_actions))
+            #if index == 0:
+            #    fg_actions.append(self.farmgym_observation_actions[act])
             if index < ll:
                 if act == 0:
                     fg_actions.append(self.farmgym_observation_actions[index])
             else:
-                fa, fi, e, a, f_a, g = self.farmgym_intervention_actions[index - ll]
-
-                farmgym_act = act
-                if f_a == None:
-                    farmgym_act = {}
-                if type(f_a) == dict:
-                    # print("DICT:",f_a,act)
-                    farmgym_act = {}
-                    for k in f_a:
-                        farmgym_act[k] = convert(act[k], f_a[k])
+                fa, fi, e, a, f_a, g, ng = self.farmgym_intervention_actions[index - ll]
+                #fa, fi, e, a, f_a, g, ng = self.farmgym_intervention_actions[index - 1]
+                farmgym_act = convert(act,f_a)
 
                         # TODO: proper mapping from OrderedDict to Dict when dict parameters, + case of None parameter.
                 fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
 
+    def gymaction_to_discretized_farmgymaction(self, actions):
+
+        def convert(value, ranges):
+            if ranges== None:
+                return {}
+            if type(ranges) == list:
+                if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
+                    return yml_tuple_constructor(ranges[value], int)
+                return ranges[value]
+            elif type(ranges) == str and "(" in ranges:  # Range of continuous values
+                #r = ranges.split(",")
+                #m=float(r[0][1:])
+                #M=float(r[1][:-1])
+                #print("?",value, ranges,m,M)
+                return (float)(value)
+            elif type(ranges) == dict:
+                c_v = {}
+                for k in ranges:
+                    c_v[k] = convert(value[k], ranges[k])
+                return c_v
+
+
+
+        fg_actions = []
+        for action in actions:
+            if (action <  len(self.farmgym_observation_actions)):
+                fg_actions.append(self.farmgym_observation_actions[action])
+            else:
+                theindex= action-len(self.farmgym_observation_actions)
+                theaction = None
+                #print("A",action)
+                for  fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
+                    if (ng>theindex):
+                        theaction = (fa, fi, e,a, f_a,g,ng)
+                        break
+                    else:
+                        theindex-=ng
+                #print("B",theaction,theindex)
+
+                fa, fi, e, a, f_a, g, ng = theaction
+
+                #print("B1",g,type(g), theindex, ng)
+
+                if (type(g)== Discrete):
+                    act = theindex
+                elif (type(g) == Box):
+                    m = g.low
+                    M = g.high
+                    factor = ng //  self.discretization_nbins
+                    # factor = nbins
+                    j = i // factor
+                    i = i - j * factor
+                    act = m + j / (self.discretization_nbins + 1) * (M - m)
+
+                elif (type(g) == Dict):
+                    i = theindex
+                    factor = ng
+                    act= {}
+                    for key in g:
+                        if (type(g[key])==Discrete):
+                            factor = factor // g[key].n
+                            #factor = g[key].n
+                            j = i // factor
+                            i = i- j*factor
+                            act[key] = j
+                            #print(g[key], i,j, act[key],factor)
+                        elif (type(g[key])==Box):
+                            #print("B2", g[key], g[key].shape, i, ng)
+                            #print(g[key].low, g[key].high)
+                            m=g[key].low
+                            M = g[key].high
+                            factor = factor // self.discretization_nbins
+                            #factor = nbins
+                            j = i // factor
+                            i = i-j*factor
+                            act[key] = m + j/(self.discretization_nbins+1) * (M-m)
+                            #print(g[key], i,j, act[key],factor)
+                    #print("C",act,i,f_a)
+                farmgym_act = convert(act, f_a)
+                fg_actions.append((fa, fi, e, a, farmgym_act))
+        return fg_actions
+
+
+
+
+
     def random_allowed_intervention(self):
         """
-        Outputs a randomly generated intervention, in farmgym format.
+        Outputs a randomly generated intervention, as allowed by the yaml file, in farmgym format.
         """
         n = self.np_random.integers(len(self.farmgym_intervention_actions))
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
-        fa, fi, e, inter, params, gym_space = self.farmgym_intervention_actions[n]
+        fa, fi, e, inter, params, gym_space, len_gym_space  = self.farmgym_intervention_actions[n]
         o = gym_space.sample()
 
         def convert(value, ranges):
@@ -558,7 +623,7 @@ class Farm(gym.Env):
         return (fa, fi, e, inter, farmgym_act)
 
     # def random_intervention(self):
-    #     #TODO: Should we restrict to specified inverentions from config file?
+    #     #TODO: Should we restrict to specified inverventions from config file?
     #     fa = self.np_random.choice(list(self.farmers.keys()))
     #     fi = self.np_random.choice(list(self.farmers[fa].fields.keys()))
     #     e = self.np_random.choice(list(self.fields[fi].entities.keys()))
@@ -592,13 +657,13 @@ class Farm(gym.Env):
 
     def random_allowed_observation(self):
         """
-        Outputs a randomly generated observation-action (action to collect observation), in farmgym format.
+        Outputs a randomly generated observation-action (action to collect observation), as allowed by the yaml file, in farmgym format.
         """
         n = self.np_random.integers(len(self.farmgym_observation_actions))
         return self.farmgym_observation_actions[n]
 
     # def random_observation(self):
-    #     #TODO: Should ee restrict to specified observations from config file?
+    #     #TODO: Should we restrict to specified observations from config file?
     #     fa = self.np_random.choice(list(self.farmers.keys()))
     #     fi = self.np_random.choice(list(self.farmers[fa].fields.keys()))
     #     e = self.np_random.choice(list(self.fields[fi].entities.keys()))
@@ -648,6 +713,23 @@ class Farm(gym.Env):
                     actions[key] = make(action[key])
                 return Dict(actions)
 
+        def len_discretized_gym_space(gym_space, nbins=10):
+            nactiong = 0
+            if type(gym_space) == Dict:
+                # print(g)
+                nactiong = 1
+                for key in gym_space:
+                    space = gym_space[key]
+                    if (isinstance(space, Discrete)):
+                        nactiong *= space.n
+                    elif (isinstance(space, Box)):
+                        nactiong *= nbins ** np.prod(space.shape)
+            elif type(gym_space) == Discrete:
+                nactiong = gym_space.n
+            elif type(gym_space) == Box: # Assumes it is always dimension 1.
+                nactiong = nbins #** np.prod(gym_space.shape)
+            return  int(nactiong)
+
         actions = []
         for fa in self.farmers:
             for fi in self.fields:
@@ -665,6 +747,7 @@ class Farm(gym.Env):
                                         action,
                                         action_yaml[fi][e][action],
                                         gym_a,
+                                        len_discretized_gym_space(gym_a,nbins=self.discretization_nbins)
                                     )
                                 )
         return actions
@@ -739,6 +822,7 @@ class Farm(gym.Env):
         """
         Outputs a state space in gym Tuple format built from all state variables.
         """
+        ## TODO: flatten? https://github.com/openai/gym/issues/1830
 
         def to_gym(range):
             if type(range) == tuple:
@@ -790,6 +874,9 @@ class Farm(gym.Env):
         Outputs an observation space in gym MultiUnion format from all possible observations.
         """
 
+        #TODO: flatten https://github.com/openai/gym/issues/1830?
+        # Number all discrete actions, then discretize continuous ones with param N (nb of elements for each dim). number mutiactions etc.
+
         def make_space(x):
             if type(x) == dict:
                 xspace = {}
@@ -826,6 +913,31 @@ class Farm(gym.Env):
             observation_space.append(make_space(x))
 
         return MultiUnion(observation_space)
+
+    def  build_gym_action_space(self):
+        return MultiUnion(
+            [Discrete(1) for x in range(len(self.farmgym_observation_actions))]
+            + [g for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions],
+            maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
+        )
+
+        # return MultiUnion(
+        #    [Discrete(len(self.farmgym_observation_actions))]
+        #    + [g for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions],
+        #    maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
+        #)
+
+
+    def build_gym_discretized_action_space(self):
+        ''' Whenever encounters a continuous box, split each dimension into nbins bins '''
+        naction=len(self.farmgym_observation_actions)
+        for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
+            naction+=ng
+        #print("BUILD DISCRETIZED A", naction)
+        return Sequence(Discrete(naction),maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+        #return MultiUnion([Discrete(naction)],maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+
+
 
     def render(self, mode="human"):
         """
@@ -1006,7 +1118,7 @@ class Farm(gym.Env):
 
         s += "Available interventions:" + "\n"
         for i in self.farmgym_intervention_actions:
-            fa, fi, e, a, f_a, g = i
+            fa, fi, e, a, f_a, g, ng = i
             s += "\t" + str((fa, fi, e, a, f_a)) + "\n"
         return s
 
