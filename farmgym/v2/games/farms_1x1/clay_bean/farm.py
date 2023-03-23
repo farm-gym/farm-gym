@@ -34,32 +34,20 @@ def env():
     field1 = Field(
         localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-        entity_managers=entities1,
+        entities_specifications=entities1,
     )
 
     farmer1 = BasicFarmer(max_daily_interventions=1)
     scoring = BasicScore(score_configuration=CURRENT_DIR / "farm_score.yaml")
 
-    free_observations = []
-    free_observations.append(("Field-0", "Weather-0", "day#int365", []))
-    free_observations.append(("Field-0", "Weather-0", "air_temperature", []))
-
     terminal_CNF_conditions = [
         [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
-        [
-            (
-                ("Field-0", "Plant-0", "global_stage", []),
-                lambda x: x.value,
-                "in",
-                ["dead", "harvested"],
-            )
-        ],
+        [(("Field-0", "Plant-0", "global_stage", []), lambda x: x.value, "in", ["dead", "harvested"])]
     ]
     rules = BasicRule(
         init_configuration=CURRENT_DIR / "farm_init.yaml",
         actions_configuration=CURRENT_DIR / "farm_actions.yaml",
-        terminal_CNF_conditions=terminal_CNF_conditions,
-        free_observations=free_observations,
+        terminal_CNF_conditions=terminal_CNF_conditions
     )
 
     # DEFINE one policy:

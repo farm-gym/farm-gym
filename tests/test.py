@@ -37,7 +37,9 @@ def test_farmgym():
     nb_steps = 0
     while (not is_done) and (nb_steps < 10):
         observation_schedule = []
-        observation_schedule.append(farm.random_allowed_observation())
+        a = farm.random_allowed_observation()
+        if (a != []):
+            observation_schedule.append(a)
         obs1, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
 
@@ -99,7 +101,7 @@ def test_gym():
 
         print("Step:")
         print("\tAction:", action)
-        [print("\tObservations:", o) for o in obs]
+        [print("\tObservation:", o) for o in obs]
         print("\tReward:", reward)
         print("\tIs done:", is_done)
         print("\tInformation:", info)
@@ -191,7 +193,9 @@ def test_farmgym_render_register():
 
         observation_schedule = []
         if np.random.rand() > 0.3:
-            observation_schedule.append(farm.random_allowed_observation())
+            a = farm.random_allowed_observation()
+            if (a!= None):
+                observation_schedule.append(a)
         obs1, obs_cost, _, _ = farm.farmgym_step(observation_schedule)
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
 

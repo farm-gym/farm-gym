@@ -7,6 +7,7 @@ from farmgym.v2.rendering.monitoring import Monitor
 
 
 from gym.spaces.utils import flatdim, flatten_space, flatten
+
 ######################################
 import inspect
 from textwrap import indent
@@ -66,7 +67,8 @@ class Farm(gym.Env):
 
     """
 
-    def __init__(self, fields, farmers, scoring, rules, policies=None, seed=None):
+    def __init__(self, fields, farmers, scoring, rules,  policies=None, interaction_mode="AOMDP",seed=None):
+        self.interaction_mode = interaction_mode
         # Name fields uniquely:
         cpt = {}
         for f in fields:
@@ -108,41 +110,41 @@ class Farm(gym.Env):
         filep = "/".join(inspect.stack()[1].filename.split("/")[0:-1])
         if self.scoring.score_configuration == None:
             print(f"[Farmgym Warning] Missing score configuration file.")
-            build_scoreyaml(filep + "/" + farm_call + "_score.yaml", self.fields)
+            build_scoreyaml(filep + "/" + farm_call + "_score.yaml", self)
             self.scoring.score_configuration = filep + "/" + farm_call + "_score.yaml"
             print(
-                f"[Solution] "
-                + "  Vanilla score configuration file automatically generated in "
+                f"[Solution]"
+                + " Vanilla score configuration file automatically generated in "
                 + str(filep + "/" + farm_call + "_score.yaml")
-                + " and used instead."
+                + " and used instead. Please, open and modify as wanted."
             )
         else:
             try:
                 open(self.scoring.score_configuration, "r", encoding="utf8")
             except FileNotFoundError as err:
                 print(f"[Farmgym Warning] Missing score configuration file.")
-                build_scoreyaml(self.scoring.score_configuration, self.fields)
+                build_scoreyaml(self.scoring.score_configuration, self)
                 print(
-                    f"[Solution] "
+                    f"[Solution]"
                     + " Vanilla score configuration file automatically generated in "
                     + str(self.scoring.score_configuration)
-                    + " and used instead."
+                    + " and used instead. Please, open and modify as wanted."
                 )
 
         if self.rules.init_configuration == None:
             print(f"[Farmgym Warning] Missing initial conditions configuration file.")
             build_inityaml(
                 filep + "/" + farm_call + "_init.yaml",
-                self.fields,
+                self,
                 mode="default",
                 init_values=self.rules.initial_conditions_values,
             )
             self.rules.init_configuration = filep + "/" + farm_call + "_init.yaml"
             print(
-                f"[Solution] "
+                f"[Solution]"
                 + " Vanilla initial conditions configuration file automatically generated in "
                 + str(filep + "/" + farm_call + "_init.yaml")
-                + " and used instead."
+                + " and used instead. Please, open and modify as wanted. Deleting a line corresponding to a state variable makes it initialized at default value."
             )
         else:
             try:
@@ -151,39 +153,39 @@ class Farm(gym.Env):
                 print(f"[Farmgym Warning] Missing initial conditions configuration file.")
                 build_inityaml(
                     self.rules.init_configuration,
-                    self.fields,
+                    self,
                     mode="default",
                     init_values=self.rules.initial_conditions_values,
                 )
                 # print('INIT VALUE', self.rules.initial_conditions_values)
                 print(
-                    f"[Solution] "
+                    f"[Solution]"
                     + "  Vanilla initial conditions configuration file automatically generated in "
                     + str(self.rules.init_configuration)
-                    + " and used instead."
+                    + " and used instead. Please, open and modify as wanted. Deleting a line corresponding to a state variable makes it initialized at default value."
                 )
 
         if self.rules.actions_configuration == None:
             print(f"[Farmgym Warning] Missing actions configuration file.")
-            build_actionsyaml(filep + "/" + farm_call + "_actions.yaml", self.fields)
+            build_actionsyaml(filep + "/" + farm_call + "_actions.yaml", self)
             self.rules.actions_configuration = filep + "/" + farm_call + "_actions.yaml"
             print(
-                f"[Solution] "
+                f"[Solution]"
                 + " Vanilla action configuration file automatically generated in "
                 + str(filep + "/" + farm_call + "_actions.yaml")
-                + " and used instead."
+                + " and used instead. Please, open and remove any line corresponding to an unwanted action."
             )
         else:
             try:
                 open(self.rules.actions_configuration, "r", encoding="utf8")
             except FileNotFoundError as err:
                 print(f"[Farmgym Warning] Missing actions configuration file.")
-                build_actionsyaml(self.rules.actions_configuration, self.fields)
+                build_actionsyaml(self.rules.actions_configuration, self)
                 print(
-                    f"[Solution] "
+                    f"[Solution]"
                     + " Vanilla action configuration file automatically generated in "
                     + str(self.rules.actions_configuration)
-                    + " and used instead."
+                    + " and used instead. Please, open and remove any line corresponding to an unwanted action."
                 )
 
         self.scoring.setup(self)
@@ -193,7 +195,7 @@ class Farm(gym.Env):
         try:
             self.discretization_nbins = self.rules.actions_allowed["params"]["number_of_bins_to_discretize_continuous_actions"]
         except:
-            self.discretization_nbins = 10
+            self.discretization_nbins = 11
 
         self.farmgym_observation_actions = self.build_farmgym_observation_actions(self.rules.actions_allowed["observations"])
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(self.rules.actions_allowed["interventions"])
@@ -201,14 +203,8 @@ class Farm(gym.Env):
 
         # GYM SPACES:
         self.observation_space = self.build_gym_observation_space()
-        self.action_space = self.build_gym_action_space() # build_gym_discretized_action_space()
-
-        #
-        # self.available_actions =[]
-        # for f in self.fields:
-        #     for e in self.fields[f].entities:
-        #         for a in self.fields[f].entities[e].actions:
-        #           self.available_actions.append((f,e,a,self.fields[f].entities[e].actions[a]))
+        # self.action_space = self.build_gym_action_space()
+        self.action_space = self.build_gym_discretized_action_space()
 
         self.name = self.build_name()
         self.shortname = self.build_shortname()
@@ -336,27 +332,55 @@ class Farm(gym.Env):
         """
         Performs a step evolution of the system, from current stage to next state given the input action.
         """
-        return self.gym_step(action)
+        if (self.interaction_mode == "POMDP"):
+            return self.gym_step_POMDP(action)
+        else: # Assumes it is AOMDP
+            return self.gym_step_AOMDP(action)
 
-    def gym_step(self, gym_action):
+    # def double_step(self, policy):
+    #    info = {}
+    #    free_observations = self.get_free_observations()
+    #    observation_schedule = policy.observation_schedule(free_observations)
+    #    observations, _, _, info1 = self.farmgym_step(observation_schedule)
+    #    info["observation cost"] = info1["observation cost"]
+    #    intervention_schedule = policy.intervention_schedule(observations)
+    #    obs, reward, is_done, info2 = self.farmgym_step(intervention_schedule)
+    #    info["intervention cost"] = info2["intervention cost"]
+    #    return observations+observations+obs,reward,is_done,info
+
+    def gym_step_POMDP(self, action):
+        #info = {}
+        observations, _, _, _ = self.farmgym_step([])
+        obs, reward, is_done, info = self.farmgym_step(self.gymaction_to_discretized_farmgymaction(action))
+        #info["intervention cost"] = info2["intervention cost"]
+        # free_observations = self.get_free_observations()
+        return self.farmgym_to_gym_observations(observations + obs), reward, is_done, info
+
+
+    def farmgym_to_gym_observations(self, farmgym_observations):
+        gym_observations = []
+        # gym_observations = {}
+        for fo in farmgym_observations:
+            fa_key, fi_key, e_key, variable_key, path, value = fo
+            gym_value = self.fields[fi_key].entities[e_key].gym_observe_variable(variable_key, path)
+            # gym_observations[str(fa_key)+"."+str(fi_key)+"."+str(e_key)+"."+str(variable_key)+"."+str(path)]=gym_value
+            gym_observations.append(gym_value)
+        return gym_observations
+
+    def gym_step_AOMDP(self, gym_action):
         """
         Performs a step evolution of the system, from current stage to next state given the input action.
         It follows the gym signature, and outputs observations, reward, is_done, information.
         Farmgym observations are added in information["farmgym observations"].
         """
         farmgym_observations, reward, is_done, farmgym_information = self.farmgym_step(
-            self.gymaction_to_farmgymaction(gym_action)
+            # self.gymaction_to_farmgymaction(gym_action)
+            self.gymaction_to_discretized_farmgymaction(gym_action)
         )
 
-        observations = []
-        observation_information = []
-        for fo in farmgym_observations:
-            fa_key, fi_key, e_key, variable_key, path, value = fo
-            gym_value = self.fields[fi_key].entities[e_key].gym_observe_variable(variable_key, path)
-            observations.append(gym_value)
-            observation_information.append(fo)
+        observations = self.farmgym_to_gym_observations(farmgym_observations)
         information = farmgym_information
-        information["farmgym observations"] = observation_information
+        information["farmgym observations"] = farmgym_observations
 
         return observations, reward, is_done, information
 
@@ -470,7 +494,7 @@ class Farm(gym.Env):
         """
 
         def convert(value, ranges):
-            if ranges== None:
+            if ranges == None:
                 return {}
             if type(ranges) == list:
                 if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
@@ -489,35 +513,33 @@ class Farm(gym.Env):
         fg_actions = []
         for action in actions:
             index, act = action
-            #print("I,A",index,act,len(self.farmgym_observation_actions))
-            #if index == 0:
+            # print("I,A",index,act,len(self.farmgym_observation_actions))
+            # if index == 0:
             #    fg_actions.append(self.farmgym_observation_actions[act])
             if index < ll:
                 if act == 0:
                     fg_actions.append(self.farmgym_observation_actions[index])
             else:
                 fa, fi, e, a, f_a, g, ng = self.farmgym_intervention_actions[index - ll]
-                #fa, fi, e, a, f_a, g, ng = self.farmgym_intervention_actions[index - 1]
-                farmgym_act = convert(act,f_a)
-
-                        # TODO: proper mapping from OrderedDict to Dict when dict parameters, + case of None parameter.
+                # fa, fi, e, a, f_a, g, ng = self.farmgym_intervention_actions[index - 1]
+                farmgym_act = convert(act, f_a)
+                # TODO: proper mapping from OrderedDict to Dict when dict parameters, + case of None parameter.
                 fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
 
     def gymaction_to_discretized_farmgymaction(self, actions):
-
         def convert(value, ranges):
-            if ranges== None:
+            if ranges == None:
                 return {}
             if type(ranges) == list:
                 if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
             elif type(ranges) == str and "(" in ranges:  # Range of continuous values
-                #r = ranges.split(",")
-                #m=float(r[0][1:])
-                #M=float(r[1][:-1])
-                #print("?",value, ranges,m,M)
+                # r = ranges.split(",")
+                # m=float(r[0][1:])
+                # M=float(r[1][:-1])
+                # print("?",value, ranges,m,M)
                 return (float)(value)
             elif type(ranges) == dict:
                 c_v = {}
@@ -525,70 +547,64 @@ class Farm(gym.Env):
                     c_v[k] = convert(value[k], ranges[k])
                 return c_v
 
-
-
         fg_actions = []
         for action in actions:
-            if (action <  len(self.farmgym_observation_actions)):
+            if action < len(self.farmgym_observation_actions):
                 fg_actions.append(self.farmgym_observation_actions[action])
             else:
-                theindex= action-len(self.farmgym_observation_actions)
+                theindex = action - len(self.farmgym_observation_actions)
                 theaction = None
-                #print("A",action)
-                for  fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
-                    if (ng>theindex):
-                        theaction = (fa, fi, e,a, f_a,g,ng)
+                # print("A",action)
+                for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
+                    if ng > theindex:
+                        theaction = (fa, fi, e, a, f_a, g, ng)
                         break
                     else:
-                        theindex-=ng
-                #print("B",theaction,theindex)
+                        theindex -= ng
+                # print("B",theaction,theindex)
 
                 fa, fi, e, a, f_a, g, ng = theaction
 
-                #print("B1",g,type(g), theindex, ng)
+                # print("B1",g,type(g), theindex, ng)
 
-                if (type(g)== Discrete):
+                if type(g) == Discrete:
                     act = theindex
-                elif (type(g) == Box):
+                elif type(g) == Box:
                     m = g.low
                     M = g.high
-                    factor = ng //  self.discretization_nbins
+                    factor = ng // self.discretization_nbins
                     # factor = nbins
                     j = i // factor
                     i = i - j * factor
                     act = m + j / (self.discretization_nbins + 1) * (M - m)
 
-                elif (type(g) == Dict):
+                elif type(g) == Dict:
                     i = theindex
                     factor = ng
-                    act= {}
+                    act = {}
                     for key in g:
-                        if (type(g[key])==Discrete):
+                        if type(g[key]) == Discrete:
                             factor = factor // g[key].n
-                            #factor = g[key].n
+                            # factor = g[key].n
                             j = i // factor
-                            i = i- j*factor
+                            i = i - j * factor
                             act[key] = j
-                            #print(g[key], i,j, act[key],factor)
-                        elif (type(g[key])==Box):
-                            #print("B2", g[key], g[key].shape, i, ng)
-                            #print(g[key].low, g[key].high)
-                            m=g[key].low
+                            # print(g[key], i,j, act[key],factor)
+                        elif type(g[key]) == Box:
+                            # print("B2", g[key], g[key].shape, i, ng)
+                            # print(g[key].low, g[key].high)
+                            m = g[key].low
                             M = g[key].high
                             factor = factor // self.discretization_nbins
-                            #factor = nbins
+                            # factor = nbins
                             j = i // factor
-                            i = i-j*factor
-                            act[key] = m + j/(self.discretization_nbins+1) * (M-m)
-                            #print(g[key], i,j, act[key],factor)
-                    #print("C",act,i,f_a)
+                            i = i - j * factor
+                            act[key] = m + j / (self.discretization_nbins + 1) * (M - m)
+                            # print(g[key], i,j, act[key],factor)
+                    # print("C",act,i,f_a)
                 farmgym_act = convert(act, f_a)
                 fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
-
-
-
-
 
     def random_allowed_intervention(self):
         """
@@ -596,7 +612,7 @@ class Farm(gym.Env):
         """
         n = self.np_random.integers(len(self.farmgym_intervention_actions))
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
-        fa, fi, e, inter, params, gym_space, len_gym_space  = self.farmgym_intervention_actions[n]
+        fa, fi, e, inter, params, gym_space, len_gym_space = self.farmgym_intervention_actions[n]
         o = gym_space.sample()
 
         def convert(value, ranges):
@@ -659,9 +675,10 @@ class Farm(gym.Env):
         """
         Outputs a randomly generated observation-action (action to collect observation), as allowed by the yaml file, in farmgym format.
         """
-        n = self.np_random.integers(len(self.farmgym_observation_actions))
-        return self.farmgym_observation_actions[n]
-
+        if (len(self.farmgym_observation_actions)>0):
+            n = self.np_random.integers(len(self.farmgym_observation_actions))
+            return self.farmgym_observation_actions[n]
+        return None
     # def random_observation(self):
     #     #TODO: Should we restrict to specified observations from config file?
     #     fa = self.np_random.choice(list(self.farmers.keys()))
@@ -720,36 +737,38 @@ class Farm(gym.Env):
                 nactiong = 1
                 for key in gym_space:
                     space = gym_space[key]
-                    if (isinstance(space, Discrete)):
+                    if isinstance(space, Discrete):
                         nactiong *= space.n
-                    elif (isinstance(space, Box)):
+                    elif isinstance(space, Box):
                         nactiong *= nbins ** np.prod(space.shape)
             elif type(gym_space) == Discrete:
                 nactiong = gym_space.n
-            elif type(gym_space) == Box: # Assumes it is always dimension 1.
-                nactiong = nbins #** np.prod(gym_space.shape)
-            return  int(nactiong)
+            elif type(gym_space) == Box:  # Assumes it is always dimension 1.
+                nactiong = nbins  # ** np.prod(gym_space.shape)
+            return int(nactiong)
 
         actions = []
         for fa in self.farmers:
-            for fi in self.fields:
-                for e in self.fields[fi].entities:
-                    if e in action_yaml[fi].keys():
-                        if action_yaml[fi][e] != None:
-                            for action in action_yaml[fi][e]:
-                                gym_a = make(action_yaml[fi][e][action])
-                                # print(gym_a)
-                                actions.append(
-                                    (
-                                        fa,
-                                        fi,
-                                        e,
-                                        action,
-                                        action_yaml[fi][e][action],
-                                        gym_a,
-                                        len_discretized_gym_space(gym_a,nbins=self.discretization_nbins)
-                                    )
-                                )
+            if fa in action_yaml.keys():
+                for fi in self.fields:
+                    if  fi in action_yaml[fa].keys():
+                        for e in self.fields[fi].entities:
+                            if e in action_yaml[fa][fi].keys():
+                                if action_yaml[fa][fi][e] != None:
+                                    for action in action_yaml[fa][fi][e]:
+                                        gym_a = make(action_yaml[fa][fi][e][action])
+                                        # print(gym_a)
+                                        actions.append(
+                                            (
+                                                fa,
+                                                fi,
+                                                e,
+                                                action,
+                                                action_yaml[fa][fi][e][action],
+                                                gym_a,
+                                                len_discretized_gym_space(gym_a, nbins=self.discretization_nbins),
+                                            )
+                                        )
         return actions
 
     def build_farmgym_observation_actions(self, action_yaml):
@@ -803,20 +822,41 @@ class Farm(gym.Env):
 
         actions = []
         for fa in self.farmers:
-            for fi in self.fields:
-                for e in self.fields[fi].entities:
-                    if e in action_yaml[fi].keys():
-                        if action_yaml[fi][e] != None:
-                            for var in self.fields[fi].entities[e].variables:
-                                if var in action_yaml[fi][e].keys():
-                                    paths = make(
-                                        action_yaml[fi][e][var],
-                                        self.fields[fi].entities[e].variables[var],
-                                    )
-                                    acts = unpile((fa, fi, e, var), paths, [])
-                                    [actions.append(o) for o in acts]
+            if fa in action_yaml.keys():
+                for fi in self.fields:
+                    if  fi in action_yaml[fa].keys():
+                        for e in self.fields[fi].entities:
+                            if e in action_yaml[fa][fi].keys():
+                                if action_yaml[fa][fi][e] != None:
+                                    for var in self.fields[fi].entities[e].variables:
+                                        if var in action_yaml[fa][fi][e].keys():
+                                            paths = make(
+                                                action_yaml[fa][fi][e][var],
+                                                self.fields[fi].entities[e].variables[var],
+                                            )
+                                            acts = unpile((fa, fi, e, var), paths, [])
+                                            [actions.append(o) for o in acts]
 
-        return actions
+        free_actions = []
+        if "Free" in action_yaml.keys():
+           for fi in self.fields:
+               if  fi in action_yaml["Free"].keys():
+                   for e in self.fields[fi].entities:
+                       if e in action_yaml["Free"][fi].keys():
+                           if action_yaml["Free"][fi][e] != None:
+                               for var in self.fields[fi].entities[e].variables:
+                                   if var in action_yaml["Free"][fi][e].keys():
+                                       paths = make(
+                                           action_yaml["Free"][fi][e][var],
+                                           self.fields[fi].entities[e].variables[var],
+                                       )
+                                       acts = unpile(("Free", fi, e, var), paths, [])
+                                       [free_actions.append(o) for o in acts]
+        self.rules.free_observations = free_actions
+
+        if (self.interaction_mode == "AOMDP"):
+            return actions
+        return []
 
     def build_gym_state_space(self):
         """
@@ -857,24 +897,28 @@ class Farm(gym.Env):
                 return to_gym(x.range)
 
         state_space = []
-
+        state_space_ = {}
         for fi in self.fields:
+            state_space_[fi] = {}
             for e in self.fields[fi].entities:
+                state_space_[fi][e] = {}
                 for v in self.fields[fi].entities[e].variables:
                     s = make_s(self.fields[fi].entities[e].variables[v])
-                    if type(s) == Union:
-                        [state_space.append(ss) for ss in s.spaces]
-                    else:
-                        state_space.append(s)
+                    # if type(s) == Union:
+                    #    [state_space.append(ss) for ss in s.spaces]
+                    # else:
+                    state_space.append(s)
+                    state_space_[fi][e][v] = self.fields[fi].entities[e].variables[v]
 
-        return Tuple(state_space)
+        # print("STATE_SPACE", state_space_)
+        return Dict(make_s(state_space_))  # Tuple(state_space)
 
     def build_gym_observation_space(self):
         """
         Outputs an observation space in gym MultiUnion format from all possible observations.
         """
 
-        #TODO: flatten https://github.com/openai/gym/issues/1830?
+        # TODO: flatten https://github.com/openai/gym/issues/1830?
         # Number all discrete actions, then discretize continuous ones with param N (nb of elements for each dim). number mutiactions etc.
 
         def make_space(x):
@@ -892,6 +936,8 @@ class Farm(gym.Env):
                 return x.to_gym_space()
 
         observation_space = []
+        # observation_space2 = {}
+        # obs_space = {}
 
         for fo in self.rules.free_observations:
             fa_key, fi_key, e_key, variable_key, path = fo
@@ -902,7 +948,32 @@ class Farm(gym.Env):
             for p in path:
                 x = x[p]
             # print("x",x)
-            observation_space.append(make_space(x))
+            # observation_space.append(make_space(x))
+
+            o_space = {}
+            o_space[fa_key] = {}
+            o_space[fa_key][fi_key] = {}
+            o_space[fa_key][fi_key][e_key] = {}
+            o_space[fa_key][fi_key][e_key][variable_key] = {}
+            if path != []:
+                o_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
+            else:
+                o_space[fa_key][fi_key][e_key][variable_key] = x
+            observation_space.append(make_space(o_space))
+
+            # if fa_key not in obs_space:
+            #    obs_space[fa_key] = {}
+            # if fi_key not in obs_space[fa_key]:
+            #    obs_space[fa_key][fi_key] = {}
+            # if e_key not in obs_space[fa_key][fi_key]:
+            #    obs_space[fa_key][fi_key][e_key] = {}
+            # if variable_key not in obs_space[fa_key][fi_key][e_key]:
+            #    obs_space[fa_key][fi_key][e_key][variable_key] = {}
+            # if str(path) not in obs_space[fa_key][fi_key][e_key][variable_key]:
+            #    obs_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
+
+            # observation_space2[str(fa_key) + "." + str(fi_key) + "." + str(e_key) + "." + str(variable_key) + "." + str(
+            #    path)] = make_space(x)
 
         for oa in self.farmgym_observation_actions:
             fa_key, fi_key, e_key, variable_key, path = oa
@@ -910,11 +981,38 @@ class Farm(gym.Env):
             x = var
             for p in path:
                 x = x[p]
-            observation_space.append(make_space(x))
 
+            # observation_space.append(make_space(x))
+
+            o_space = {}
+            o_space[fa_key] = {}
+            o_space[fa_key][fi_key] = {}
+            o_space[fa_key][fi_key][e_key] = {}
+            o_space[fa_key][fi_key][e_key][variable_key] = {}
+            if path != []:
+                o_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
+            else:
+                o_space[fa_key][fi_key][e_key][variable_key] = x
+            observation_space.append(make_space(o_space))
+
+            # if fa_key not in obs_space:
+            #    obs_space[fa_key] = {}
+            # if fi_key not in obs_space[fa_key]:
+            #    obs_space[fa_key][fi_key] = {}
+            # if e_key not in obs_space[fa_key][fi_key]:
+            #    obs_space[fa_key][fi_key][e_key] = {}
+            # if variable_key not in obs_space[fa_key][fi_key][e_key]:
+            #    obs_space[fa_key][fi_key][e_key][variable_key] = {}
+            # if str(path) not in obs_space[fa_key][fi_key][e_key][variable_key]:
+            #    obs_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
+            # observation_space2[str(fa_key) + "." + str(fi_key) + "." + str(e_key) + "." + str(variable_key) + "." + str(
+            #    path)] = make_space(x)
+
+        # TODO: Make everything a dictionary?
+        # return make_space(obs_space)
         return MultiUnion(observation_space)
 
-    def  build_gym_action_space(self):
+    def build_gym_action_space(self):
         return MultiUnion(
             [Discrete(1) for x in range(len(self.farmgym_observation_actions))]
             + [g for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions],
@@ -925,19 +1023,78 @@ class Farm(gym.Env):
         #    [Discrete(len(self.farmgym_observation_actions))]
         #    + [g for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions],
         #    maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
-        #)
-
+        # )
 
     def build_gym_discretized_action_space(self):
-        ''' Whenever encounters a continuous box, split each dimension into nbins bins '''
-        naction=len(self.farmgym_observation_actions)
+        """Whenever encounters a continuous box, split each dimension into nbins bins"""
+        naction = len(self.farmgym_observation_actions)
         for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
-            naction+=ng
-        #print("BUILD DISCRETIZED A", naction)
-        return Sequence(Discrete(naction),maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
-        #return MultiUnion([Discrete(naction)],maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+            naction += ng
+        # print("BUILD DISCRETIZED A", naction)
+        return Sequence(Discrete(naction), maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+        # return MultiUnion([Discrete(naction)],maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
 
+    def actions_to_string(self):
+        nb_actions = self.action_space.space.n
+        nb_observations = len(self.farmgym_observation_actions)
 
+        def variable_to_string(var):
+            sva = var.split("#")
+            ssva = sva[0].split("_")
+            tva = ""
+            for s in ssva:
+                tva += s[0].upper() + s[1:] + " "
+            if len(sva) > 1:
+                tva += "(" + sva[1] + ")"
+            else:
+                tva = tva[:-1]
+            return tva
+
+        a = self.gymaction_to_discretized_farmgymaction([])
+        s = "-] Do nothing (empty).\n"
+        if (self.interaction_mode=="AOMDP"):
+            s += "Observation-actions:\n"
+            for i in range(nb_observations):
+                a = self.gymaction_to_discretized_farmgymaction([i])
+                fa, fi, e, a, p = a[0]
+                sp = " with parameters " + str(p) if p != [] else ""
+                s += (
+                    str(i)
+                    + "] Farmer "
+                    + str(fa)
+                    + " observes"
+                    + " variable '"
+                    + variable_to_string(str(a))
+                    + "'"
+                    + sp
+                    + " on "
+                    + str(e)
+                    + " in "
+                    + str(fi)
+                    + ".\n"
+                )
+
+            s += "Intervention-actions:\n"
+        for i in range(nb_observations, nb_actions):
+            a = self.gymaction_to_discretized_farmgymaction([i])
+            fa, fi, e, a, p = a[0]
+            sp = " with parameters " + str(p) if p != {} else ""
+            s += (
+                str(i)
+                + "] Farmer "
+                + str(fa)
+                + " performs"
+                + " intervention "
+                + str(a)
+                + sp
+                + " on "
+                + str(e)
+                + " in "
+                + str(fi)
+                + ".\n"
+            )
+
+        return s
 
     def render(self, mode="human"):
         """
@@ -945,160 +1102,190 @@ class Farm(gym.Env):
         The method considerably slows down the code execution hence should only be called for visualization purpose.
         """
 
-        max_display_actions = self.rules.actions_allowed["params"]["max_action_schedule_size"]
+        if mode == "human":
 
-        from PIL import Image, ImageDraw, ImageFont
+            max_display_actions = self.rules.actions_allowed["params"]["max_action_schedule_size"]
 
-        sprite_width, sprite_height = 64, 64
-        scale_factor = 2
-        im_width, im_height = sprite_width * scale_factor, sprite_height * scale_factor
-        XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])
-        YY = np.max(
-            [
-                self.fields[fi].Y
-                + (int)(
-                    np.ceil(
-                        len([1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None])
-                        / self.fields[fi].X
+            from PIL import Image, ImageDraw, ImageFont
+
+            sprite_width, sprite_height = 64, 64
+            scale_factor = 2
+            im_width, im_height = sprite_width * scale_factor, sprite_height * scale_factor
+            XX = np.sum([self.fields[fi].X + 1 for fi in self.fields])
+            YY = np.max(
+                [
+                    self.fields[fi].Y
+                    + (int)(
+                        np.ceil(
+                            len(
+                                [
+                                    1
+                                    for e in self.fields[fi].entities
+                                    if self.fields[fi].entities[e].to_thumbnailimage() != None
+                                ]
+                            )
+                            / self.fields[fi].X
+                        )
                     )
-                )
-                for fi in self.fields
-            ]
-        )
-        font_size = im_width * XX // (6 * len(self.fields))
+                    for fi in self.fields
+                ]
+            )
+            font_size = im_width * XX // (6 * len(self.fields))
 
-        offsetx = im_width // 2
-        offset_header = font_size * 2
-        offset_sep = font_size // 2
-        offset_foot = font_size * 2
+            offsetx = im_width // 2
+            offset_header = font_size * 2
+            offset_sep = font_size // 2
+            offset_foot = font_size * 2
 
-        font = ImageFont.truetype(str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf", size=font_size)
-        font_action = ImageFont.truetype(
-            str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf",
-            size=im_width * XX // (18 * len(self.fields)),
-        )
+            font = ImageFont.truetype(str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf", size=font_size)
+            font_action = ImageFont.truetype(
+                str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf",
+                size=im_width * XX // (18 * len(self.fields)),
+            )
 
-        left, top, right, bottom = font_action.getbbox("A")
-        car_height = np.abs(top - bottom) * 1.33  # font_action.getsize("A")[1]
-        # print("FONT:",height,font_action.getsize("A")[1])
-        offset_actions = (int)(car_height * max_display_actions + 5 * im_height // 100)
+            left, top, right, bottom = font_action.getbbox("A")
+            car_height = np.abs(top - bottom) * 1.33  # font_action.getsize("A")[1]
+            # print("FONT:",height,font_action.getsize("A")[1])
+            offset_actions = (int)(car_height * max_display_actions + 5 * im_height // 100)
 
-        dashboard_picture = Image.new(
-            "RGBA",
-            (
-                im_width * XX,
-                im_height * YY + offset_header + offset_sep + offset_foot + offset_actions,
-            ),
-            (255, 255, 255, 255),
-        )
-        d = ImageDraw.Draw(dashboard_picture)
+            dashboard_picture = Image.new(
+                "RGBA",
+                (
+                    im_width * XX,
+                    im_height * YY + offset_header + offset_sep + offset_foot + offset_actions,
+                ),
+                (255, 255, 255, 255),
+            )
+            d = ImageDraw.Draw(dashboard_picture)
 
-        day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
-        day_string = "Day {:03d}".format(day)
+            day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
+            day_string = "Day {:03d}".format(day)
 
-        d.text(
-            (
-                dashboard_picture.width // 2 - len(day_string) * font_size // 4,
-                im_height * YY + offset_header + offset_sep + offset_foot // 4 + offset_actions,
-            ),
-            day_string,
-            font=font,
-            fill=(100, 100, 100),
-            stroke_width=2,
-            stroke_fill="black",
-        )
-
-        # offset_field=0
-        for fi in self.fields:
-            # day_string= 'Day {}'.format( (int) (self.fields[fi].entities['Weather-0'].variables['day#int365'].value))
-            text = fi  # "F-"+fi[-1:]
-            # print("FFF", font.size,font.getsize("a"),font.getsize(fi))
-            left, top, right, bottom = font.getbbox(text)
-            width_text = (int)(np.abs(right - left))
-            # print("FI size", width_text, font_action.getsize(text))
-            # d.text((offsetx+ (self.fields[fi].X+1)*im_width//2  -font.getsize(text)[0] // 2-im_width//2, offset_header//4), text, font=font, fill=(100, 100, 100), stroke_width=2,
-            # stroke_fill="black")
             d.text(
                 (
-                    offsetx + (self.fields[fi].X) * im_width // 2 - width_text // 2,
-                    offset_header // 4,
+                    dashboard_picture.width // 2 - len(day_string) * font_size // 4,
+                    im_height * YY + offset_header + offset_sep + offset_foot // 4 + offset_actions,
                 ),
-                text,
+                day_string,
                 font=font,
                 fill=(100, 100, 100),
                 stroke_width=2,
                 stroke_fill="black",
             )
 
-            index = 0
-            for e in self.fields[fi].entities:
-                image = self.fields[fi].entities[e].to_fieldimage()
-                image = image.resize((image.width * scale_factor, image.height * scale_factor))
-                # image = image.resize((im_width, im_height))
-                dashboard_picture.paste(image, (offsetx, offset_header), image)
-
-                j = index // self.fields[fi].X
-                i = index - j * self.fields[fi].X
-                image_t = self.fields[fi].entities[e].to_thumbnailimage()
-                if image_t != None:
-                    image_t = image_t.resize((image_t.width * scale_factor, image_t.height * scale_factor))
-                    dd = ImageDraw.Draw(image_t)
-                    # dd.rectangle(((2,2),(im_width-2,im_height-2)), fill="#ff000000", outline="red")
-                    xx = offsetx + i * im_width
-                    yy = offset_header + self.fields[fi].Y * im_height + offset_sep + j * im_height
-                    dashboard_picture.paste(image_t, (xx, yy), image_t)
-                    # d.rectangle(((xx,yy),(xx+im_width,yy+im_height)), fill="#ffffff00", outline="red")
-                    index += 1
-
-            offset_field_y = (
-                offset_header + self.fields[fi].Y * im_height + offset_sep + ((index - 1) // self.fields[fi].X + 1) * im_height
-            )
-            d.rectangle(
-                [
-                    (offsetx, offset_field_y),
+            # offset_field=0
+            for fi in self.fields:
+                # day_string= 'Day {}'.format( (int) (self.fields[fi].entities['Weather-0'].variables['day#int365'].value))
+                text = fi  # "F-"+fi[-1:]
+                # print("FFF", font.size,font.getsize("a"),font.getsize(fi))
+                left, top, right, bottom = font.getbbox(text)
+                width_text = (int)(np.abs(right - left))
+                # print("FI size", width_text, font_action.getsize(text))
+                # d.text((offsetx+ (self.fields[fi].X+1)*im_width//2  -font.getsize(text)[0] // 2-im_width//2, offset_header//4), text, font=font, fill=(100, 100, 100), stroke_width=2,
+                # stroke_fill="black")
+                d.text(
                     (
-                        offsetx + self.fields[fi].X * im_width,
-                        offset_field_y + offset_actions + im_width // 100,
+                        offsetx + (self.fields[fi].X) * im_width // 2 - width_text // 2,
+                        offset_header // 4,
                     ),
-                ],
-                fill=(255, 255, 255, 255),
-                outline=(0, 0, 0, 255),
-                width=im_width // 100,
-            )
+                    text,
+                    font=font,
+                    fill=(100, 100, 100),
+                    stroke_width=2,
+                    stroke_fill="black",
+                )
 
-            nb_a = 0
-            if self.last_farmgym_action:
-                for a in self.last_farmgym_action:
-                    fa_key, fi_key, entity_key, action_name, params = a
-                    if a[1] == fi and nb_a <= max_display_actions:
-                        text = action_name
-                        # print("DISPLAY ACTION",action_name, params)
-                        if (type(params) == dict) and ("plot" in params.keys()):
-                            text += " " + str(params["plot"])
-                        xx_a = offsetx + im_width // 100
-                        yy_a = offset_field_y + nb_a * car_height + im_width // 100
-                        d.text(
-                            (xx_a, yy_a),
-                            text,
-                            font=font_action,
-                            fill=(100, 100, 100),
-                            stroke_width=1,
-                            stroke_fill="black",
-                        )
-                        nb_a += 1
+                index = 0
+                for e in self.fields[fi].entities:
+                    image = self.fields[fi].entities[e].to_fieldimage()
+                    image = image.resize((image.width * scale_factor, image.height * scale_factor))
+                    # image = image.resize((im_width, im_height))
+                    dashboard_picture.paste(image, (offsetx, offset_header), image)
 
-            offsetx += (self.fields[fi].X + 1) * im_width
+                    j = index // self.fields[fi].X
+                    i = index - j * self.fields[fi].X
+                    image_t = self.fields[fi].entities[e].to_thumbnailimage()
+                    if image_t != None:
+                        image_t = image_t.resize((image_t.width * scale_factor, image_t.height * scale_factor))
+                        dd = ImageDraw.Draw(image_t)
+                        # dd.rectangle(((2,2),(im_width-2,im_height-2)), fill="#ff000000", outline="red")
+                        xx = offsetx + i * im_width
+                        yy = offset_header + self.fields[fi].Y * im_height + offset_sep + j * im_height
+                        dashboard_picture.paste(image_t, (xx, yy), image_t)
+                        # d.rectangle(((xx,yy),(xx+im_width,yy+im_height)), fill="#ffffff00", outline="red")
+                        index += 1
 
-            # offset_field+=(self.fields[fi].X+1)*im_width
+                offset_field_y = (
+                    offset_header
+                    + self.fields[fi].Y * im_height
+                    + offset_sep
+                    + ((index - 1) // self.fields[fi].X + 1) * im_height
+                )
+                d.rectangle(
+                    [
+                        (offsetx, offset_field_y),
+                        (
+                            offsetx + self.fields[fi].X * im_width,
+                            offset_field_y + offset_actions + im_width // 100,
+                        ),
+                    ],
+                    fill=(255, 255, 255, 255),
+                    outline=(0, 0, 0, 255),
+                    width=im_width // 100,
+                )
 
-        dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
-        # plt.pause(0.01)
+                nb_a = 0
+                if self.last_farmgym_action:
+                    for a in self.last_farmgym_action:
+                        fa_key, fi_key, entity_key, action_name, params = a
+                        if a[1] == fi and nb_a <= max_display_actions:
+                            text = action_name
+                            # print("DISPLAY ACTION",action_name, params)
+                            if (type(params) == dict) and ("plot" in params.keys()):
+                                text += " " + str(params["plot"])
+                            xx_a = offsetx + im_width // 100
+                            yy_a = offset_field_y + nb_a * car_height + im_width // 100
+                            d.text(
+                                (xx_a, yy_a),
+                                text,
+                                font=font_action,
+                                fill=(100, 100, 100),
+                                stroke_width=1,
+                                stroke_fill="black",
+                            )
+                            nb_a += 1
+
+                offsetx += (self.fields[fi].X + 1) * im_width
+
+                # offset_field+=(self.fields[fi].X+1)*im_width
+
+            dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
+            # plt.pause(0.01)
+
+    def render_step(self, action, observation, reward, is_done, info):
+        # Called after a step.
+        s = "Farm:\t" + self.shortname + "\t"
+        if self.is_new_day:  # Assumes it just switch from False to True
+            s += "\tAfternoon phase (interventions)\n"
+        else:
+            s += "\tMorning phase (observations)\n"
+        s += "Actions planned: " + str(action) + "\n"
+        s += "Observations:\n"
+        for o in observation:
+            s += "\t- " + str(o) + "\n"
+        s += "Reward: " + str(reward) + "\n"
+        s += "Information:\n"
+        for i in info:
+            s += "\t- " + str(i) + "\n"
+        if is_done:
+            s += "Done.\n"
+        return s
 
     def __str__(self):
         """
         Outputs a string showing a snapshot of the farm at the given time. All state variables of each entity, farmers information as well ws all free observations, available observations and available interventions.
         """
-        s = "Farm: " + self.name + "\nShort name: " + self.build_shortname() + "\n"
+        s = "Farm: " + self.name + "\nShort name: " + self.shortname + "\n"
         s += "Fields:" + "\n"
 
         for f in self.fields:
@@ -1108,19 +1295,71 @@ class Farm(gym.Env):
         for f in self.farmers:
             s += indent(str(self.farmers[f]), "\t", lambda line: True) + "\n"
 
-        s += "Free observations:" + "\n"
+        s += "Free farmgym observations:" + "\n"
         for o in self.rules.free_observations:
             s += "\t" + str(o) + "\n"
 
-        s += "Available observations:" + "\n"
-        for o in self.farmgym_observation_actions:
-            s += "\t" + str(o) + "\n"
+        if (self.interaction_mode == "AOMDP"):
+            s += "Available farmgym observations:" + "\n"
+            for o in self.farmgym_observation_actions:
+                s += "\t" + str(o) + "\n"
 
-        s += "Available interventions:" + "\n"
+        s += "Available farmgym interventions:" + "\n"
         for i in self.farmgym_intervention_actions:
             fa, fi, e, a, f_a, g, ng = i
             s += "\t" + str((fa, fi, e, a, f_a)) + "\n"
+
+        s+= "Available gym actions: (as list [n1 n2 n3] where ni is one of the following)" + "\n"
+        s+=self.actions_to_string()
         return s
+
+    def understand_the_farm(self):
+        farm=self
+        print(farm)
+
+        # PLAY WITH ENVIRONMENT:
+        print("#############INTERVENTIONS###############")
+        actions = farm.farmgym_intervention_actions
+        for ac in actions:
+            fa, fi, e, a, f_a, g, ng = ac
+            print(ac, ":\t", (fa, fi, e, a, g.sample(), ng))
+        print("#############OBSERVATIONS###############")
+        actions = farm.farmgym_observation_actions
+        for ac in actions:
+            # fa,fi,e,a,g = ac
+            print(ac)
+        print("###########GYM SPACES#################")
+        from farmgym.v2.gymUnion import str_pretty
+        print("Gym states:\n", str_pretty(farm.farmgym_state_space))
+        s = farm.farmgym_state_space.sample()
+        print("Random state:", s)
+        print("Gym observations:\n", farm.observation_space)
+        o = farm.observation_space.sample()
+        print("Random observation:", o)
+        #print("?", farm.farmgym_state_space.contains(s), farm.observation_space.contains(o))
+
+        print("############RANDOM ACTIONS################")
+        print("Random intervention allowed by rules:\t", farm.random_allowed_intervention())
+        print("Random observation allowed by rules:\t", farm.random_allowed_observation())
+        print("############RANDOM GYM ACTIONS################")
+        print("Gym (discretized) actions:", farm.action_space)
+        # disc_space= farm.build_gym_discretized_action_space()
+        # print("Gym discretized  actions:", disc_space)
+        print("Do nothing gym action schedule:", "[]")
+        print(" corresponding farmgym action schedule:", farm.gymaction_to_farmgymaction([]))
+        for i in range(25):
+            a = farm.action_space.sample()
+            if len(a) > 0:
+                print(
+                    "Random gym action schedule:\t\t",
+                    a,
+                    "\n corresponding discretized farmgym action schedule:",
+                    farm.gymaction_to_discretized_farmgymaction(a),
+                )
+
+        print("###############################")
+        #print(farm.actions_to_string())
+
 
 
 #

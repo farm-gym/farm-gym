@@ -10,6 +10,7 @@ from farmgym.v2.farm import generate_video, generate_gif
 from distutils.version import LooseVersion
 
 
+
 def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
 
     if farm.monitor != None:
@@ -32,14 +33,19 @@ def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
             # observation= [((None,'Field-0', 'Weather-0', 'day#int365', [], (farm.fields['Field-0'].entities['Weather-0'].observe_variable('day#int365', []))))]
             observations = farm.get_free_observations()
             # print("FREE observations", observations)
-            observation_schedule = policy.observation_schedule(observations)
+            observation_schedule = policy.observation_schedule(
+                observations
+            )  # Actually, farmgym step  returns freeobservations of the day already, so better to consider observation_schedule = policy.observation_schedule()
             observation, _, _, info = farm.farmgym_step(observation_schedule)
             obs_cost = info["observation cost"]
             # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
+            # print(observations, observation,info)
+            # print(farm.render_step(observation_schedule, observation, _, _, info))
 
             intervention_schedule = policy.intervention_schedule(observation)
             obs, reward, is_done, info = farm.farmgym_step(intervention_schedule)
             int_cost = info["intervention cost"]
+            # print(obs,reward,is_done,info)
 
             cumreward += reward
             cumcost += obs_cost + int_cost
@@ -94,7 +100,9 @@ def run_randomactions(farm, max_steps=np.infty, render=True, monitoring=True):
 
         observation_schedule = []
         if np.random.rand() < proba_observe:
-            observation_schedule.append(farm.random_allowed_observation())
+            a = farm.random_allowed_observation()
+            if (a != None):
+                observation_schedule.append(a)
         obs1, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
@@ -154,56 +162,6 @@ def run_randomactions(farm, max_steps=np.infty, render=True, monitoring=True):
 
     return cumrewards, cumcosts
 
-
-def understand_the_farm(farm):
-    print(farm)
-
-    # PLAY WITH ENVIRONMENT:
-    print("#############INTERVENTIONS###############")
-    actions = farm.farmgym_intervention_actions
-    for ac in actions:
-        fa, fi, e, a, f_a, g, ng  = ac
-        print(ac, ":\t", (fa, fi, e, a, g.sample(), ng))
-    print("#############OBSERVATIONS###############")
-    actions = farm.farmgym_observation_actions
-    for ac in actions:
-        # fa,fi,e,a,g = ac
-        print(ac)
-    print("###########GYM SPACES#################")
-    print("Gym states:", farm.farmgym_state_space)
-    s = farm.farmgym_state_space.sample()
-    print("Random state:", s)
-    print("Gym observations:", farm.build_gym_observation_space())
-    print("############RANDOM ACTIONS################")
-    print("Random intervention allowed by rules:\t", farm.random_allowed_intervention())
-    print("Random observation allowed by rules:\t", farm.random_allowed_observation())
-    print("############RANDOM GYM ACTIONS################")
-    print("Gym actions:", farm.action_space)
-    disc_space= farm.build_gym_discretized_action_space()
-    print("Gym discretized  actions:", disc_space)
-    print("Do nothing gym action schedule:","[]")
-    print(" corresponding farmgym action schedule:", farm.gymaction_to_farmgymaction([]))
-    for i in range(25):
-        a = farm.action_space.sample()
-        if len(a) > 0:
-            print(
-                "Random gym action schedule:\t\t",
-                a,
-                "\n corresponding farmgym action schedule:",
-                farm.gymaction_to_farmgymaction(a),
-            )
-    print("--")
-    print("Discretized actions")
-    for i in range(25):
-        a = disc_space.sample()
-        print(
-                "Random gym discretized action schedule:\t\t",
-                a,
-                "\n corresponding farmgym action schedule:",
-                farm.gymaction_to_discretized_farmgymaction(a),
-            )
-
-    print("###############################")
 
 
 def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
@@ -328,12 +286,15 @@ def run_policy_xp(farm, policy, max_steps=np.infty):
 if __name__ == "__main__":
     import farmgym.v2.games.farms_1x1.clay_corn.farm as cc
     import farmgym.v2.games.farms_1x1.clay_bean.farm as cb
+    import farmgym.v2.games.farms_1x1.clay_tomato.farm as ct
     import farmgym.v2.games.farms_3x4.clay_bean_weeds.farm as cbw
 
-    #understand_the_farm(cbw.env())
-    #understand_the_farm(cc.env())
+    # understand_the_farm(cbw.env())
+    # understand_the_farm(cc.env())
 
-    understand_the_farm(cb.env())
+    farm = ct.env()
+    farm.understand_the_farm()
+    # understand_the_farm(cb.env())
     # run_randomactions(cb.env(), max_steps=100, render=True, monitoring=False)
 
     from farmgym.v2.policy_api import Policy_API
@@ -362,17 +323,21 @@ if __name__ == "__main__":
             ]
         ]
         action_schedule3 = [
-            (
-                "BasicFarmer-0",
-                "Field-0",
-                "Soil-0",
-                "water_discrete",
-                {"plot": (0, 0), "amount#L": 4, "duration#min": 30},
-            )
+            {
+                "action": (
+                    "BasicFarmer-0",
+                    "Field-0",
+                    "Soil-0",
+                    "water_discrete",
+                    {"plot": (0, 0), "amount#L": 4, "duration#min": 30},
+                ),
+                "delay": 0,
+            }
         ]
         triggered_interventions.append((trigger_bloom, action_schedule3))
 
         return Policy_API("config-file", triggered_observations, triggered_interventions)
 
-    #policy = make_policy()
+    policy = make_policy()
+    run_xps(farm, policy, 10, 1)
     # run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)

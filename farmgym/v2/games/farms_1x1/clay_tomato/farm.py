@@ -23,17 +23,11 @@ def env():
     field1 = Field(
         localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-        entity_managers=[(Weather, "montpellier"),(Soil, "clay"), (Plant, "tomato") ]
+        entities_specifications=[(Weather, "montpellier"), (Soil, "clay"), (Plant, "tomato")]
     )
 
     farmer1 = BasicFarmer(max_daily_interventions=1)
     scoring = BasicScore(score_configuration=CURRENT_DIR / "farm_score.yaml")
-    #scoring.reward = reward_microlife
-
-    free_observations = [
-        ("Field-0", "Weather-0", "day#int365", []),
-        ("Field-0", "Weather-0", "air_temperature", [])
-    ]
 
     terminal_CNF_conditions = [
         [
@@ -50,11 +44,10 @@ def env():
     rules = BasicRule(
         init_configuration=CURRENT_DIR / "farm_init.yaml",
         actions_configuration=CURRENT_DIR / "farm_actions.yaml",
-        terminal_CNF_conditions=terminal_CNF_conditions,
-        free_observations=free_observations,
+        terminal_CNF_conditions=terminal_CNF_conditions
     )
 
-    farm = Farm(fields=[field1], farmers=[farmer1], scoring=scoring, rules=rules)
+    farm = Farm(fields=[field1], farmers=[farmer1], scoring=scoring, rules=rules, interaction_mode="POMDP")
     ##########################################################################
 
     return farm

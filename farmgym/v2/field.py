@@ -24,7 +24,7 @@ class Field:
     shape: (length (int), width (int), scale (multiples of 1 unit in meter))
         Shape of the field. Each field of shape (width,length,scale) contains width × length many plots each of size scale
 
-    entity_managers: list
+    entities_specifications: list
         list of couples (entity, name) used to construct the field.
 
     Examples
@@ -36,11 +36,11 @@ class Field:
     >>> entities = [(Weather, "lille"), (Soil, "clay"), (Plant, "bean")]
     >>> field1 = Field(localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
     >>>                shape={"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    >>>                entity_managers=entities)
+    >>>                entities_specifications=entities)
 
     """
 
-    def __init__(self, localization, shape, entity_managers: list):
+    def __init__(self, localization, shape, entities_specifications: list):
 
         self.name = "Field"
         self.localization = localization
@@ -56,7 +56,7 @@ class Field:
         self.plots = [str((x, y)) for x in range(self.X) for y in range(self.Y)]
         # self.plots =  [Plot(self,[x,y], "edge" if x in [0,shape['length']-1] or y in [0, shape['width']-1] else "base") for x in range(X) for y in range (Y)]
 
-        self.entity_managers = entity_managers
+        self.entity_managers = entities_specifications
 
         self.entities = {}
         cpt = {}

@@ -26,7 +26,7 @@ def env():
     field1 = Field(
         localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         shape={"length#nb": 3, "width#nb": 4, "scale#m": 1.0},
-        entity_managers=entities1,
+        entities_specifications=entities1,
     )
 
     entities2 = []
@@ -37,16 +37,13 @@ def env():
     field2 = Field(
         localization={"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         shape={"length#nb": 2, "width#nb": 4, "scale#m": 0.8},
-        entity_managers=entities2,
+        entities_specifications=entities2,
     )
 
     farmer1 = BasicFarmer(max_daily_interventions=3)
     farmer2 = BasicFarmer(max_daily_interventions=1)
     scoring = BasicScore(score_configuration=CURRENT_DIR / "farm_score.yaml")
 
-    free_observations = []
-    free_observations.append(("Field-0", "Weather-0", "day#int365", []))
-    free_observations.append(("Field-0", "Weather-0", "air_temperature", []))
 
     terminal_CNF_conditions = [
         [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
@@ -62,8 +59,7 @@ def env():
     rules = BasicRule(
         init_configuration=CURRENT_DIR / "farm_init.yaml",
         actions_configuration=CURRENT_DIR / "farm_actions.yaml",
-        terminal_CNF_conditions=terminal_CNF_conditions,
-        free_observations=free_observations,
+        terminal_CNF_conditions=terminal_CNF_conditions
     )
 
     farm = Farm(

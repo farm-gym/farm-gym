@@ -392,7 +392,7 @@ def make_variables_to_be_monitored(variables):
         #Selector:
         vas = va.split("[")
         va0 = vas[0]
-        # TODO: using convention "f0.pests.onplant_population#nb[plant].mat"
+        # Uses convention "f0.pests.onplant_population#nb[plant].mat"
         if len(vas) > 1:
             #print("VAS",vas)
             myv = []

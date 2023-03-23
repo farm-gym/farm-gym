@@ -20,7 +20,6 @@ class Rules_API:
     def __init__(
         self,
         init_configuration,
-        free_observations,
         actions_configuration,
         terminal_CNF_conditions,
         initial_conditions_values=None,
@@ -32,9 +31,9 @@ class Rules_API:
         self.terminal_CNF_conditions = terminal_CNF_conditions
 
         self.free_observations = []
-        for fo in free_observations:
-            fi_key, e_key, variable_key, path = fo
-            self.free_observations.append((None, fi_key, e_key, variable_key, path))
+        #for fo in free_observations:
+        #    fi_key, e_key, variable_key, path = fo
+        #    self.free_observations.append(("Free", fi_key, e_key, variable_key, path))
 
         self.actions_configuration = actions_configuration
 
@@ -44,6 +43,8 @@ class Rules_API:
 
         with open(self.actions_configuration, "r", encoding="utf8") as file:
             self.actions_allowed = yaml.safe_load(file)  # Note the safe_load
+
+        #self.actions_allowed['observations']['Free']
 
 
     def is_terminal(self, fields):
@@ -114,35 +115,39 @@ class Rules_API:
                     return True
                 return dic == {}
 
+        #print("ACTION",action)
         fa, fi, e, a, p = action
         if type(p) != list:  # Intervention
             if is_observation_time:
                 return False
             env_space = allowed_actions["interventions"]
-            if fi in env_space.keys():
-                field = env_space[fi]
-                # print("FIELD",field)
-                if e in field.keys():
-                    ent = field[e]
-                    # print("ENT",ent)
-                    if a in ent.keys():
-                        act = ent[a]
-                        # print("ACT",act)
-                        return True
+            if fa in env_space.keys():
+                farmer = env_space[fa]
+                if fi in farmer.keys():
+                    field = farmer[fi]
+                    # print("FIELD",field)
+                    if e in field.keys():
+                        ent = field[e]
+                        # print("ENT",ent)
+                        if a in ent.keys():
+                            act = ent[a]
+                            # print("ACT",act)
+                            return True
         else:
             env_space = allowed_actions["observations"]
             if not is_observation_time:
                 return False
-            if fi in env_space.keys():
-                field = env_space[fi]
-                # print("FIELD", field)
-                if e in field.keys():
-                    ent = field[e]
-                    # print("ENT", ent)
-                    if a in ent.keys():
-                        act = ent[a]
-                        # print("ACT", act, p)
-                        return check(act, p)
+            if fa in env_space.keys():
+                farmer = env_space[fa]
+                if fi in farmer.keys():
+                    field = farmer[fi]
+                    if e in field.keys():
+                        ent = field[e]
+                        # print("ENT", ent)
+                        if a in ent.keys():
+                            act = ent[a]
+                            # print("ACT", act, p)
+                            return check(act, p)
                         # for j in range(len(p)):
                         #     if (type(act) == dict):
                         #         if (str(p[j]) not in act.keys()):

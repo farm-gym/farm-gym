@@ -37,7 +37,8 @@ def load_weather_table(filename):
         return [table], [1]
 
 
-def build_scoreyaml(filepath, fields):
+def build_scoreyaml(filepath, farm):
+    fields = farm.fields
     s = "observation-cost" + ":\n"
     for fi in fields:
         s += "  " + fi + ":\n"
@@ -78,7 +79,8 @@ import numpy as np
 from farmgym.v2.entity_api import Range
 
 
-def build_inityaml(filepath, fields, mode="default", init_values=None):
+def build_inityaml(filepath, farm, mode="default", init_values=None):
+    fields = farm.fields
     def make(x, indent="", mode="default", value=None):
         s = ""
         if type(x) == dict:
@@ -183,10 +185,12 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
         print(s, file=file)
 
 
-def build_actionsyaml(filepath, fields):
+def build_actionsyaml(filepath, farm):
     s = "params:\n"
     s += "  max_action_schedule_size: 5\n"
-    s += "  number_of_bins_to_discretize_continuous_actions: 10\n"
+    s += "  number_of_bins_to_discretize_continuous_actions: 11\n"
+
+    fields = farm.fields
 
     def make_s(x, indent=""):
         s = ""
@@ -224,15 +228,25 @@ def build_actionsyaml(filepath, fields):
         return s
 
     s += "observations:\n"
-    for fi in fields:
-        s += "  " + fi + ":\n"
-        for e in fields[fi].entities:
-            s += "    " + e + ":\n"
-            for v in fields[fi].entities[e].variables:
-                if type(fields[fi].entities[e].variables[v]) == np.ndarray:
-                    s += "      " + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="      ")
-                else:
-                    s += "      " + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="      ")
+
+    s += "  "*1 + "Free" + ":\n"
+    s += "  "*2 + "Field-0" + ":\n"
+    s += "  "*3 + "Weather-0" + ":\n"
+    s += "  "*4 + "day#int365" + ": \n"
+    s += "  "*4 + "air_temperature"+ ": \n"
+    s += "  "*5 + "'*'" +":\n"
+
+    for fa in farm.farmers:
+        s += "  "*1 + fa + ":\n"
+        for fi in fields:
+            s += "  "*2 + fi + ":\n"
+            for e in fields[fi].entities:
+                s += "  "*3 + e + ":\n"
+                for v in fields[fi].entities[e].variables:
+                    if type(fields[fi].entities[e].variables[v]) == np.ndarray:
+                        s += "  "*4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  "*5)
+                    else:
+                        s += "  "*4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  "*5)
 
     def make_a(x, indent):
         s = "\n"
@@ -241,14 +255,16 @@ def build_actionsyaml(filepath, fields):
         return s
 
     s += "interventions:\n"
-    for fi in fields:
-        s += "  " + fi + ":\n"
-        for e in fields[fi].entities:
-            ss = ""
-            for a in fields[fi].entities[e].actions:
-                ss += "      " + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="        ")
-            if ss != "":
-                s += ("    " + e + ":\n") + ss
+    for fa in farm.farmers:
+        s += "  "*1 + fa + ":\n"
+        for fi in fields:
+            s += "  "*2  + fi + ":\n"
+            for e in fields[fi].entities:
+                ss = ""
+                for a in fields[fi].entities[e].actions:
+                    ss += "  "*4 + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="  "*5)
+                if ss != "":
+                    s += ("  "*3 + e + ":\n") + ss
 
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)

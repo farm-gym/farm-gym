@@ -6,7 +6,6 @@ class BasicRule(Rules_API):
     def __init__(
         self,
         init_configuration,
-        free_observations,
         actions_configuration,
         terminal_CNF_conditions,
         max_action_schedule_cost=np.infty,
@@ -15,7 +14,6 @@ class BasicRule(Rules_API):
         Rules_API.__init__(
             self,
             init_configuration,
-            free_observations,
             actions_configuration,
             terminal_CNF_conditions,
             initial_conditions_values=initial_conditions_values,
