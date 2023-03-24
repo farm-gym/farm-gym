@@ -359,12 +359,20 @@ class Farm(gym.Env):
 
     def farmgym_to_gym_observations(self, farmgym_observations):
         gym_observations = []
-        # gym_observations = {}
         for fo in farmgym_observations:
             fa_key, fi_key, e_key, variable_key, path, value = fo
             gym_value = self.fields[fi_key].entities[e_key].gym_observe_variable(variable_key, path)
+            g = {}
+            g[fa_key] ={}
+            g[fa_key][fi_key]={}
+            g[fa_key][fi_key][e_key]={}
+            g[fa_key][fi_key][e_key][variable_key]={}
+            if path != []:
+                g[fa_key][fi_key][e_key][variable_key][str(path)]=gym_value
+            else:
+                g[fa_key][fi_key][e_key][variable_key]=gym_value
             # gym_observations[str(fa_key)+"."+str(fi_key)+"."+str(e_key)+"."+str(variable_key)+"."+str(path)]=gym_value
-            gym_observations.append(gym_value)
+            gym_observations.append(g)
         return gym_observations
 
     def gym_step_AOMDP(self, gym_action):

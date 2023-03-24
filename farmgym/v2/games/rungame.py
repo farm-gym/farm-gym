@@ -339,5 +339,5 @@ if __name__ == "__main__":
         return Policy_API("config-file", triggered_observations, triggered_interventions)
 
     policy = make_policy()
-    run_xps(farm, policy, 10, 1)
-    # run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)
+    #run_xps(farm, policy, 10, 1)
+    #run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)
