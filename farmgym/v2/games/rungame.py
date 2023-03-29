@@ -10,7 +10,6 @@ from farmgym.v2.farm import generate_video, generate_gif
 from distutils.version import LooseVersion
 
 
-
 def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
 
     if farm.monitor != None:
@@ -55,7 +54,26 @@ def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
     return cumrewards, cumcosts
 
 
-def run_randomactions(farm, max_steps=np.infty, render=True, monitoring=True):
+def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
+    agent.reset(farm)
+    observation = farm.reset()
+    if render == "text":
+        print("Initial observations", observation)
+    agent.init(observation)
+
+    is_done = False
+    i = 0
+    while (not is_done) and i <= max_steps:
+
+        action = agent.choose_action()
+        obs, reward, is_done, info = farm.step(action)
+        if render == "text":
+            farm.render_step(action, observation, reward, is_done, info)
+        agent.update(obs, reward, is_done, info)
+        i += 1
+
+
+def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
     #   if LooseVersion(gym.__version__) >= LooseVersion("0.25.2"):
     #        check_env(farm)
     # Gym 0.21 has bugs: does not support dictionaries for instance, it has the following:
@@ -101,7 +119,7 @@ def run_randomactions(farm, max_steps=np.infty, render=True, monitoring=True):
         observation_schedule = []
         if np.random.rand() < proba_observe:
             a = farm.random_allowed_observation()
-            if (a != None):
+            if a != None:
                 observation_schedule.append(a)
         obs1, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
@@ -161,7 +179,6 @@ def run_randomactions(farm, max_steps=np.infty, render=True, monitoring=True):
     os.chdir("../")
 
     return cumrewards, cumcosts
-
 
 
 def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
@@ -339,5 +356,5 @@ if __name__ == "__main__":
         return Policy_API("config-file", triggered_observations, triggered_interventions)
 
     policy = make_policy()
-    #run_xps(farm, policy, 10, 1)
-    #run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)
+    # run_xps(farm, policy, 10, 1)
+    # run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)
