@@ -7,16 +7,16 @@ class BasicRule(Rules_API):
         self,
         init_configuration,
         actions_configuration,
-        terminal_CNF_conditions,
+        #terminal_CNF_conditions,
         max_action_schedule_cost=np.infty,
-        initial_conditions_values=None,
+        #initial_conditions_values=None,
     ):
         Rules_API.__init__(
             self,
             init_configuration,
             actions_configuration,
-            terminal_CNF_conditions,
-            initial_conditions_values=initial_conditions_values,
+            #terminal_CNF_conditions,
+            #initial_conditions_values=initial_conditions_values,
         )
 
         self.max_action_schedule_cost = max_action_schedule_cost
@@ -28,6 +28,7 @@ class BasicRule(Rules_API):
     def filter_actions(self, farm, actions, is_observation_time):
         actions_schedule = []
         for a in actions:
+            #print("A",actions,"a",a)
             if self.is_allowed_action(a, is_observation_time):
                 actions_schedule.append(a)
             else:

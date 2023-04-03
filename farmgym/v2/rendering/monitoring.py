@@ -47,7 +47,7 @@ def mat2d_value(value_array):
 
 
 def dict_select(x, vars):
-    #print("D:",x,vars)
+    # print("D:",x,vars)
     y = x
     for v in vars:
         y = y[v]
@@ -69,15 +69,16 @@ def image_value(stages, entity):
 
 
 def sname_to_name(text):
-        sen = re.findall("[0-9]", text)
-        varen = ""
-        for s in sen:
-            varen = varen + s
-        if varen != "":
-            s2en = (text.split(varen))[0]
-            return s2en[0].upper() + s2en[1:] + "-" + varen
-        else:
-            return text[0].upper() + text[1:] + "-0"
+    sen = re.findall("[0-9]", text)
+    varen = ""
+    for s in sen:
+        varen = varen + s
+    if varen != "":
+        s2en = (text.split(varen))[0]
+        return s2en[0].upper() + s2en[1:] + "-" + varen
+    else:
+        return text[0].upper() + text[1:] + "-0"
+
 
 # def make_images(self):
 #     from farmgym.v2.entities.Plant import Plant
@@ -134,7 +135,7 @@ class Monitor:
                 self.history_variables[v] = (days[-2:], values[-2:])
                 ax.imshow(self.history_variables[v][1][-1])
             elif isinstance(value, (float, int, np.integer, np.float)):
-                #print("V", v, value)
+                # print("V", v, value)
                 self.history_variables[v] = (days[-20:], values[-20:])
                 ax.plot(self.history_variables[v][0], self.history_variables[v][1])
                 if v_range != "range_auto":
@@ -356,7 +357,6 @@ def make_variables_to_be_monitored(variables):
     list of variables var ready to be used in farm.add_monitoring(var)
     """
 
-
     myfunc = {"sum": sum_value, "mat": mat2d_value}
     var = []
     for v in variables:
@@ -389,18 +389,18 @@ def make_variables_to_be_monitored(variables):
         else:
             tva = tva[:-1]
 
-        #Selector:
+        # Selector:
         vas = va.split("[")
         va0 = vas[0]
         # Uses convention "f0.pests.onplant_population#nb[plant].mat"
         if len(vas) > 1:
-            #print("VAS",vas)
+            # print("VAS",vas)
             myv = []
             for v in vas[1:]:
-                s= v[:-1]
-                #print("v",s,sname_to_name(s))
+                s = v[:-1]
+                # print("v",s,sname_to_name(s))
                 myv.append(sname_to_name(v[:-1]))
-            #print("[Monitor]VARS", myv)
+            # print("[Monitor]VARS", myv)
             mee = lambda x: me(dict_select(x, myv))
 
             var.append((var_fi, var_en, va0, mee, tva, "range_auto"))

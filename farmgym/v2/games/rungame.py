@@ -10,6 +10,56 @@ from farmgym.v2.farm import generate_video, generate_gif
 from distutils.version import LooseVersion
 
 
+class Farmgym_Agent:
+    def __init__(self):
+        self.farm = None
+
+    def reset(self, farm):
+        self.farm = farm
+
+    def init(self, observation):
+        pass
+
+    def update(self, obs, reward, is_done, info):
+        pass
+
+    def choose_action(self):
+        raise NotImplemented
+        #return self.farm.action_space.sample()
+
+class Farmgym_RandomAgent(Farmgym_Agent):
+
+    def __init__(self):
+        super(Farmgym_RandomAgent, self).__init__()
+
+    def choose_action(self):
+        return self.farm.action_space.sample()
+
+
+def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
+    agent.reset(farm)
+    observation, information = farm.reset()
+    if render == "text":
+        print("Initial step:")
+        print(farm.render_step([], observation, 0, False, information))
+        print("###################################")
+    agent.init(observation)
+
+    is_done = False
+    i = 0
+    while (not is_done) and i <= max_steps:
+
+        action = agent.choose_action()
+        obs, reward, is_done, info = farm.step(action)
+        if render == "text":
+            print(farm.render_step(action, obs, reward, is_done, info))
+            print("###################################")
+        agent.update(obs, reward, is_done, info)
+        i += 1
+
+
+
+
 def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
 
     if farm.monitor != None:
@@ -52,25 +102,6 @@ def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
         cumrewards.append(cumreward)
         cumcosts.append(cumcost)
     return cumrewards, cumcosts
-
-
-def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
-    agent.reset(farm)
-    observation = farm.reset()
-    if render == "text":
-        print("Initial observations", observation)
-    agent.init(observation)
-
-    is_done = False
-    i = 0
-    while (not is_done) and i <= max_steps:
-
-        action = agent.choose_action()
-        obs, reward, is_done, info = farm.step(action)
-        if render == "text":
-            farm.render_step(action, observation, reward, is_done, info)
-        agent.update(obs, reward, is_done, info)
-        i += 1
 
 
 def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):

@@ -1,4 +1,27 @@
 import yaml
+import numpy as np
+
+
+def sum_value(value_array):
+    sum = 0
+    it = np.nditer(value_array, flags=["multi_index", "refs_ok"])
+    for x in it:
+        sum += value_array[it.multi_index].value
+    return sum
+
+
+def mean_value(value_array):
+    sum = 0
+    it = np.nditer(value_array, flags=["multi_index", "refs_ok"])
+    n = 0
+    for x in it:
+        sum += value_array[it.multi_index].value
+        n += 1
+    return sum / n
+
+
+def id_value(x):
+    return x.value
 
 
 class Rules_API:
@@ -21,17 +44,17 @@ class Rules_API:
         self,
         init_configuration,
         actions_configuration,
-        terminal_CNF_conditions,
-        initial_conditions_values=None,
+        # terminal_CNF_conditions_values,
+        # initial_conditions_values=None,
     ):
 
         self.init_configuration = init_configuration
-        self.initial_conditions_values = initial_conditions_values
+        # self.initial_conditions_values = initial_conditions_values
 
-        self.terminal_CNF_conditions = terminal_CNF_conditions
+        # self.terminal_CNF_conditions_values = terminal_CNF_conditions_values
 
         self.free_observations = []
-        #for fo in free_observations:
+        # for fo in free_observations:
         #    fi_key, e_key, variable_key, path = fo
         #    self.free_observations.append(("Free", fi_key, e_key, variable_key, path))
 
@@ -39,41 +62,48 @@ class Rules_API:
 
     def setup(self, farm):
         with open(self.init_configuration, "r", encoding="utf8") as file:
-            self.initial_conditions = yaml.safe_load(file)
+            y = yaml.safe_load(file)
+            self.initial_conditions = y["Initial"]
+            self.terminal_CNF_conditions = y["Terminal"]
 
         with open(self.actions_configuration, "r", encoding="utf8") as file:
             self.actions_allowed = yaml.safe_load(file)  # Note the safe_load
 
-        #self.actions_allowed['observations']['Free']
-
+        # self.actions_allowed['observations']['Free']
 
     def is_terminal(self, fields):
+        trigger = {"value": id_value, "sum": sum_value, "mean": mean_value}
         for and_conditions in self.terminal_CNF_conditions:
             bool_cond = True
             for condition in and_conditions:
-                variable_path, fun, operator, value = condition
+                # variable_path, fun, operator, value = condition
+                variable_path = tuple(condition["state_variable"])
+                fun = condition["function"]
+                operator = condition["operator"]
+                value = condition["ref_value"]
                 field, entity, variable, path = variable_path
                 v = fields[field].entities[entity].variables[variable]
+                va = trigger[fun](v)
                 if operator == "==":
-                    bool_cond = bool_cond and fun(v) == value
+                    bool_cond = bool_cond and va == value
                 elif operator == "!=":
-                    bool_cond = bool_cond and fun(v) != value
+                    bool_cond = bool_cond and va != value
                 elif operator == "<=":
-                    bool_cond = bool_cond and fun(v) <= value
+                    bool_cond = bool_cond and va <= value
                 elif operator == ">=":
-                    bool_cond = bool_cond and fun(v) >= value
+                    bool_cond = bool_cond and va >= value
                 elif operator == "<":
-                    bool_cond = bool_cond and fun(v) < value
+                    bool_cond = bool_cond and va < value
                 elif operator == ">":
-                    bool_cond = bool_cond and fun(v) > value
+                    bool_cond = bool_cond and va > value
                 elif operator == "in":
-                    bool_cond = bool_cond and fun(v) in value
+                    bool_cond = bool_cond and va in value
                 elif operator == "ni":
-                    bool_cond = bool_cond and value in fun(v)
+                    bool_cond = bool_cond and va in fun(v)
                 elif operator == "not in":
-                    bool_cond = bool_cond and fun(v) not in value
+                    bool_cond = bool_cond and va not in value
                 elif operator == "not ni":
-                    bool_cond = bool_cond and value not in fun(v)
+                    bool_cond = bool_cond and value not in va
             if bool_cond:
                 return True
         return False
@@ -116,6 +146,8 @@ class Rules_API:
                 return dic == {}
 
         #print("ACTION",action)
+        #if (action==None):
+        #    return True
         fa, fi, e, a, p = action
         if type(p) != list:  # Intervention
             if is_observation_time:

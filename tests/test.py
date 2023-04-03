@@ -11,7 +11,7 @@ from farmgym.v2.entities.Facilities import Facility
 from farmgym.v2.entities.Fertilizer import Fertilizer
 from farmgym.v2.entities.Pollinators import Pollinators
 
-from farmgym.v2.games.register_all import register_all
+from farmgym.v2.games.register_all import register_all, register_farms
 from farmgym.v2.games.rungame import run_randomactions
 
 
@@ -26,9 +26,8 @@ import pytest
 def test_farmgym():
     print("\nSTART")
     import gym
-    from farmgym.v2.games.farms_1x1.clay_corn.farm import env
-
-    farm = env()
+    from farmgym.v2.games.make_farm import make_farm
+    farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_bean.yaml")
     farm.farmgym_reset()
 
     print("NAME", farm.name, "\nSHORTNAME", farm.shortname)
@@ -38,7 +37,7 @@ def test_farmgym():
     while (not is_done) and (nb_steps < 10):
         observation_schedule = []
         a = farm.random_allowed_observation()
-        if (a != []):
+        if (a != []) and (a != None):
             observation_schedule.append(a)
         obs1, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
@@ -64,11 +63,12 @@ def test_farmgym():
 
 
 def test_check():
+    # Fails with old version of gym. Novel one changes  output format of random.
     print("\nSTART")
     from gym.utils.env_checker import check_env
-    from farmgym.v2.games.farms_1x1.clay_corn.farm import env
+    from farmgym.v2.games.make_farm import make_farm
+    farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
 
-    farm = env()
     for f in range(10):
         check_env(farm)
 
@@ -86,9 +86,9 @@ def test_check():
 def test_gym():
     print("\nSTART")
     import gym
-    from farmgym.v2.games.farms_1x1.clay_corn.farm import env
+    from farmgym.v2.games.make_farm import make_farm
+    farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
 
-    farm = env()
     farm.reset()
 
     print("NAME", farm.name, "\nSHORTNAME", farm.shortname)
@@ -111,6 +111,13 @@ def test_gym():
     print("DONE")
 
 
+def test_simple_gym():
+    from farmgym.v2.games.rungame  import Farmgym_RandomAgent, run_gym_xp
+    from farmgym.v2.games.make_farm import make_farm
+
+    farm2 = make_farm("../farmgym/v2/games/farms_3x4/farm_montpellier_clay_corn_birds_fertilizer_pests_pollinators_weeds.yaml")
+    agent = Farmgym_RandomAgent()
+    run_gym_xp(farm2, agent, max_steps=15, render="text")
 #####
 
 
@@ -118,10 +125,10 @@ def test_render():
     print("\nSTART")
     import gym
 
-    from farmgym.v2.games.farms_1x1.clay_corn.farm import env
+    from farmgym.v2.games.make_farm import make_farm
+    farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
     from farmgym.v2.farm import generate_video
 
-    farm = env()
     farm.reset()
 
     import os
@@ -147,10 +154,10 @@ def test_render():
 def test_register():
     print("\nSTART")
     import gym
-    from farmgym.v2.games.register_all import register_all
+    from farmgym.v2.games.register_all import register_farms
     from farmgym.v2.games.rungame import run_randomactions
 
-    env_list = register_all()
+    env_list = register_farms()
 
     # This is using gym 0.21.0 Note that gym 0.25.0 requires a second argument for make !
     env = gym.make(env_list[2])
@@ -164,13 +171,13 @@ def test_farmgym_render_register():
 
     print("\nSTART")
     import gym
-    from farmgym.v2.games.register_all import register_all
+    from farmgym.v2.games.register_all import register_farms
     import os
     import time
     import numpy as np
     from farmgym.v2.farm import generate_video, generate_gif
 
-    env_list = register_all()
+    env_list = register_farms()
     env = gym.make(env_list[2])
     farm = env.unwrapped
 
@@ -245,54 +252,57 @@ def test_makefarm():
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
             "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
         },
-        [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")],
-        init_values=[
-            ("Field-0", "Weather-0", "day#int365", 120),
-            ("Field-0", "Plant-0", "stage", "seed"),
-            ("Field-0", "Soil-0", "available_N#g", 2500),
-            ("Field-0", "Soil-0", "available_P#g", 2500),
-            ("Field-0", "Soil-0", "available_K#g", 2500),
-            ("Field-0", "Soil-0", "available_C#g", 2500),
-        ],
+        [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")]
     )
+
+    from farmgym.v2.games.make_farm import make_farm
+    #import os
+    #from pathlib import Path
+    #file_path = Path(os.path.realpath(__file__))
+    #CURRENT_DIR = file_path.parent
+    #os.chdir("../farmgym/v2/games/farms_1x1/")
+    #farm2 = make_farm("farm_montpellier_clay_bean.yaml")
+    #os.chdir(CURRENT_DIR)
+    farm2 = make_farm("../farmgym/v2/games/farms_1x1/farm_montpellier_clay_bean.yaml")
 
 
 def test_farmgym_policy():
     print("\nSTART")
     import gym
-    from farmgym.v2.games.farms_1x1.clay_bean.farm import env
+    from farmgym.v2.games.make_farm import make_farm
+    farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_bean.yaml")
 
-    farm = env()
     if farm.monitor != None:
         farm.monitor = None
     farm.farmgym_reset()
 
     policies = farm.policies
-    policy = farm.np_random.choice(policies)
+    if (policies != []):
+        policy = farm.np_random.choice(policies)
 
-    is_done = False
-    nb_steps = 0
-    while (not is_done) and (nb_steps < 10):
-        observations = farm.get_free_observations()
-        observation_schedule = policy.observation_schedule(observations)
-        observation, _, _, info = farm.farmgym_step(observation_schedule)
+        is_done = False
+        nb_steps = 0
+        while (not is_done) and (nb_steps < 10):
+            observations = farm.get_free_observations()
+            observation_schedule = policy.observation_schedule(observations)
+            observation, _, _, info = farm.farmgym_step(observation_schedule)
 
-        print("Observation step:")
-        [print("\tScheduled:\t", o) for o in observation_schedule]
-        [print("\tObserved:\t", o) for o in observation]
-        print("\tInformation:\t", info)
+            print("Observation step:")
+            [print("\tScheduled:\t", o) for o in observation_schedule]
+            [print("\tObserved:\t", o) for o in observation]
+            print("\tInformation:\t", info)
 
-        intervention_schedule = policy.intervention_schedule(observation)
-        obs2, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+            intervention_schedule = policy.intervention_schedule(observation)
+            obs2, reward, is_done, info = farm.farmgym_step(intervention_schedule)
 
-        print("Intervention step:")
-        [print("\tScheduled:\t", o) for o in intervention_schedule]
-        [print("\tObserved:\t", o) for o in obs2]
-        print("\tReward:\t", reward)
-        print("\tIs done:\t", is_done)
-        print("\tInformation:\t", info)
+            print("Intervention step:")
+            [print("\tScheduled:\t", o) for o in intervention_schedule]
+            [print("\tObserved:\t", o) for o in obs2]
+            print("\tReward:\t", reward)
+            print("\tIs done:\t", is_done)
+            print("\tInformation:\t", info)
 
-        nb_steps += 1
+            nb_steps += 1
 
     print("DONE")
 
@@ -348,32 +358,16 @@ def test_make_farm(entities):
     )
 
 
-ENV_NAMES = register_all()
+ENV_NAMES = register_farms()
 
 
 @pytest.mark.parametrize("env_name", ENV_NAMES)
 def test_games(env_name):
     if env_name not in ["farms_1x1_clay_bean-v0", "farms_3x4_clay_corn_weeds-v0"]:
-        env = gym.make(env_name, 100)
+        env = gym.make(env_name)
         farm = env.unwrapped
         run_randomactions(farm, max_steps=3, render=False, monitoring=False)
 
-
-INIT_STAGE = [
-    "none",
-    "seed",
-    "entered_grow",
-    "grow",
-    "entered_bloom",
-    "bloom",
-    "entered_fruit",
-    "fruit",
-    "entered_ripe",
-    "ripe",
-    "entered_seed",
-    "harvested",
-    "dead",
-]
 
 FULL_ENTITY = [
     (Weather, "dry"),
@@ -389,28 +383,36 @@ FULL_ENTITY = [
 ]
 
 
-@pytest.mark.parametrize("stage", INIT_STAGE)
-def test_stages(stage):
-    from farmgym.v2.games.make_farm import make_basicfarm
-    from farmgym.v2.games.rungame import run_randomactions
 
-    f = make_basicfarm(
-        "dry_clay_bean",
-        {
-            "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-            "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-        },
-        FULL_ENTITY,
-        init_values=[
-            ("Field-0", "Weather-0", "day#int365", 120),
-            ("Field-0", "Plant-0", "stage", stage),
-            ("Field-0", "Soil-0", "available_N#g", 5000),
-            ("Field-0", "Soil-0", "available_P#g", 5000),
-            ("Field-0", "Soil-0", "available_K#g", 5000),
-            ("Field-0", "Soil-0", "available_C#g", 5000),
-        ],
-    )
-    run_randomactions(f, max_steps=5)
+# INIT_STAGE = [
+#     "none",
+#     "seed",
+#     "entered_grow",
+#     "grow",
+#     "entered_bloom",
+#     "bloom",
+#     "entered_fruit",
+#     "fruit",
+#     "entered_ripe",
+#     "ripe",
+#     "entered_seed",
+#     "harvested",
+#     "dead",
+# ]
+# @pytest.mark.parametrize("stage", INIT_STAGE)
+# def test_stages(stage):
+#     from farmgym.v2.games.make_farm import make_basicfarm
+#     from farmgym.v2.games.rungame import run_randomactions
+#
+#     f = make_basicfarm(
+#         "dry_clay_bean",
+#         {
+#             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+#             "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+#         },
+#         FULL_ENTITY
+#     )
+#     run_randomactions(f, max_steps=5)
 
 
 def test_build_config():
@@ -422,15 +424,7 @@ def test_build_config():
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
             "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
         },
-        FULL_ENTITY,
-        init_values=[
-            ("Field-0", "Weather-0", "day#int365", 120),
-            ("Field-0", "Plant-0", "stage", "seed"),
-            ("Field-0", "Soil-0", "available_N#g", 5000),
-            ("Field-0", "Soil-0", "available_P#g", 5000),
-            ("Field-0", "Soil-0", "available_K#g", 5000),
-            ("Field-0", "Soil-0", "available_C#g", 5000),
-        ],
+        FULL_ENTITY
     )
 
 

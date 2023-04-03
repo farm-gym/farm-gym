@@ -81,6 +81,7 @@ from farmgym.v2.entity_api import Range
 
 def build_inityaml(filepath, farm, mode="default", init_values=None):
     fields = farm.fields
+
     def make(x, indent="", mode="default", value=None):
         s = ""
         if type(x) == dict:
@@ -130,8 +131,9 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
     #             else:
     #                 s+="      " + v + ": " + make(fields[fi].entities[e].variables[v],indent="      ",mode=mode)
 
+    s = "Initial:\n"
     if init_values not in [None, []]:
-        s = ""
+        s += ""
         for fi in fields:
             is_fi = False
             for ifi, ie, iv, value in init_values:
@@ -165,7 +167,7 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
                                     break
 
     else:
-        s = ""
+        s += ""
         for fi in fields:
             s += "  " + fi + ":\n"
             for e in fields[fi].entities:
@@ -181,6 +183,19 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
                             mode=mode,
                         )
                     )
+
+    s += "Terminal:\n"
+    #    [
+    #        [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=",
+    #          ref_value: 360}],
+    #        [{state_variable: ["Field-0", "Plant-0", "global_stage", []], function: "value", operator: "==",
+    #          ref_value: "dead"}],
+    #    ]
+    s += "  [\n"
+    s += '    [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=", ref_value: 360}],\n'
+    s += '    [{state_variable: ["Field-0", "Plant-0", "global_stage", []], function: "value", operator: "==", ref_value: "dead"}],\n'
+    s += "  ]"
+
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)
 
@@ -229,24 +244,24 @@ def build_actionsyaml(filepath, farm):
 
     s += "observations:\n"
 
-    s += "  "*1 + "Free" + ":\n"
-    s += "  "*2 + "Field-0" + ":\n"
-    s += "  "*3 + "Weather-0" + ":\n"
-    s += "  "*4 + "day#int365" + ": \n"
-    s += "  "*4 + "air_temperature"+ ": \n"
-    s += "  "*5 + "'*'" +":\n"
+    s += "  " * 1 + "Free" + ":\n"
+    s += "  " * 2 + "Field-0" + ":\n"
+    s += "  " * 3 + "Weather-0" + ":\n"
+    s += "  " * 4 + "day#int365" + ": \n"
+    s += "  " * 4 + "air_temperature" + ": \n"
+    s += "  " * 5 + "'*'" + ":\n"
 
     for fa in farm.farmers:
-        s += "  "*1 + fa + ":\n"
+        s += "  " * 1 + fa + ":\n"
         for fi in fields:
-            s += "  "*2 + fi + ":\n"
+            s += "  " * 2 + fi + ":\n"
             for e in fields[fi].entities:
-                s += "  "*3 + e + ":\n"
+                s += "  " * 3 + e + ":\n"
                 for v in fields[fi].entities[e].variables:
                     if type(fields[fi].entities[e].variables[v]) == np.ndarray:
-                        s += "  "*4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  "*5)
+                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
                     else:
-                        s += "  "*4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  "*5)
+                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
 
     def make_a(x, indent):
         s = "\n"
@@ -256,15 +271,15 @@ def build_actionsyaml(filepath, farm):
 
     s += "interventions:\n"
     for fa in farm.farmers:
-        s += "  "*1 + fa + ":\n"
+        s += "  " * 1 + fa + ":\n"
         for fi in fields:
-            s += "  "*2  + fi + ":\n"
+            s += "  " * 2 + fi + ":\n"
             for e in fields[fi].entities:
                 ss = ""
                 for a in fields[fi].entities[e].actions:
-                    ss += "  "*4 + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="  "*5)
+                    ss += "  " * 4 + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="  " * 5)
                 if ss != "":
-                    s += ("  "*3 + e + ":\n") + ss
+                    s += ("  " * 3 + e + ":\n") + ss
 
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)

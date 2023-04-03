@@ -7,6 +7,9 @@ from farmgym.v2.scorings.BasicScore import BasicScore
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.policy_api import Policy_API
 
+
+## The following importe lines are import for the make_farm function that uses inspection module!
+
 from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
 from farmgym.v2.entities.Plant import Plant
@@ -28,12 +31,11 @@ import yaml
 import sys
 
 
-
-def make_farm(yamlfile,init_values=None):
+def make_farm(yamlfile):
     with open(yamlfile, "r", encoding="utf8") as file:
         farm_yaml = yaml.safe_load(file)
 
-    farm=farm_yaml["Farm"]
+    farm = farm_yaml["Farm"]
 
     fields = []
     farmers = []
@@ -43,53 +45,54 @@ def make_farm(yamlfile,init_values=None):
             ent = []
             for e in entities:
                 k = (list(e.keys()))[0]
-                c=getattr(sys.modules[__name__], k)
-                #print("E",e, list(e.keys()), k,c)
-                ent.append((c,str(e[k])))
-            fields.append(Field(localization=farm[fi]["localization"], shape = farm[fi]["shape"], entities_specifications=ent))
+                c = getattr(sys.modules[__name__], k)
+                # print("E",e, list(e.keys()), k,c)
+                ent.append((c, str(e[k])))
+            fields.append(Field(localization=farm[fi]["localization"], shape=farm[fi]["shape"], entities_specifications=ent))
         if "Farmer" in fi:
-            if (farm[fi]["type"]=="basic"):
-                farmers.append(BasicFarmer(max_daily_interventions=farm[fi]['parameters']['max_daily_interventions'],
-                                           max_daily_observations=farm[fi]['parameters']['max_daily_observations']
-                ))
+            if farm[fi]["type"] == "basic":
+                farmers.append(
+                    BasicFarmer(
+                        max_daily_interventions=farm[fi]["parameters"]["max_daily_interventions"],
+                        max_daily_observations=farm[fi]["parameters"]["max_daily_observations"],
+                    )
+                )
 
-    interaction_mode = farm_yaml['interaction_mode']
-    name_score = farm_yaml['score']
-    name_init = farm_yaml['initialization']
-    name_actions = farm_yaml['actions']
+    interaction_mode = farm_yaml["interaction_mode"]
+    name = yamlfile[:-5]
+    # TODO: Perhaps these names could be defined automatically? or actually remove the initailization file entirely, and proceed with init_values only.
+    name_score = name+"_"+farm_yaml["score"]
+    name_init = name+"_"+farm_yaml["initialization"]
+    name_actions = name+"_"+farm_yaml["actions"]
 
     scoring = BasicScore(score_configuration=name_score)
 
-    terminal_CNF_conditions = [
-        [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
-        [
-            (
-                ("Field-0", "Plant-0", "global_stage", []),
-                lambda x: x.value, "in", ["dead", "harvested"],
-            )
-        ]
-    ]
+    # if (terminal_conditions==None):
+    #    terminal_CNF_conditions = [
+    #        [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
+    #        [
+    #            (
+    #                ("Field-0", "Plant-0", "global_stage", []),
+    #                lambda x: x.value, "in", ["dead", "harvested"],
+    #            )
+    #        ]
+    #    ]
+    # else:
+    #    terminal_CNF_conditions = terminal_conditions
 
     rules = BasicRule(
         init_configuration=name_init,
-        actions_configuration=name_actions,
-        terminal_CNF_conditions=terminal_CNF_conditions,
-        initial_conditions_values=init_values
+        actions_configuration=name_actions
+        # terminal_CNF_conditions=terminal_CNF_conditions,
+        # initial_conditions_values=init_values
     )
 
-    #[print("FIELDS",f) for f in fields]
-    farm = Farm(
-        fields=fields,
-        farmers=farmers,
-        scoring=scoring,
-        rules=rules,
-        policies=[],
-        interaction_mode=interaction_mode
-    )
+    # [print("FIELDS",f) for f in fields]
+    farm = Farm(fields=fields, farmers=farmers, scoring=scoring, rules=rules, policies=[], interaction_mode=interaction_mode)
     return farm
 
 
-def make_basicfarm(name, field, entities, init_values=None, farmers=[{"max_daily_interventions": 1}]):
+def make_basicfarm(name, field, entities, farmers=[{"max_daily_interventions": 1}]):
     # farm_call = " ".join(inspect.stack()[1].code_context[0].split("=")[0].split())
     filep = "/".join(inspect.stack()[1].filename.split("/")[0:-1])
 
@@ -112,20 +115,11 @@ def make_basicfarm(name, field, entities, init_values=None, farmers=[{"max_daily
     scoring = BasicScore(score_configuration=name_score)
     # scoring = BasicScore(score_configuration=CURRENT_DIR / name_score)
 
-    terminal_CNF_conditions = [
-        [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
-        [
-            (
-                ("Field-0", "Plant-0", "global_stage", []),
-                lambda x: x.value, "in", ["dead", "harvested"],
-            )
-        ]
-    ]
     rules = BasicRule(
         init_configuration=name_init,
         actions_configuration=name_actions,
-        terminal_CNF_conditions=terminal_CNF_conditions,
-        initial_conditions_values=init_values,
+        #terminal_CNF_conditions=terminal_CNF_conditions,
+        #initial_conditions_values=init_values,
     )
 
     # DEFINE one policy:
@@ -177,7 +171,7 @@ def make_policies_water_harvest(amounts):
                 [
                     (
                         ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                        lambda x: x.value, #TODO: rather x.value??
+                        lambda x: x.value,  # TODO: rather x.value??
                         "in",
                         ["fruit"],
                     )
@@ -441,7 +435,7 @@ if __name__ == "__main__":
         run_policy,
     )
 
-    f=make_farm("farm.yaml")
+    f = make_farm("farm.yaml")
     print(f)
     # policies = make_policies_water_harvest([0.,8.,2.])
     # f1 = make_farm("blatest",
@@ -637,5 +631,5 @@ if __name__ == "__main__":
     # policy = make_policy_herbicide(0.005, 10, 8)
     # run_policy(f2, policy, max_steps=60, render=True, monitoring=True)
 
-    #policy = make_policy_fertilize(0.5, 10, 2)
-    #run_policy(f3, policy, max_steps=60, render=False, monitoring=True)
+    # policy = make_policy_fertilize(0.5, 10, 2)
+    # run_policy(f3, policy, max_steps=60, render=False, monitoring=True)
