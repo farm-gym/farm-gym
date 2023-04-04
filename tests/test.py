@@ -69,6 +69,15 @@ def test_check():
     from farmgym.v2.games.make_farm import make_farm
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
     #farm.understand_the_farm()
+
+
+    #from gymnasium.spaces import Dict, Box
+    #space = Dict({"a": Dict({"b": Box(low=0,high=10), "c": Box(low=0,high=10)})})
+    #o = space.sample()
+    #print("?",o,  o in space)
+    #oo = {"a": {"b": [0.22], "c": [0.35]}}
+    #print("?",oo, oo in space)
+
     check_env(farm)
 
     print("DONE")

@@ -94,7 +94,7 @@ class Range:
 
     def gym_value(self):
         if type(self.range) == tuple:
-            return self.value
+            return [self.value]
         else:
             return self.range.index(self.value)
 
