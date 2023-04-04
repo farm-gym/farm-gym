@@ -1,6 +1,6 @@
-import gym
-from gym.spaces import Discrete, Box, Dict, Tuple
-from gym.utils import seeding
+import gymnasium as gym
+from gymnasium.spaces import Discrete, Box, Dict, Tuple
+from gymnasium.utils import seeding
 from farmgym.v2.gymUnion import Union, MultiUnion, Sequence
 import numpy as np
 from farmgym.v2.rendering.monitoring import Monitor
@@ -288,7 +288,8 @@ class Farm(gym.Env):
         information = farmgym_information
         information["farmgym observations"] = farmgym_observations
 
-        return observations, information
+        #print("RESET",observations,information)
+        return (observations, information)
 
     def gym_reset_POMDP(self, seed=None, options=None):
         """
@@ -298,8 +299,12 @@ class Farm(gym.Env):
         farmgym_observations, farmgym_information = self.farmgym_reset(seed, options)
 
         observations = self.farmgym_to_gym_observations(farmgym_observations)
+        #print("RESET",observations,farmgym_information)
+        #print("OBSERVATION",self.observation_space)
+        #print("IS",observations in self.observation_space)
+        #print("IS", self.observation_space.contains(observations))
 
-        return observations, farmgym_information
+        return (observations, farmgym_information)
 
     def farmgym_reset(self, seed=None, options=None):
         """
@@ -361,14 +366,14 @@ class Farm(gym.Env):
 
     def gym_step_POMDP(self, action):
         # info = {}
-        observations, _, _, _ = self.farmgym_step([])
-        obs, reward, is_done, info = self.farmgym_step(self.gymaction_to_discretized_farmgymaction(action))
+        observations, _, _,_,  _ = self.farmgym_step([])
+        obs, reward, terminated, truncated, info = self.farmgym_step(self.gymaction_to_discretized_farmgymaction(action))
         # info["intervention cost"] = info2["intervention cost"]
         # free_observations = self.get_free_observations()
         # print("O1",observations)
         # print("O2",obs)
         # print("O3", self.farmgym_to_gym_observations(observations + obs))
-        return self.farmgym_to_gym_observations(observations + obs), reward, is_done, info
+        return self.farmgym_to_gym_observations(observations + obs), reward, terminated, truncated, info
 
     def farmgym_to_gym_observations(self, farmgym_observations):
         gym_observations = []
@@ -394,7 +399,7 @@ class Farm(gym.Env):
         It follows the gym signature, and outputs observations, reward, is_done, information.
         Farmgym observations are added in information["farmgym observations"].
         """
-        farmgym_observations, reward, is_done, farmgym_information = self.farmgym_step(
+        farmgym_observations, reward, terminated, truncated, farmgym_information = self.farmgym_step(
             # self.gymaction_to_farmgymaction(gym_action)
             self.gymaction_to_discretized_farmgymaction(gym_action)
         )
@@ -403,7 +408,7 @@ class Farm(gym.Env):
         information = farmgym_information
         information["farmgym observations"] = farmgym_observations
 
-        return observations, reward, is_done, information
+        return observations, reward, terminated, truncated, information
 
     def farmgym_step(self, action_schedule):
         """
@@ -453,7 +458,7 @@ class Farm(gym.Env):
             obs_vec = self.farmers[fa_key].perform_observation(fi_key, entity, variable_key, path)
             [observations.append(o) for o in obs_vec]
 
-        return observations, 0, False, {"observation cost": observation_schedule_cost}
+        return observations, 0, False, False, {"observation cost": observation_schedule_cost}
         # return (observation, reward, terminated, truncated, info) or  (observation, reward, done, info)
 
     def intervention_step(self, action_schedule):
@@ -487,15 +492,15 @@ class Farm(gym.Env):
             reward += self.scoring.reward(entities_list)
 
         # Check if terminal
-        is_done = self.rules.is_terminal(self.fields)
+        terminated = self.rules.is_terminal(self.fields)
 
         if self.monitor != None:
             self.monitor.update_fig()
-            if is_done:
+            if terminated:
                 self.monitor.stop()
 
         # Compute final reward
-        if is_done:
+        if terminated:
 
             for f in self.fields.values():
                 reward += self.scoring.final_reward(f.entities.values())
@@ -505,7 +510,7 @@ class Farm(gym.Env):
         return (
             observations,
             reward,
-            is_done,
+            terminated, False,
             {"intervention cost": intervention_schedule_cost},
         )
 
@@ -950,6 +955,8 @@ class Farm(gym.Env):
                 xspace = {}
                 for k in x.keys():
                     xspace[k] = make_space(x[k])
+                #print("MS",x.keys(),"\n\t",xspace,"\n\t",Dict(xspace))
+                #TODO: THe following does not keep the keys from x.keys() in the correct order !! This is a gymnasium (and gym) issue !! It seems to sort them by alphabetic order !!
                 return Dict(xspace)
             elif type(x) == np.ndarray:
                 xspace = []
@@ -983,6 +990,7 @@ class Farm(gym.Env):
                 o_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
             else:
                 o_space[fa_key][fi_key][e_key][variable_key] = x
+            #print("MAKE SPACE",make_space(o_space))
             observation_space.append(make_space(o_space))
 
             # if fa_key not in obs_space:
@@ -1286,7 +1294,7 @@ class Farm(gym.Env):
             dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
             # plt.pause(0.01)
 
-    def render_step(self, action, observation, reward, is_done, info):
+    def render_step(self, action, observation, reward,  terminated, truncated, info):
         # Called after a step.
         s = "Farm:\t" + self.shortname + "\t"
         if self.is_new_day:  # Assumes it just switch from False to True
@@ -1303,8 +1311,10 @@ class Farm(gym.Env):
         s += "Information:\n"
         for i in info:
             s += "\t- " + str(i) + ": " + str(info[i]) + "\n"
-        if is_done:
-            s += "Done.\n"
+        if terminated:
+            s += "Terminated.\n"
+        if truncated:
+            s += "Truncated.\n"
         return s
 
     def __str__(self):

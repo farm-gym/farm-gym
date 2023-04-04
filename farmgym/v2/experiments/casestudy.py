@@ -1,10 +1,11 @@
 import gym
-from farmgym.v2.games.register_all import register_all
+from farmgym.v2.games.register_all import register_farms
 from farmgym.v2.games.rungame import run_policy, run_policy_xp
 import numpy as np
 from farmgym.v2.games.rungame import run_xps
+import copy
 
-from farmgym.v2.games.make_farm import make_basicfarm, make_policy_water_harvest
+from farmgym.v2.games.make_farm import make_basicfarm, make_policy_water_harvest, make_policy_herbicide, make_policy_fertilize
 
 from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
@@ -42,15 +43,7 @@ f1 = make_basicfarm(
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
-    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
+    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")]
 )
 f7 = make_basicfarm(
     "dry_clay_bean_pollinator",
@@ -58,15 +51,7 @@ f7 = make_basicfarm(
         "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
-    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean"), (Pollinators, "bee")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
+    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean"), (Pollinators, "bee")]
 )
 f2 = make_basicfarm(
     "dry_sand_bean",
@@ -75,14 +60,6 @@ f2 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "sand"), (Plant, "bean")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
 )
 
 
@@ -93,14 +70,6 @@ f3 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "clay"), (Plant, "corn")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
 )
 f8 = make_basicfarm(
     "dry_clay_corn_pollinator",
@@ -109,14 +78,6 @@ f8 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "clay"), (Plant, "corn"), (Pollinators, "bee")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
 )
 f4 = make_basicfarm(
     "dry_sand_corn",
@@ -125,14 +86,14 @@ f4 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "sand"), (Plant, "corn")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
+    # init_values=[
+    #     ("Field-0", "Weather-0", "day#int365", 120),
+    #     ("Field-0", "Plant-0", "stage", "seed"),
+    #     ("Field-0", "Soil-0", "available_N#g", 2500),
+    #     ("Field-0", "Soil-0", "available_P#g", 2500),
+    #     ("Field-0", "Soil-0", "available_K#g", 2500),
+    #     ("Field-0", "Soil-0", "available_C#g", 2500),
+    # ],
 )
 
 
@@ -143,14 +104,6 @@ f5 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "clay"), (Plant, "tomato")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
 )
 f9 = make_basicfarm(
     "dry_clay_tomato_pollinator",
@@ -159,14 +112,6 @@ f9 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "clay"), (Plant, "tomato"), (Pollinators, "bee")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
 )
 f6 = make_basicfarm(
     "dry_sand_tomato",
@@ -175,14 +120,6 @@ f6 = make_basicfarm(
         "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
     },
     [(Weather, "dry"), (Soil, "sand"), (Plant, "tomato")],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 120),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 2500),
-        ("Field-0", "Soil-0", "available_P#g", 2500),
-        ("Field-0", "Soil-0", "available_K#g", 2500),
-        ("Field-0", "Soil-0", "available_C#g", 2500),
-    ],
 )
 
 
@@ -200,16 +137,7 @@ ff1 = make_basicfarm(
         (Weeds, "base_weed"),
         (Pests, "basic"),
         (Cide, "herbicide_slow"),
-    ],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 121),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 5000),
-        ("Field-0", "Soil-0", "available_P#g", 5000),
-        ("Field-0", "Soil-0", "available_K#g", 5000),
-        ("Field-0", "Soil-0", "available_C#g", 5000),
-        ("Field-0", "Weeds-0", "grow#nb", 3),
-    ],
+    ]
 )
 
 ff2 = make_basicfarm(
@@ -225,16 +153,7 @@ ff2 = make_basicfarm(
         (Pollinators, "bee"),
         (Weeds, "base_weed"),
         (Cide, "herbicide_slow"),
-    ],
-    init_values=[
-        ("Field-0", "Weather-0", "day#int365", 121),
-        ("Field-0", "Plant-0", "stage", "seed"),
-        ("Field-0", "Soil-0", "available_N#g", 5000),
-        ("Field-0", "Soil-0", "available_P#g", 5000),
-        ("Field-0", "Soil-0", "available_K#g", 5000),
-        ("Field-0", "Soil-0", "available_C#g", 5000),
-        ("Field-0", "Weeds-0", "grow#nb", 3),
-    ],
+    ]
 )
 
 

@@ -1,5 +1,5 @@
 from farmgym.v2.specifications.specification_manager import load_yaml
-from gym.spaces import Discrete, Box
+from gymnasium.spaces import Discrete, Box
 import numpy as np
 
 from PIL import Image

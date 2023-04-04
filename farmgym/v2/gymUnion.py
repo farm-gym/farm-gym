@@ -1,7 +1,7 @@
-from gym.spaces.space import Space
+from gymnasium.spaces.space import Space
 import numpy as np
 
-from gym.spaces import Discrete, Box, Dict, Tuple
+from gymnasium.spaces import Discrete, Box, Dict, Tuple
 
 
 def str_pretty(d, indent=0):
@@ -112,6 +112,7 @@ class MultiUnion(Space):
                 #    contains.append(True)
                 #    break
                 for space in self.spaces:
+                    print("CHECK IF",space, "\n\tcontains",xx, "\n\tAnswer:",space.contains(xx))
                     if space.contains(xx):
                         contains.append(True)
                         break

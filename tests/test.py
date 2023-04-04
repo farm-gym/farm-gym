@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 
 from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Soil import Soil
@@ -11,7 +11,7 @@ from farmgym.v2.entities.Facilities import Facility
 from farmgym.v2.entities.Fertilizer import Fertilizer
 from farmgym.v2.entities.Pollinators import Pollinators
 
-from farmgym.v2.games.register_all import register_all, register_farms
+from farmgym.v2.games.register_all import register_farms
 from farmgym.v2.games.rungame import run_randomactions
 
 
@@ -25,7 +25,7 @@ import pytest
 
 def test_farmgym():
     print("\nSTART")
-    import gym
+    import gymnasium as gym
     from farmgym.v2.games.make_farm import make_farm
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_bean.yaml")
     farm.farmgym_reset()
@@ -39,7 +39,7 @@ def test_farmgym():
         a = farm.random_allowed_observation()
         if (a != []) and (a != None):
             observation_schedule.append(a)
-        obs1, _, _, info = farm.farmgym_step(observation_schedule)
+        obs1, _, _,_, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
 
 
@@ -49,7 +49,7 @@ def test_farmgym():
 
         intervention_schedule = []
         intervention_schedule.append(farm.random_allowed_intervention())
-        obs2, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+        obs2, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
         int_cost = info["intervention cost"]
         nb_steps += 1
 
@@ -65,12 +65,11 @@ def test_farmgym():
 def test_check():
     # Fails with old version of gym. Novel one changes  output format of random.
     print("\nSTART")
-    from gym.utils.env_checker import check_env
+    from gymnasium.utils.env_checker import check_env
     from farmgym.v2.games.make_farm import make_farm
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
-
-    for f in range(10):
-        check_env(farm)
+    #farm.understand_the_farm()
+    check_env(farm)
 
     print("DONE")
 
@@ -85,7 +84,7 @@ def test_check():
 
 def test_gym():
     print("\nSTART")
-    import gym
+    import gymnasium as gym
     from farmgym.v2.games.make_farm import make_farm
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
 
@@ -97,13 +96,14 @@ def test_gym():
     nb_steps = 0
     while (not is_done) and (nb_steps < 10):
         action = farm.action_space.sample()
-        obs, reward, is_done, info = farm.step(action)
+        obs, reward, terminated, truncated, info = farm.step(action)
 
         print("Step:")
         print("\tAction:", action)
         [print("\tObservation:", o) for o in obs]
         print("\tReward:", reward)
-        print("\tIs done:", is_done)
+        print("\tIs terminated:", terminated)
+        print("\tIs truncated:",  truncated)
         print("\tInformation:", info)
 
         nb_steps += 1
@@ -123,7 +123,7 @@ def test_simple_gym():
 
 def test_render():
     print("\nSTART")
-    import gym
+    import gymnasium as gym
 
     from farmgym.v2.games.make_farm import make_farm
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
@@ -142,7 +142,7 @@ def test_render():
     nb_steps = 0
     while (not is_done) and (nb_steps < 10):
         farm.render()
-        obs, reward, is_done, info = farm.step(farm.action_space.sample())
+        obs, reward, terminated, truncated, info = farm.step(farm.action_space.sample())
         nb_steps += 1
     generate_video(image_folder=".", video_name="farm.avi")
 
@@ -153,7 +153,7 @@ def test_render():
 
 def test_register():
     print("\nSTART")
-    import gym
+    import gymnasium as gym
     from farmgym.v2.games.register_all import register_farms
     from farmgym.v2.games.rungame import run_randomactions
 
@@ -170,7 +170,7 @@ def test_register():
 def test_farmgym_render_register():
 
     print("\nSTART")
-    import gym
+    import gymnasium as gym
     from farmgym.v2.games.register_all import register_farms
     import os
     import time
@@ -203,13 +203,13 @@ def test_farmgym_render_register():
             a = farm.random_allowed_observation()
             if (a!= None):
                 observation_schedule.append(a)
-        obs1, obs_cost, _, _ = farm.farmgym_step(observation_schedule)
+        obs1, obs_cost, _, _, _ = farm.farmgym_step(observation_schedule)
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
 
         intervention_schedule = []
         if np.random.rand() > 0.3:
             intervention_schedule.append(farm.random_allowed_intervention())
-        obs, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
         # obs, reward, is_done, info = farm.step(farm.action_space.sample())
 
         cumreward += reward
@@ -268,7 +268,7 @@ def test_makefarm():
 
 def test_farmgym_policy():
     print("\nSTART")
-    import gym
+    import gymnasium as gym
     from farmgym.v2.games.make_farm import make_farm
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_bean.yaml")
 
@@ -285,7 +285,7 @@ def test_farmgym_policy():
         while (not is_done) and (nb_steps < 10):
             observations = farm.get_free_observations()
             observation_schedule = policy.observation_schedule(observations)
-            observation, _, _, info = farm.farmgym_step(observation_schedule)
+            observation, _, _,_,  info = farm.farmgym_step(observation_schedule)
 
             print("Observation step:")
             [print("\tScheduled:\t", o) for o in observation_schedule]
@@ -293,13 +293,14 @@ def test_farmgym_policy():
             print("\tInformation:\t", info)
 
             intervention_schedule = policy.intervention_schedule(observation)
-            obs2, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+            obs2, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
 
             print("Intervention step:")
             [print("\tScheduled:\t", o) for o in intervention_schedule]
             [print("\tObserved:\t", o) for o in obs2]
             print("\tReward:\t", reward)
-            print("\tIs done:\t", is_done)
+            print("\tIs terminated:\t", terminated)
+            print("\tIs truncated:\t",  truncated)
             print("\tInformation:\t", info)
 
             nb_steps += 1

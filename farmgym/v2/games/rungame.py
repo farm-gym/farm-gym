@@ -20,7 +20,7 @@ class Farmgym_Agent:
     def init(self, observation):
         pass
 
-    def update(self, obs, reward, is_done, info):
+    def update(self, obs, reward,  terminated, truncated, info):
         pass
 
     def choose_action(self):
@@ -41,20 +41,20 @@ def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
     observation, information = farm.reset()
     if render == "text":
         print("Initial step:")
-        print(farm.render_step([], observation, 0, False, information))
+        print(farm.render_step([], observation, 0, False, False, information))
         print("###################################")
     agent.init(observation)
 
-    is_done = False
+    terminated = False
     i = 0
-    while (not is_done) and i <= max_steps:
+    while (not terminated) and i <= max_steps:
 
         action = agent.choose_action()
-        obs, reward, is_done, info = farm.step(action)
+        obs, reward,  terminated, truncated, info = farm.step(action)
         if render == "text":
-            print(farm.render_step(action, obs, reward, is_done, info))
+            print(farm.render_step(action, obs, reward,  terminated, truncated, info))
             print("###################################")
-        agent.update(obs, reward, is_done, info)
+        agent.update(obs, reward,  terminated, truncated, info)
         i += 1
 
 
@@ -140,9 +140,9 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
         print("Initial observations", observation)
 
     # check_env(farm)
-    is_done = False
+    terminated = False
     i = 0
-    while (not is_done) and i <= max_steps:
+    while (not terminated) and i <= max_steps:
         if render:
             print("[FarmGym] Step\t", i)
             farm.render()
@@ -152,7 +152,7 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
             a = farm.random_allowed_observation()
             if a != None:
                 observation_schedule.append(a)
-        obs1, _, _, info = farm.farmgym_step(observation_schedule)
+        obs1, _, _,_, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
 
@@ -167,7 +167,7 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
             intervention_schedule.append(farm.random_allowed_intervention())
             # TODO: BUG on Aborted interventions ? Some are still executed!
             # intervention_schedule.append(farm.random_allowed_intervention())
-        obs, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
         int_cost = info["intervention cost"]
         # obs, reward, is_done, info = farm.step(farm.action_space.sample())
 
@@ -176,7 +176,8 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
             [print("\tScheduled:\t", o) for o in intervention_schedule]
             [print("\tObserved:\t", o) for o in obs]
             print("\tReward:\t", reward)
-            print("\tIs done:\t", is_done)
+            print("\tIs terminated:\t", terminated)
+            print("\tIs truncated:\t",  truncated)
             print("\tInformation:\t", info)
 
         cumreward += reward
@@ -236,9 +237,9 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
         print("Initial observations", observation)
 
     # check_env(farm)
-    is_done = False
+    terminated = False
     i = 0
-    while (not is_done) and i <= max_steps:
+    while (not terminated) and i <= max_steps:
         if render:
             print("[FarmGym] Step\t", i)
             farm.render()
@@ -247,7 +248,7 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
         observations = farm.get_free_observations()
         # print("FREE observations", observations)
         observation_schedule = policy.observation_schedule(observations)
-        observation, _, _, info = farm.farmgym_step(observation_schedule)
+        observation, _, _,_, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
 
@@ -258,7 +259,7 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
             print("\tInformation:\t", info)
 
         intervention_schedule = policy.intervention_schedule(observation)
-        obs, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
         int_cost = info["intervention cost"]
 
         if render:
@@ -266,7 +267,8 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
             [print("\tScheduled:\t", o) for o in intervention_schedule]
             [print("\tObserved:\t", o) for o in obs]
             print("\tReward:\t", reward)
-            print("\tIs done:\t", is_done)
+            print("\tIs terminated:\t", terminated)
+            print("\tIs truncated:\t", truncated)
             print("\tInformation:\t", info)
 
         cumreward += reward
@@ -312,16 +314,16 @@ def run_policy_xp(farm, policy, max_steps=np.infty):
     policy.reset()
     observation = farm.reset()
 
-    is_done = False
+    terminated = False
     i = 0
-    while (not is_done) and i <= max_steps:
+    while (not terminated) and i <= max_steps:
         observations = farm.get_free_observations()
         observation_schedule = policy.observation_schedule(observations)
-        observation, _, _, info = farm.farmgym_step(observation_schedule)
+        observation, _, _,_, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
 
         intervention_schedule = policy.intervention_schedule(observation)
-        obs, reward, is_done, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
         int_cost = info["intervention cost"]
 
         cumreward += reward

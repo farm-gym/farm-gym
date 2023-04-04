@@ -1,5 +1,5 @@
-import gym
-from gym.envs.registration import register
+import gymnasium as gym
+from gymnasium.envs.registration import register
 
 import numpy as np
 
@@ -11,41 +11,41 @@ CURRENT_DIR = file_path.parent
 
 from farmgym.v2.games import *
 
-
-def register_all():
-    environments = []
-
-    def make_game_ids(directory_path, prefix=""):
-        dirs = os.listdir(directory_path)
-        if "farm.py" in dirs:
-
-            return [(prefix, "farm")]
-        else:
-            prefixes = []
-            for x in dirs:
-                # for (root,dirs,files) in os.walk(CURRENT_DIR):
-                if "." not in x and x[0] not in ["_"]:
-                    [
-                        prefixes.append((y, x + "." + p))
-                        for y, p in make_game_ids(
-                            os.path.join(directory_path, x),
-                            prefix + "_" + x if prefix != "" else x,
-                        )
-                    ]
-            return prefixes
-
-    game_ids = make_game_ids(CURRENT_DIR)
-    for xx, path in game_ids:
-        register(
-            id=xx + "-v0",
-            entry_point="farmgym.v2.games." + path + ":env",
-            max_episode_steps=np.infty,
-            reward_threshold=np.infty,
-            kwargs={},
-        )
-        environments.append(xx + "-v0")
-
-    return environments
+#
+# def register_all():
+#     environments = []
+#
+#     def make_game_ids(directory_path, prefix=""):
+#         dirs = os.listdir(directory_path)
+#         if "farm.py" in dirs:
+#
+#             return [(prefix, "farm")]
+#         else:
+#             prefixes = []
+#             for x in dirs:
+#                 # for (root,dirs,files) in os.walk(CURRENT_DIR):
+#                 if "." not in x and x[0] not in ["_"]:
+#                     [
+#                         prefixes.append((y, x + "." + p))
+#                         for y, p in make_game_ids(
+#                             os.path.join(directory_path, x),
+#                             prefix + "_" + x if prefix != "" else x,
+#                         )
+#                     ]
+#             return prefixes
+#
+#     game_ids = make_game_ids(CURRENT_DIR)
+#     for xx, path in game_ids:
+#         register(
+#             id=xx + "-v0",
+#             entry_point="farmgym.v2.games." + path + ":env",
+#             max_episode_steps=np.infty,
+#             reward_threshold=np.infty,
+#             kwargs={},
+#         )
+#         environments.append(xx + "-v0")
+#
+#     return environments
 
 
 

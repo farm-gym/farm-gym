@@ -519,14 +519,6 @@ if __name__ == "__main__":
             (Cide, "herbicide"),
             (Pests, "basic"),
         ],
-        init_values=[
-            ("Field-0", "Weather-0", "day#int365", 120),
-            ("Field-0", "Plant-0", "stage", "seed"),
-            ("Field-0", "Soil-0", "available_N#g", 2500),
-            ("Field-0", "Soil-0", "available_P#g", 2500),
-            ("Field-0", "Soil-0", "available_K#g", 2500),
-            ("Field-0", "Soil-0", "available_C#g", 2500),
-        ],
     )
     f2.add_monitoring(
         make_variables_to_be_monitored(
@@ -569,14 +561,14 @@ if __name__ == "__main__":
             (Weeds, "base_weed"),
             (Fertilizer, "fast_all"),
         ],
-        init_values=[
-            ("Field-0", "Weather-0", "day#int365", 120),
-            ("Field-0", "Plant-0", "stage", "seed"),
-            ("Field-0", "Soil-0", "available_N#g", 500),
-            ("Field-0", "Soil-0", "available_P#g", 500),
-            ("Field-0", "Soil-0", "available_K#g", 500),
-            ("Field-0", "Soil-0", "available_C#g", 500),
-        ],
+ #       init_values=[
+ #           ("Field-0", "Weather-0", "day#int365", 120),
+ #           ("Field-0", "Plant-0", "stage", "seed"),
+ #           ("Field-0", "Soil-0", "available_N#g", 500),
+ #           ("Field-0", "Soil-0", "available_P#g", 500),
+ #           ("Field-0", "Soil-0", "available_K#g", 500),
+ #           ("Field-0", "Soil-0", "available_C#g", 500),
+ #       ],
     )
     # f3.add_monitoring(
     #     make_monitor(

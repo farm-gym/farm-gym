@@ -19,9 +19,9 @@ class Weather(Entity_API):
         # Global weather
         self.variables["day#int365"] = Range(list(range(365)), 0.0)
         self.variables["air_temperature"] = {
+            "max#°C": Range((-100, 100), 0.0),
             "mean#°C": Range((-100, 100), 0.0),
             "min#°C": Range((-100, 100), 0.0),
-            "max#°C": Range((-100, 100), 0.0),
         }
         self.variables["humidity_index#%"] = Range((0.0, 100.0), 0.0)
         self.variables["wind"] = {
