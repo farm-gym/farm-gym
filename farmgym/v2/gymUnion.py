@@ -5,14 +5,15 @@ from gymnasium.spaces import Discrete, Box, Dict, Tuple
 
 
 def str_pretty(d, indent=0):
-    s=""
+    s = ""
     for key, value in d.items():
-        s += '\t' * indent + str(key) + "\n"
-        if isinstance(value, dict) or isinstance(value,Dict):
-            s+=str_pretty(value, indent+1)
+        s += "\t" * indent + str(key) + "\n"
+        if isinstance(value, dict) or isinstance(value, Dict):
+            s += str_pretty(value, indent + 1)
         else:
-             s+='\t' * (indent+1) + str(value)+"\n"
+            s += "\t" * (indent + 1) + str(value) + "\n"
     return s
+
 
 class Union(Space):
     """
@@ -88,11 +89,7 @@ class MultiUnion(Space):
             sampled_indexes.append(n)
         samples = []
         for n in sampled_indexes:
-            # if len(self.spaces) == 1:
             samples.append(self.spaces[n].sample())
-        # else:
-        #    samples.append((n, self.spaces[n].sample()))
-        # print("sample",m,sampled_indexes,samples)
         return samples
 
     def contains(self, x):
@@ -112,19 +109,17 @@ class MultiUnion(Space):
                 #    contains.append(True)
                 #    break
                 for space in self.spaces:
-                    print("CHECK IF",space, "\n\tcontains",xx, "\n\tAnswer:",space.contains(xx))
+                    # print("CHECK IF",space, "\n\tcontains",xx, "\n\tAnswer:",space.contains(xx))
                     if space.contains(xx):
                         contains.append(True)
                         break
             if contains == []:
                 return False
-            # if not any(space.contains(xx) for space in self.spaces):
-            #    return False
         return True
 
     def __repr__(self):
         s = "MultiUnion" + (("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else "")
-        return s + "(\n" + ",\n".join([str_pretty(s,0) for s in self.spaces]) + ")"
+        return s + "(\n" + ",\n".join([str_pretty(s, 0) for s in self.spaces]) + ")"
 
     def to_jsonable(self, sample_n):
         # serialize as list-repr of union of vectors

@@ -131,7 +131,7 @@ class Farm(gym.Env):
                     + " and used instead. Please, open and modify as wanted."
                 )
 
-        # TODO : Double check the behavior when empty init file, or nor empty with or withtou init_values as parameter.
+        # TODO : Double check the behavior when empty init file, or nor empty with or without init_values as parameter.
         if self.rules.init_configuration == None:
             print(f"[Farmgym Warning] Missing initial conditions configuration file.")
             build_inityaml(
@@ -156,7 +156,7 @@ class Farm(gym.Env):
                     self.rules.init_configuration,
                     self,
                     mode="default",
-                    init_values=None#self.rules.initial_conditions_values,
+                    init_values=None,  # self.rules.initial_conditions_values,
                 )
                 # print('INIT VALUE', self.rules.initial_conditions_values)
                 print(
@@ -288,7 +288,7 @@ class Farm(gym.Env):
         information = farmgym_information
         information["farmgym observations"] = farmgym_observations
 
-        #print("RESET",observations,information)
+        # print("RESET",observations,information)
         return (observations, information)
 
     def gym_reset_POMDP(self, seed=None, options=None):
@@ -299,10 +299,10 @@ class Farm(gym.Env):
         farmgym_observations, farmgym_information = self.farmgym_reset(seed, options)
 
         observations = self.farmgym_to_gym_observations(farmgym_observations)
-        #print("RESET",observations,farmgym_information)
-        #print("OBSERVATION",self.observation_space)
-        #print("IS",observations in self.observation_space)
-        #print("IS", self.observation_space.contains(observations))
+        # print("RESET",observations,farmgym_information)
+        # print("OBSERVATION",self.observation_space)
+        # print("IS",observations in self.observation_space)
+        # print("IS", self.observation_space.contains(observations))
 
         return (observations, farmgym_information)
 
@@ -353,20 +353,9 @@ class Farm(gym.Env):
         else:  # Assumes it is AOMDP
             return self.gym_step_AOMDP(action)
 
-    # def double_step(self, policy):
-    #    info = {}
-    #    free_observations = self.get_free_observations()
-    #    observation_schedule = policy.observation_schedule(free_observations)
-    #    observations, _, _, info1 = self.farmgym_step(observation_schedule)
-    #    info["observation cost"] = info1["observation cost"]
-    #    intervention_schedule = policy.intervention_schedule(observations)
-    #    obs, reward, is_done, info2 = self.farmgym_step(intervention_schedule)
-    #    info["intervention cost"] = info2["intervention cost"]
-    #    return observations+observations+obs,reward,is_done,info
-
     def gym_step_POMDP(self, action):
         # info = {}
-        observations, _, _,_,  _ = self.farmgym_step([])
+        observations, _, _, _, _ = self.farmgym_step([])
         obs, reward, terminated, truncated, info = self.farmgym_step(self.gymaction_to_discretized_farmgymaction(action))
         # info["intervention cost"] = info2["intervention cost"]
         # free_observations = self.get_free_observations()
@@ -386,6 +375,8 @@ class Farm(gym.Env):
             g[fa_key][fi_key][e_key] = {}
             g[fa_key][fi_key][e_key][variable_key] = {}
             if path != []:
+                # print("PATH",str(path))
+                # TODO UPDATE for path=['min#°C',2]?
                 g[fa_key][fi_key][e_key][variable_key][str(path)] = gym_value
             else:
                 g[fa_key][fi_key][e_key][variable_key] = gym_value
@@ -416,7 +407,7 @@ class Farm(gym.Env):
         A farm gym step alternates between observation step and action step before moving to next day.
         """
         self.last_farmgym_action = action_schedule
-        #print("AS",action_schedule)
+        # print("AS",action_schedule)
         filtered_action_schedule = self.rules.filter_actions(self, action_schedule, self.is_new_day)
         self.rules.assert_actions(filtered_action_schedule)
         if self.is_new_day:
@@ -457,6 +448,8 @@ class Farm(gym.Env):
             # cost = 0
             obs_vec = self.farmers[fa_key].perform_observation(fi_key, entity, variable_key, path)
             [observations.append(o) for o in obs_vec]
+            # print("OV",obs_vec)
+            # print("O",observations)
 
         return observations, 0, False, False, {"observation cost": observation_schedule_cost}
         # return (observation, reward, terminated, truncated, info) or  (observation, reward, done, info)
@@ -474,7 +467,7 @@ class Farm(gym.Env):
             # We can change this to policies using:
             # fa_key,fi_key,pos,action = policy_item.action(observations)
             cost = self.scoring.intervention_cost(fa_key, fi_key, entity_key, action_name, params)
-            obs_vec = self.farmers[fa_key].perform_action(fi_key, entity_key, action_name, params)
+            obs_vec = self.farmers[fa_key].perform_intervention(fi_key, entity_key, action_name, params)
             # print("OBSVEC", obs_vec)
             [observations.append(o) for o in obs_vec]
             intervention_schedule_cost += cost
@@ -510,7 +503,8 @@ class Farm(gym.Env):
         return (
             observations,
             reward,
-            terminated, False,
+            terminated,
+            False,
             {"intervention cost": intervention_schedule_cost},
         )
 
@@ -666,39 +660,6 @@ class Farm(gym.Env):
 
         return (fa, fi, e, inter, farmgym_act)
 
-    # def random_intervention(self):
-    #     #TODO: Should we restrict to specified inverventions from config file?
-    #     fa = self.np_random.choice(list(self.farmers.keys()))
-    #     fi = self.np_random.choice(list(self.farmers[fa].fields.keys()))
-    #     e = self.np_random.choice(list(self.fields[fi].entities.keys()))
-    #
-    #     actions =        self.fields[fi].entities[e].actions
-    #     while(len(actions)==0):
-    #         fa = self.np_random.choice(list(self.farmers.keys()))
-    #         fi = self.np_random.choice(list(self.farmers[fa].fields.keys()))
-    #         e = self.np_random.choice(list(self.fields[fi].entities.keys()))
-    #         actions = self.fields[fi].entities[e].actions
-    #     key = self.np_random.choice(list(actions.keys()))
-    #     params = actions[key]
-    #     #print("CHOICE",fa,fi,e,key,params)
-    #     p = {}
-    #     for param in params:
-    #         if (param == 'plot'):
-    #             X = self.fields[fi].X
-    #             Y = self.fields[fi].Y
-    #             x = self.np_random.randint(0, X)
-    #             y = self.np_random.randint(0, Y)
-    #             p[param]= (x,y)
-    #         else:
-    #             range = params[param]
-    #             if (isinstance(range, tuple)):
-    #                 m, M = range
-    #                 p[param] = m + self.np_random.random() * (M - m)
-    #             else:
-    #                 p[param] = self.np_random.choice(list(range))
-    #
-    #     return fa, fi, e, key, p
-
     def random_allowed_observation(self):
         """
         Outputs a randomly generated observation-action (action to collect observation), as allowed by the yaml file, in farmgym format.
@@ -707,34 +668,6 @@ class Farm(gym.Env):
             n = self.np_random.integers(len(self.farmgym_observation_actions))
             return self.farmgym_observation_actions[n]
         return None
-
-    # def random_observation(self):
-    #     #TODO: Should we restrict to specified observations from config file?
-    #     fa = self.np_random.choice(list(self.farmers.keys()))
-    #     fi = self.np_random.choice(list(self.farmers[fa].fields.keys()))
-    #     e = self.np_random.choice(list(self.fields[fi].entities.keys()))
-    #     vars = self.fields[fi].entities[e].variables
-    #     #print("VARS:", vars)
-    #     #print("KEYS:", list(vars.keys()))
-    #     key= self.np_random.choice(list(vars.keys()))
-    #     v = vars[key]
-    #     path = []
-    #     done = False
-    #     while (not done):
-    #         if ( type(v) not in { np.ndarray, dict} or  (self.np_random.rand() > 0.5) ):
-    #           done = True
-    #         else:
-    #             if (type(v) == np.ndarray):
-    #                 shape = np.shape(v)
-    #                 xx= self.np_random.randint(0, shape)
-    #                 path.append(tuple(xx))
-    #                 done = True
-    #             elif (type(v) == dict):
-    #                 k = self.np_random.choice(list(v.keys()))
-    #                 v = v[k]
-    #                 path.append(k)
-    #
-    #     return fa,fi,e, key, path
 
     def build_farmgym_intervention_actions(self, action_yaml):
         """
@@ -939,7 +872,6 @@ class Farm(gym.Env):
                     state_space.append(s)
                     state_space_[fi][e][v] = self.fields[fi].entities[e].variables[v]
 
-        # print("STATE_SPACE", state_space_)
         return Dict(make_s(state_space_))  # Tuple(state_space)
 
     def build_gym_observation_space(self):
@@ -955,8 +887,8 @@ class Farm(gym.Env):
                 xspace = {}
                 for k in x.keys():
                     xspace[k] = make_space(x[k])
-                #print("MS",x.keys(),"\n\t",xspace,"\n\t",Dict(xspace))
-                #TODO: THe following does not keep the keys from x.keys() in the correct order !! This is a gymnasium (and gym) issue !! It seems to sort them by alphabetic order !!
+                # print("MS",x.keys(),"\n\t",xspace,"\n\t",Dict(xspace))
+                # TODO: THe following does not keep the keys from x.keys() in the correct order !! This is a gymnasium (and gym) issue !! It seems to sort them by alphabetic order !!
                 return Dict(xspace)
             elif type(x) == np.ndarray:
                 xspace = []
@@ -967,15 +899,11 @@ class Farm(gym.Env):
                 return x.to_gym_space()
 
         observation_space = []
-        # observation_space2 = {}
-        # obs_space = {}
 
         for fo in self.rules.free_observations:
             fa_key, fi_key, e_key, variable_key, path = fo
             var = self.fields[fi_key].entities[e_key].variables[variable_key]
             x = var
-            # print("VAR",var)
-            # print("PATH",path)
             for p in path:
                 x = x[p]
             # print("x",x)
@@ -987,25 +915,15 @@ class Farm(gym.Env):
             o_space[fa_key][fi_key][e_key] = {}
             o_space[fa_key][fi_key][e_key][variable_key] = {}
             if path != []:
+                # oo ={}
+                # for p in path:
+                #    oo[p]={}
+
                 o_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
             else:
                 o_space[fa_key][fi_key][e_key][variable_key] = x
-            #print("MAKE SPACE",make_space(o_space))
+            # print("MAKE SPACE",make_space(o_space))
             observation_space.append(make_space(o_space))
-
-            # if fa_key not in obs_space:
-            #    obs_space[fa_key] = {}
-            # if fi_key not in obs_space[fa_key]:
-            #    obs_space[fa_key][fi_key] = {}
-            # if e_key not in obs_space[fa_key][fi_key]:
-            #    obs_space[fa_key][fi_key][e_key] = {}
-            # if variable_key not in obs_space[fa_key][fi_key][e_key]:
-            #    obs_space[fa_key][fi_key][e_key][variable_key] = {}
-            # if str(path) not in obs_space[fa_key][fi_key][e_key][variable_key]:
-            #    obs_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
-
-            # observation_space2[str(fa_key) + "." + str(fi_key) + "." + str(e_key) + "." + str(variable_key) + "." + str(
-            #    path)] = make_space(x)
 
         for oa in self.farmgym_observation_actions:
             fa_key, fi_key, e_key, variable_key, path = oa
@@ -1027,21 +945,6 @@ class Farm(gym.Env):
                 o_space[fa_key][fi_key][e_key][variable_key] = x
             observation_space.append(make_space(o_space))
 
-            # if fa_key not in obs_space:
-            #    obs_space[fa_key] = {}
-            # if fi_key not in obs_space[fa_key]:
-            #    obs_space[fa_key][fi_key] = {}
-            # if e_key not in obs_space[fa_key][fi_key]:
-            #    obs_space[fa_key][fi_key][e_key] = {}
-            # if variable_key not in obs_space[fa_key][fi_key][e_key]:
-            #    obs_space[fa_key][fi_key][e_key][variable_key] = {}
-            # if str(path) not in obs_space[fa_key][fi_key][e_key][variable_key]:
-            #    obs_space[fa_key][fi_key][e_key][variable_key][str(path)] = x
-            # observation_space2[str(fa_key) + "." + str(fi_key) + "." + str(e_key) + "." + str(variable_key) + "." + str(
-            #    path)] = make_space(x)
-
-        # TODO: Make everything a dictionary?
-        # return make_space(obs_space)
         return MultiUnion(observation_space)
 
     def build_gym_action_space(self):
@@ -1294,7 +1197,7 @@ class Farm(gym.Env):
             dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
             # plt.pause(0.01)
 
-    def render_step(self, action, observation, reward,  terminated, truncated, info):
+    def render_step(self, action, observation, reward, terminated, truncated, info):
         # Called after a step.
         s = "Farm:\t" + self.shortname + "\t"
         if self.is_new_day:  # Assumes it just switch from False to True
@@ -1396,22 +1299,6 @@ class Farm(gym.Env):
 
         print("###############################")
         # print(farm.actions_to_string())
-
-
-#
-# def convertImage(imgRGB):
-#     imgRGBA = imgRGB.convert("RGBA")
-#     datas = imgRGBA.getdata()
-#
-#     newData = []
-#     for item in datas:
-#         if item[0] == 255 and item[1] == 255 and item[2] == 255:
-#             newData.append((255, 255, 255, 0))
-#         else:
-#             newData.append(item)
-#
-#     imgRGBA.putdata(newData)
-#     return imgRGB
 
 
 import cv2

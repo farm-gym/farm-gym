@@ -15,7 +15,6 @@ class Weather(Entity_API):
 
         self.variables = {}
 
-        # TODO: add units in all variables, propagate in all other entities where it is used.
         # Global weather
         self.variables["day#int365"] = Range(list(range(365)), 0.0)
         self.variables["air_temperature"] = {

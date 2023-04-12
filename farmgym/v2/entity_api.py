@@ -94,6 +94,7 @@ class Range:
 
     def gym_value(self):
         if type(self.range) == tuple:
+            #TODO: should be [self.value] for observation to be part of observation space, but creates spurious [][] elsewhere !
             return [self.value]
         else:
             return self.range.index(self.value)
@@ -255,7 +256,7 @@ class Entity_API:
                     )
 
     def observe_variable(self, variable_key, path):
-        # print("OBSERVE_VARIABLE:",variable_key,path)
+        #print("OBSERVE_VARIABLE:",variable_key,path)
         def make_obs(x):
             if type(x) == Range:
                 return x.value  # x.gym_value()
@@ -282,6 +283,7 @@ class Entity_API:
         def make_obs(x):
             #print("OBSERVE_VARIABLE:", x)
             if type(x) == Range:
+                #TODO : change to [...] ?
                 return x.gym_value()
             elif type(x) == dict:
                 ob = {}

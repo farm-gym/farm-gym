@@ -145,9 +145,6 @@ class Rules_API:
                     return True
                 return dic == {}
 
-        #print("ACTION",action)
-        #if (action==None):
-        #    return True
         fa, fi, e, a, p = action
         if type(p) != list:  # Intervention
             if is_observation_time:
@@ -180,24 +177,6 @@ class Rules_API:
                             act = ent[a]
                             # print("ACT", act, p)
                             return check(act, p)
-                        # for j in range(len(p)):
-                        #     if (type(act) == dict):
-                        #         if (str(p[j]) not in act.keys()):
-                        #             return False
-                        #         act = act[p[j]]
-                        #     else:
-                        #         if (str(p[j]) not in act):
-                        #             return False
-                        #         else:
-                        #             return True
-                        # if (act is None):
-                        #     #if len(p) == 0:
-                        #         return True
-                        #     #else:
-                        #      #print(field,ent,act,"\n\t",p)
-                        #      #raise Exception("Malformed action request " + str(action))
-                        # if ('*' in act) or ('*' in act.keys()):
-                        #     return True
         return False
 
     def assert_actions(self, actions):

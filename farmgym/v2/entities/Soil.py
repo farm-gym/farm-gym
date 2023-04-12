@@ -15,9 +15,7 @@ class Soil(Entity_API):
         self.variables["available_P#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
         self.variables["available_K#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
         self.variables["available_C#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
-        self.variables["available_Water#L"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,10000),0.))
+        self.variables["available_Water#L"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
 
         self.variables["wet_surface#m2.day-1"] = fillarray(
             X, Y, (0, 1000), 0.0
@@ -143,18 +141,14 @@ class Soil(Entity_API):
                     )
 
                 # Other nutrients input (fertilizers)
-                # print("FERTILIZERS",fertilizers)
                 for f in fertilizers:
                     # Q: Here, should we trigger update of f entity or simply compute amount? [f is updated later or earlier]
                     # Answer: Receiver always triggers action, Emitter never triggers it.
                     release = f.release_nutrients((x, y), self)  # in kg
-                    # print("Nutrients before",self.variables['available_N#g'][x,y].value, self.variables['microlife_health_index#%'][x,y].value)
                     for n in ["N", "K", "P", "C"]:
                         self.variables["available_" + n + "#g"][x, y].set_value(
                             self.variables["available_" + n + "#g"][x, y].value + release[n] * 1000
                         )
-
-                    # print("Nutrients after",self.variables['available_N#g'][x,y].value)
 
                 for c in cides:
                     release = c.release((x, y))  # in kg
@@ -234,7 +228,6 @@ class Soil(Entity_API):
                 )
                 # if (self.variables['available_Water#L'][x,y].value  - soil_evaporated_water<water_evaporation_threshold):
 
-                # print("WATER EVAPORATED:", soil_evaporated_water, "available", self.variables['available_Water#L'][x, y].value)
                 self.variables["available_Water#L"][x, y].set_value(
                     max(
                         0,
@@ -250,9 +243,6 @@ class Soil(Entity_API):
                 )
 
                 # Microlife health index:
-
-                # self.variables['microlife_health_index#%'][x,y].set_value( 100*np.exp(-(self.variables['amount_cide#g']['soil'][x,y].value ) ))
-
                 q = []
                 q.append(
                     (
@@ -272,16 +262,12 @@ class Soil(Entity_API):
                 # else:
                 #    self.variables['microlife_health_index#%'][x, y].set_value(min(100,
                 #        self.variables['microlife_health_index#%'][x, y].value * (1+0.1*p_stayalive)))
-
-                # print("MICROLIFE before",self.variables['microlife_health_index#%'][x, y].value)
                 self.variables["microlife_health_index#%"][x, y].set_value(
                     (
                         (p_stayalive * (1 + 0.1 * p_stayalive) + (1 - p_stayalive) * (p_stayalive))
                         * self.variables["microlife_health_index#%"][x, y].value
                     )
                 )
-
-                # print("MICROLIFE after",self.variables['microlife_health_index#%'][x, y].value)
 
                 # Soil nutrients/water/pesticide/herbicide leakage due to rain.
                 rain_intensity = weather.variables["rain_intensity"].value
@@ -304,24 +290,16 @@ class Soil(Entity_API):
                                 * np.exp(-(rain_intensity * surf + water_surplus / max_water_plot_capacity)),
                             )
                         )
-                    # self.variables['microlife_health_index#%'][x, y].set_value(max(0,self.variables['microlife_health_index#%'][x,y].value - water_surplus/max_water_plot_capacity))
-                    # print("PESTICIDE after leak", self.variables['amount_cide#g']['soil'][x, y].value)
-
-                    # print("Nutrients after leaching",self.variables['available_N#g'][x,y].value)
 
     def ground_evaporation(self, position, weather, plants, weeds, field):
         ET_0 = weather.evapo_coefficient(field)  # ml/m2
 
         # Compute % of ground covered by shadow:
-        # print("Shadow-surfaces:")
-        # [print(p.compute_shadowsurface(position)) for p in plants]
         plantshadow = np.sum([p.compute_shadowsurface(position) * p.parameters["shadow_coeff#%"] for p in plants])
         weedshadow = np.sum([w.compute_shadowsurface(position) for w in weeds])
         shadow_proportion = min((plantshadow + weedshadow) / self.field.plotsurface, 1.0)
         wet_proportion = self.variables["wet_surface#m2.day-1"][position].value / self.field.plotsurface
         evapo_prop = min(1.0 - shadow_proportion, wet_proportion)
-
-        # TODO: Multiply by coeff to stop/slow-down evaporation for clay/sand/loam.
 
         drop_proportion = (
             (1.1 - self.variables["microlife_health_index#%"][position].value / 100)
@@ -365,8 +343,7 @@ class Soil(Entity_API):
                     self.variables["amount_cide#g"][n][x, y].set_value(
                         max(
                             0,
-                            self.variables["amount_cide#g"][n][x, y].value
-                            * np.exp(-water_surplus / max_water_plot_capacity),
+                            self.variables["amount_cide#g"][n][x, y].value * np.exp(-water_surplus / max_water_plot_capacity),
                         )
                     )
 

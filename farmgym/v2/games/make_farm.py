@@ -7,7 +7,6 @@ from farmgym.v2.scorings.BasicScore import BasicScore
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.policy_api import Policy_API
 
-
 ## The following importe lines are import for the make_farm function that uses inspection module!
 
 from farmgym.v2.entities.Weather import Weather
@@ -61,19 +60,19 @@ def make_farm(yamlfile):
     interaction_mode = farm_yaml["interaction_mode"]
     name = yamlfile[:-5]
     # TODO: Perhaps these names could be defined automatically? or actually remove the initailization file entirely, and proceed with init_values only.
-    name_score = name+"_"+farm_yaml["score"]
-    name_init = name+"_"+farm_yaml["initialization"]
-    name_actions = name+"_"+farm_yaml["actions"]
+    name_score = name + "_" + farm_yaml["score"]
+    name_init = name + "_" + farm_yaml["initialization"]
+    name_actions = name + "_" + farm_yaml["actions"]
 
     scoring = BasicScore(score_configuration=name_score)
 
     # if (terminal_conditions==None):
     #    terminal_CNF_conditions = [
-    #        [(("Field-0", "Weather-0", "day#int365", []), lambda x: x.value, ">=", 360)],
+    #        [(("Field-0", "Weather-0", "day#int365", []), lambda x: x, ">=", 360)],
     #        [
     #            (
     #                ("Field-0", "Plant-0", "global_stage", []),
-    #                lambda x: x.value, "in", ["dead", "harvested"],
+    #                lambda x: x, "in", ["dead", "harvested"],
     #            )
     #        ]
     #    ]
@@ -118,8 +117,8 @@ def make_basicfarm(name, field, entities, farmers=[{"max_daily_interventions": 1
     rules = BasicRule(
         init_configuration=name_init,
         actions_configuration=name_actions,
-        #terminal_CNF_conditions=terminal_CNF_conditions,
-        #initial_conditions_values=init_values,
+        # terminal_CNF_conditions=terminal_CNF_conditions,
+        # initial_conditions_values=init_values,
     )
 
     # DEFINE one policy:
@@ -152,7 +151,7 @@ def make_policies_water_harvest(amounts):
                 [
                     (
                         ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                        lambda x: x.value,
+                        lambda x: x,
                         "in",
                         ["ripe"],
                     )
@@ -171,7 +170,7 @@ def make_policies_water_harvest(amounts):
                 [
                     (
                         ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                        lambda x: x.value,  # TODO: rather x.value??
+                        lambda x: x,  # TODO: rather x??
                         "in",
                         ["fruit"],
                     )
@@ -219,7 +218,7 @@ def make_policy_water_harvest(amount):
 
     triggered_interventions = []
     policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x.value, "in", ["ripe"])]],
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
@@ -229,7 +228,7 @@ def make_policy_water_harvest(amount):
     )
     triggered_interventions.append(policy_harvest)
     policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x.value, "in", ["fruit"])]],
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
@@ -274,7 +273,7 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
 
     triggered_interventions = []
     policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x.value, "in", ["ripe"])]],
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
@@ -284,7 +283,7 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
     )
     triggered_interventions.append(policy_harvest)
     policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x.value, "in", ["fruit"])]],
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
@@ -299,7 +298,7 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
                 [
                     (
                         ("Field-0", "Weather-0", "day#int365", []),
-                        lambda x: x.value % frequency,
+                        lambda x: x % frequency,
                         "==",
                         0,
                     )
@@ -357,7 +356,7 @@ def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
 
     triggered_interventions = []
     policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x.value, "in", ["ripe"])]],
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
@@ -367,7 +366,7 @@ def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
     )
     triggered_interventions.append(policy_harvest)
     policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x.value, "in", ["fruit"])]],
+        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
         [
             {
                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
@@ -382,7 +381,7 @@ def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
                 [
                     (
                         ("Field-0", "Weather-0", "day#int365", []),
-                        lambda x: x.value % frequency,
+                        lambda x: x % frequency,
                         "==",
                         0,
                     )
@@ -435,8 +434,8 @@ if __name__ == "__main__":
         run_policy,
     )
 
-    f = make_farm("farm.yaml")
-    print(f)
+    # f = make_farm("farm.yaml")
+    # print(f)
     # policies = make_policies_water_harvest([0.,8.,2.])
     # f1 = make_farm("blatest",
     #                {'localization': {'latitude#°':43, 'longitude#°':4, 'altitude#m':150}, 'shape':{'length#nb':1, 'width#nb':1, 'scale#m': 1.} },
@@ -561,14 +560,14 @@ if __name__ == "__main__":
             (Weeds, "base_weed"),
             (Fertilizer, "fast_all"),
         ],
- #       init_values=[
- #           ("Field-0", "Weather-0", "day#int365", 120),
- #           ("Field-0", "Plant-0", "stage", "seed"),
- #           ("Field-0", "Soil-0", "available_N#g", 500),
- #           ("Field-0", "Soil-0", "available_P#g", 500),
- #           ("Field-0", "Soil-0", "available_K#g", 500),
- #           ("Field-0", "Soil-0", "available_C#g", 500),
- #       ],
+        #       init_values=[
+        #           ("Field-0", "Weather-0", "day#int365", 120),
+        #           ("Field-0", "Plant-0", "stage", "seed"),
+        #           ("Field-0", "Soil-0", "available_N#g", 500),
+        #           ("Field-0", "Soil-0", "available_P#g", 500),
+        #           ("Field-0", "Soil-0", "available_K#g", 500),
+        #           ("Field-0", "Soil-0", "available_C#g", 500),
+        #       ],
     )
     # f3.add_monitoring(
     #     make_monitor(
@@ -620,8 +619,8 @@ if __name__ == "__main__":
         )
     )
 
-    # policy = make_policy_herbicide(0.005, 10, 8)
-    # run_policy(f2, policy, max_steps=60, render=True, monitoring=True)
+    policy = make_policy_herbicide(0.005, 10, 8)
+    run_policy(f2, policy, max_steps=60, render=True, monitoring=True)
 
     # policy = make_policy_fertilize(0.5, 10, 2)
     # run_policy(f3, policy, max_steps=60, render=False, monitoring=True)

@@ -20,7 +20,7 @@ Farm:
 actions: actions.yaml
 score: score.yaml
 initialization: init.yaml
-interaction_mode: POMDP
+interaction_mode: AOMDP
 
 
 

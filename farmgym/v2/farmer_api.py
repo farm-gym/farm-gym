@@ -10,7 +10,7 @@ class Farmer_API:
     def assign_field(self, field):
         self.fields[field.name] = field
 
-    def perform_action(self, fi_key, entity_key, action, params):
+    def perform_intervention(self, fi_key, entity_key, action, params):
         observations = []
         return observations
 

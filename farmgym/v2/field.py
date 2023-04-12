@@ -54,7 +54,6 @@ class Field:
         self.X = self.shape["length#nb"]
         self.Y = self.shape["width#nb"]
         self.plots = [str((x, y)) for x in range(self.X) for y in range(self.Y)]
-        # self.plots =  [Plot(self,[x,y], "edge" if x in [0,shape['length']-1] or y in [0, shape['width']-1] else "base") for x in range(X) for y in range (Y)]
 
         self.entity_managers = entities_specifications
 

@@ -116,20 +116,3 @@ class Policy_API:
             if bool_cond:
                 return True
         return False
-
-
-#
-#
-# x = {'p1': [0,3,5], 'p2': [(1,1),(4,5)]}
-# for i in it.product(    x['p1'], x['p2']):
-#  print(i)
-#
-# print('\n\n')
-# for i in it.product(  *list(x[k] for k in x) ):
-#  print(i)
-#
-# print('\n\n')
-# for i in it.product(    range(1, 3), range(5, 8)):
-#     print(i)
-#
-#     #((x, y) for x in A for y in B)
