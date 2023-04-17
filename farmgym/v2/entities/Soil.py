@@ -10,26 +10,21 @@ class Soil(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
+        self.variables["available_N#g"] = fillarray(X, Y, (0, 10000), 100 * self.field.plotsurface)  # 100 g/m3
+        self.variables["available_P#g"] = fillarray(X, Y, (0, 10000), 100 * self.field.plotsurface)
+        self.variables["available_K#g"] = fillarray(X, Y, (0, 10000), 100 * self.field.plotsurface)
+        self.variables["available_C#g"] = fillarray(X, Y, (0, 10000), 100 * self.field.plotsurface)
+        self.variables["available_Water#L"] = fillarray(X, Y, (0, 10000), 1 * self.field.plotsurface)  # 1 L/m3
 
-        self.variables["available_N#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
-        self.variables["available_P#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
-        self.variables["available_K#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
-        self.variables["available_C#g"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
-        self.variables["available_Water#L"] = fillarray(X, Y, (0, 10000), 0.0)  # np.full((X,Y),fill_value=Range((0,10000),0.))
+        self.variables["wet_surface#m2.day-1"] = fillarray(X, Y, (0, 1000), 0.0)
 
-        self.variables["wet_surface#m2.day-1"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
-
-        self.variables["microlife_health_index#%"] = fillarray(
-            X, Y, (0, 100), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,100),0.))
+        self.variables["microlife_health_index#%"] = fillarray(X, Y, (0, 100), 75)
 
         self.variables["amount_cide#g"] = {
-            "pollinators": fillarray(X, Y, (0, 10000), 0.0),  # np.full((X,Y),fill_value=Range((0,10000),0.)),
-            "pests": fillarray(X, Y, (0, 10000), 0.0),  # np.full((X,Y),fill_value=Range((0,10000),0.)),
-            "soil": fillarray(X, Y, (0, 10000), 0.0),  # np.full((X,Y),fill_value=Range((0,10000),0.)),
-            "weeds": fillarray(X, Y, (0, 10000), 0.0),  # np.full((X,Y),fill_value=Range((0,10000),0.))
+            "pollinators": fillarray(X, Y, (0, 10000), 0.0),
+            "pests": fillarray(X, Y, (0, 10000), 0.0),
+            "soil": fillarray(X, Y, (0, 10000), 0.0),
+            "weeds": fillarray(X, Y, (0, 10000), 0.0),
         }
 
         #

@@ -53,7 +53,7 @@ class Plant(Entity_API):
         self.variables["fruits_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["fruit_weight#g"] = fillarray(X, Y, (0, 100000), 0.0)
         self.variables["harvest_weight#kg"] = Range((0, 1000000), 0.0)
-
+        # TODO: ADD day_afer_planting#day
         self.variables["age_seed#day"] = fillarray(X, Y, (0, 100), 0.0)
         self.variables["consecutive_nogrow#day"] = fillarray(X, Y, (0, 100), 0.0)
         self.variables["age_bloom#day"] = fillarray(X, Y, (0, 100), 0.0)

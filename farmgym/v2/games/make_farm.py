@@ -203,7 +203,7 @@ def make_policies_water_harvest(amounts):
             )
             triggered_interventions.append(policy_water)
 
-        policies.append(Policy_API("", triggered_observations, triggered_interventions))
+        policies.append(Policy_API(triggered_observations, triggered_interventions))
 
     return policies
 
@@ -255,7 +255,7 @@ def make_policy_water_harvest(amount):
             ],
         )
         triggered_interventions.append(policy_water)
-    p = Policy_API("", triggered_observations, triggered_interventions)
+    p = Policy_API(triggered_observations, triggered_interventions)
     p.reset()
     return p
 
@@ -338,7 +338,7 @@ def make_policy_herbicide(amount_herbicide, frequency, amount_water):
             ],
         )
         triggered_interventions.append(policy_water)
-    p = Policy_API("", triggered_observations, triggered_interventions)
+    p = Policy_API(triggered_observations, triggered_interventions)
     p.reset()
     return p
 
@@ -421,7 +421,7 @@ def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
             ],
         )
         triggered_interventions.append(policy_water)
-    p = Policy_API("", triggered_observations, triggered_interventions)
+    p = Policy_API(triggered_observations, triggered_interventions)
     p.reset()
     return p
 

@@ -41,6 +41,7 @@ def expglmnoisy(theta0, params, sigma2, np_random=np.random):
 
 class Range:
     def __init__(self, range, value):
+        self.default_value = value
         self.range = range
         if type(range) == tuple:
             self.min, self.max = range
@@ -61,20 +62,21 @@ class Range:
             self.value = value
 
     def default_value(self):
-        if type(self.range) == tuple:
-            m, M = self.range
-            if m > -np.infty:
-                if M < np.infty:
-                    return (m + M) / 2.0
-                return m
-            else:
-                if M < np.infty:
-                    return M
-                return 0.0
-        else:
-            if len(self.range) > 0:
-                return self.range[0]
-            return None
+        return self.default_value
+        # if type(self.range) == tuple:
+        #    m, M = self.range
+        #    if m > -np.infty:
+        #        if M < np.infty:
+        #            return (m + M) / 2.0
+        #        return m
+        #    else:
+        #        if M < np.infty:
+        #            return M
+        #        return 0.0
+        # else:
+        #    if len(self.range) > 0:
+        #        return self.range[0]
+        #    return None
 
     def random_value(self, np_random=np.random):
         if type(self.range) == tuple:
@@ -94,7 +96,7 @@ class Range:
 
     def gym_value(self):
         if type(self.range) == tuple:
-            #TODO: should be [self.value] for observation to be part of observation space, but creates spurious [][] elsewhere !
+            # TODO: should be [self.value] for observation to be part of observation space, but creates spurious [][] elsewhere !
             return [self.value]
         else:
             return self.range.index(self.value)
@@ -256,7 +258,7 @@ class Entity_API:
                     )
 
     def observe_variable(self, variable_key, path):
-        #print("OBSERVE_VARIABLE:",variable_key,path)
+        # print("OBSERVE_VARIABLE:",variable_key,path)
         def make_obs(x):
             if type(x) == Range:
                 return x.value  # x.gym_value()
@@ -279,11 +281,11 @@ class Entity_API:
         return make_obs(obs)
 
     def gym_observe_variable(self, variable_key, path):
-        #print("OBSERVE_VARIABLE:",variable_key,path)
+        # print("OBSERVE_VARIABLE:",variable_key,path)
         def make_obs(x):
-            #print("OBSERVE_VARIABLE:", x)
+            # print("OBSERVE_VARIABLE:", x)
             if type(x) == Range:
-                #TODO : change to [...] ?
+                # TODO : change to [...] ?
                 return x.gym_value()
             elif type(x) == dict:
                 ob = {}
@@ -291,13 +293,13 @@ class Entity_API:
                     ob[k] = make_obs(x[k])
                 return ob
             elif type(x) == np.ndarray:
-                #print("OBS VARIABLE", x, " is array")
+                # print("OBS VARIABLE", x, " is array")
                 ob = []
                 for xx in x:
                     ob.append(make_obs(xx))
                 return ob
             else:
-                #print("OBS VARIABLE", x)
+                # print("OBS VARIABLE", x)
                 return x
 
         obs = self.variables[variable_key]

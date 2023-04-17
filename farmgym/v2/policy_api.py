@@ -6,9 +6,9 @@ class Policy_API:
     Class used to define an expert policy. Expert policies can then be attached to a farm.
     """
 
-    def __init__(self, policy, triggered_observations, triggered_interventions):
+    def __init__(self, triggered_observations, triggered_interventions):
 
-        self.policy_configuration = policy
+        # self.policy_configuration = policy
 
         self.triggered_observations = triggered_observations
         self.triggered_interventions = triggered_interventions
@@ -18,9 +18,9 @@ class Policy_API:
     def reset(self):
         self.delayed_actions = []
 
-    def setup(self, farm):
-        with open(self.policy_configuration, "r", encoding="utf8") as file:
-            self.policy_parameters = yaml.safe_load(file)
+    # def setup(self, farm):
+    #    with open(self.policy_configuration, "r", encoding="utf8") as file:
+    #        self.policy_parameters = yaml.safe_load(file)
 
     # def available_ations(self,farm):
     #     #TODO: Under construction, Output in gym format.
@@ -116,3 +116,12 @@ class Policy_API:
             if bool_cond:
                 return True
         return False
+
+
+def merge_policies(policies):
+    to = []
+    ti = []
+    for p in policies:
+        to += p.triggered_observations
+        ti += p.triggered_interventions
+    return Policy_API(triggered_observations=to, triggered_interventions=ti)

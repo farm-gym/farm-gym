@@ -24,9 +24,9 @@ class Weeds(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
-        self.variables["grow#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["seeds#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["flowers#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["grow#nb"] = fillarray(X, Y, (0, 1000), 0.0)
+        self.variables["seeds#nb"] = fillarray(X, Y, (0, 1000), 0.0)
+        self.variables["flowers#nb"] = fillarray(X, Y, (0, 1000), 0.0)
 
         #
         self.variables["total_cumulated_plot_population#nb"] = Range((0, 10000), 0.0)
