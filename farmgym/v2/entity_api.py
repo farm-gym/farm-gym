@@ -61,7 +61,7 @@ class Range:
         elif value in self.range:
             self.value = value
 
-    def default_value(self):
+    def get_default_value(self):
         return self.default_value
         # if type(self.range) == tuple:
         #    m, M = self.range

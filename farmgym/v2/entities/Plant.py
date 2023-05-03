@@ -414,6 +414,7 @@ class Plant(Entity_API):
                                 p_sprout = expglm(p["sensitivity_sprout_0"], q)
                                 # w_sprout = np.exp(- glm([p['sensitivity_sprout_0'], p['sensitivity_sprout_T'], p['sensitivity_sprout_RH']], [T, RH], [(p['sprout_T_min'], p['sprout_T_max']), (
                                 # p['sprout_RH_min'], p['sprout_RH_max'])]))  # \in [0,1] proba_sprout = w_sprout.
+                                # print("P_SPROUT", p_sprout, q)
 
                                 is_sprouting = self.np_random.binomial(1, p_sprout, 1)[0] == 1
                                 if is_sprouting:
@@ -1264,10 +1265,11 @@ class Plant(Entity_API):
         )
         for x in range(self.field.X):
             for y in range(self.field.Y):
-                image.paste(
-                    self.images[self.variables["stage"][x, y].value],
-                    (im_width * x, im_height * y),
-                )
+                if self.variables["population#nb"][x, y].value > 0:
+                    image.paste(
+                        self.images[self.variables["stage"][x, y].value],
+                        (im_width * x, im_height * y),
+                    )
         return image
 
 

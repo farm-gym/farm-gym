@@ -20,19 +20,24 @@ class Farmgym_Agent:
     def init(self, observation):
         pass
 
-    def update(self, obs, reward,  terminated, truncated, info):
+    def update(self, obs, reward, terminated, truncated, info):
         pass
 
     def choose_action(self):
         raise NotImplemented
-        #return self.farm.action_space.sample()
+        # return self.farm.action_space.sample()
+
 
 class Farmgym_RandomAgent(Farmgym_Agent):
-
     def __init__(self):
         super(Farmgym_RandomAgent, self).__init__()
+        self.x = 1
 
     def choose_action(self):
+        self.x += 0.25
+        threshold = 10 / self.x
+        if np.random.rand() > threshold:
+            return [12]
         return self.farm.action_space.sample()
 
 
@@ -43,6 +48,11 @@ def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
         print("Initial step:")
         print(farm.render_step([], observation, 0, False, False, information))
         print("###################################")
+    elif render == "image":
+        time_tag = time.time()
+        os.mkdir("run-" + str(time_tag))
+        os.chdir("run-" + str(time_tag))
+        farm.render()
     agent.init(observation)
 
     terminated = False
@@ -50,14 +60,18 @@ def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
     while (not terminated) and i <= max_steps:
 
         action = agent.choose_action()
-        obs, reward,  terminated, truncated, info = farm.step(action)
+        obs, reward, terminated, truncated, info = farm.step(action)
         if render == "text":
-            print(farm.render_step(action, obs, reward,  terminated, truncated, info))
+            print(farm.render_step(action, obs, reward, terminated, truncated, info))
             print("###################################")
-        agent.update(obs, reward,  terminated, truncated, info)
+        elif render == "image":
+            farm.render()
+        agent.update(obs, reward, terminated, truncated, info)
         i += 1
-
-
+    if render == "image":
+        farm.render()
+        generate_video(image_folder=".", video_name="farm.avi")
+        os.chdir("../")
 
 
 def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
@@ -152,7 +166,7 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
             a = farm.random_allowed_observation()
             if a != None:
                 observation_schedule.append(a)
-        obs1, _, _,_, info = farm.farmgym_step(observation_schedule)
+        obs1, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
 
@@ -177,7 +191,7 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
             [print("\tObserved:\t", o) for o in obs]
             print("\tReward:\t", reward)
             print("\tIs terminated:\t", terminated)
-            print("\tIs truncated:\t",  truncated)
+            print("\tIs truncated:\t", truncated)
             print("\tInformation:\t", info)
 
         cumreward += reward
@@ -248,7 +262,7 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
         observations = farm.get_free_observations()
         # print("FREE observations", observations)
         observation_schedule = policy.observation_schedule(observations)
-        observation, _, _,_, info = farm.farmgym_step(observation_schedule)
+        observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
 
@@ -319,7 +333,7 @@ def run_policy_xp(farm, policy, max_steps=np.infty):
     while (not terminated) and i <= max_steps:
         observations = farm.get_free_observations()
         observation_schedule = policy.observation_schedule(observations)
-        observation, _, _,_, info = farm.farmgym_step(observation_schedule)
+        observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
 
         intervention_schedule = policy.intervention_schedule(observation)

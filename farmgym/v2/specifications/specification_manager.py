@@ -95,7 +95,7 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
         elif type(x) == np.ndarray:
             it = np.nditer(x, flags=["multi_index", "refs_ok"])
             if mode == "default":
-                r = x[it.multi_index].default_value()
+                r = x[it.multi_index].get_default_value()
             elif mode == "random":
                 r = x[it.multi_index].random_value()
             else:  # custom
@@ -103,7 +103,8 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
             s += str(r) + "\n"
         elif type(x) in [Range]:
             if mode == "default":
-                r = x.default_value()
+                print("x", x, type(x))
+                r = x.get_default_value()
             elif mode == "random":
                 r = x.random_value()
             else:  # custom
