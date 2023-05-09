@@ -9,6 +9,7 @@ import time
 
 import tensorflow as tf
 import datetime
+import os
 
 
 def sum_value(value_array):
@@ -67,19 +68,23 @@ class Monitor:
         :param farm:
         :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
         :param logdir: directory to store the TensorBoard logs
+
+        #TODO:
+        [ ] Test monitoring on bigger farms
+        [X] Check if matrix view is working
+        [ ] Add legends to Tensorboard
         """
         self.farm = farm
         self.variables = list_of_variables_to_monitor
         self.logdir = logdir
         self.run_name = run_name if run_name is not None else datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        
+        self.images = {}
+
         self.history_variables = {}
         for v in self.variables:
             self.history_variables[v] = ([], [])
 
         self.writer = tf.summary.create_file_writer(f"{self.logdir}/{self.run_name}")
-        print("Monitor CREATED")
-
 
     def update_fig(self):
         with self.writer.as_default():
@@ -108,24 +113,48 @@ class Monitor:
                 else:  # assumes it is matrix
                     self.history_variables[v] = (days[-2:], values[-2:])
                     if v_range == "range_auto":
-                        image_np = np.array(self.history_variables[v][1][-1])
-                        image_np = np.reshape(image_np, (1, image_np.shape[0], image_np.shape[1], -1))
-                        image_tensor = tf.convert_to_tensor(image_np)
-                        tf.summary.image(f"{name_to_display} ({fi_key}, {entity_key})", image_tensor, step=day)
+                        plt.imshow(self.history_variables[v][1][-1],cmap="hot",
+                            interpolation="nearest",
+                            )
+                        plt.savefig(f'history_variables_{day}')
+                        image = Image.open(f'history_variables_{day}.png')
+                        image = tf.expand_dims(image, axis=0)
+                        if name_to_display not in self.images:
+                            self.images[name_to_display] = [(fi_key,entity_key,image,day)]
+                        else:
+                            self.images[name_to_display].append((fi_key,entity_key,image,day))
+                                                
+                        os.remove(f'history_variables_{day}.png')
 
                     else:
                         vm, vM = v_range
                         img = np.asarray(self.history_variables[v][1][-1])
                         img = np.clip(img, vm, vM)
                         img = (img - vm) / (vM - vm)  # scale to [0, 1] for visualization
-                        image_np = np.array(img)
-                        image_np = np.reshape(image_np, (1, image_np.shape[0], image_np.shape[1], -1))
-                        image_tensor = tf.convert_to_tensor(image_np)
-                        tf.summary.image(f"{name_to_display} ({fi_key}, {entity_key})", image_tensor, step=day)
-
+                        plt.imshow(img ,cmap="hot",
+                            interpolation="nearest",
+                            )
+                        plt.savefig(f'history_variables_{day}')
+                        image = Image.open(f'history_variables_{day}.png')
+                        image = tf.expand_dims(image, axis=0)
+                        if name_to_display not in self.images:
+                            self.images[name_to_display] = [(fi_key,entity_key,image,day)]
+                        else:
+                            self.images[name_to_display].append((fi_key,entity_key,image,day))
+                        os.remove(f'history_variables_{day}.png')
                 self.writer.flush()
 
     def stop(self):
+        for name in self.images:
+            image_list = []
+            for fi_key, entity_key, image, day in self.images[name]:
+                image_data = np.squeeze(image)
+                image_list.append(image_data)
+            image_array = np.array(image_list)
+            for i, image in enumerate(image_array):
+                # Write the summary image to a TensorBoard log file
+                with self.writer.as_default():
+                    tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
         self.writer.close()
 
 
