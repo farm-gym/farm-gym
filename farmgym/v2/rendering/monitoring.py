@@ -8,6 +8,7 @@ import re
 import time
 
 import tensorflow as tf
+from tensorboard import program
 import datetime
 import os
 
@@ -62,29 +63,37 @@ def sname_to_name(text):
     else:
         return text[0].upper() + text[1:] + "-0"
 
-class Monitor:
-    def __init__(self, farm, list_of_variables_to_monitor, logdir="logs", run_name=None):
+class MonitorTensorBoard:
+    def __init__(self, farm, list_of_variables_to_monitor, logdir="logs", run_name=None, matview=True):
         """
         :param farm:
         :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
         :param logdir: directory to store the TensorBoard logs
+        :param matview: disable to remove images from tensorboard
 
         #TODO:
         [ ] Test monitoring on bigger farms
         [X] Check if matrix view is working
         [ ] Add legends to Tensorboard
+        [X] Add option to switch to Plt
         """
         self.farm = farm
         self.variables = list_of_variables_to_monitor
         self.logdir = logdir
         self.run_name = run_name if run_name is not None else datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         self.images = {}
+        self.matview = matview
 
         self.history_variables = {}
         for v in self.variables:
             self.history_variables[v] = ([], [])
-
+        # Start Tensorboard writer
         self.writer = tf.summary.create_file_writer(f"{self.logdir}/{self.run_name}")
+        # Launch TensorBoard
+        tb = program.TensorBoard()
+        tb.configure(argv=[None, '--logdir', os.path.join(os.getcwd(), logdir)])
+        self.tb_url = tb.launch()
+        print(f"Tensorflow listening on {self.tb_url}")
 
     def update_fig(self):
         with self.writer.as_default():
@@ -95,8 +104,6 @@ class Monitor:
                 value = map_v(self.farm.fields[fi_key].entities[entity_key].variables[var_key])
 
                 days, values = self.history_variables[v]
-
-                # days.append(f'day {day}')
                 days.append(day)
                 values.append(value)
 
@@ -110,7 +117,7 @@ class Monitor:
                         vm, vM = v_range
                         value = tf.clip_by_value(value, vm, vM)
                     tf.summary.scalar(f"{name_to_display} ({fi_key}, {entity_key})", value, step=day)
-                else:  # assumes it is matrix
+                elif self.matview:  # assumes it is matrix
                     self.history_variables[v] = (days[-2:], values[-2:])
                     if v_range == "range_auto":
                         plt.imshow(self.history_variables[v][1][-1],cmap="hot",
@@ -155,7 +162,89 @@ class Monitor:
                 # Write the summary image to a TensorBoard log file
                 with self.writer.as_default():
                     tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
+        check_close = ""
+        while check_close.lower() != "exit":
+            check_close = input(f"Tensorflow is still listening on {self.tb_url}, type 'exit to close : ")
         self.writer.close()
+
+
+class MonitorPlt:
+    def __init__(self, farm, list_of_variables_to_monitor, filename="monitor.png"):
+        """
+        :param farm:
+        :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
+        """
+        self.farm = farm
+        self.variables = list_of_variables_to_monitor
+        self.filename = filename
+
+        self.history_variables = {}
+        for v in self.variables:
+            self.history_variables[v] = ([], [])
+
+        self.sizex = (int)(np.ceil(np.sqrt(len(self.variables)) / 1.3))
+        self.sizey = (int)(np.ceil(np.sqrt(len(self.variables)) * 1.3))
+
+        self.fig = plt.figure(figsize=(3 * self.sizey, 3 * self.sizex))
+
+    def update_fig(self):
+
+        for i in range(len(self.variables)):
+            v = self.variables[i]
+            fi_key, entity_key, var_key, map_v, name_to_display, v_range = v
+            day = self.farm.fields[fi_key].entities["Weather-0"].variables["day#int365"].value
+            value = map_v(self.farm.fields[fi_key].entities[entity_key].variables[var_key])
+
+            days, values = self.history_variables[v]
+
+            # days.append(f'day {day}')
+            days.append(day)
+            values.append(value)
+
+            # print(v,day,value,self.history_variables[v])
+            ax = plt.subplot(self.sizex, self.sizey, 1 + i)
+            ax.clear()
+            # If real value !
+            if isinstance(value, Image.Image):
+                self.history_variables[v] = (days[-2:], values[-2:])
+                ax.imshow(self.history_variables[v][1][-1])
+            elif isinstance(value, (float, int, np.integer, np.float)):
+                # print("V", v, value)
+                self.history_variables[v] = (days[-20:], values[-20:])
+                ax.plot(self.history_variables[v][0], self.history_variables[v][1])
+                if v_range != "range_auto":
+                    vm, vM = v_range
+                    plt.ylim(vm, vM)
+
+            else:  # assumes it is matrix
+                # print("TYPE",value,type(value),isinstance(value,float),type(value)==int,v)
+                self.history_variables[v] = (days[-2:], values[-2:])
+                if v_range == "range_auto":
+                    ax.imshow(
+                        self.history_variables[v][1][-1],
+                        cmap="hot",
+                        interpolation="nearest",
+                    )
+                else:
+                    vm, vM = v_range
+                    ax.imshow(
+                        self.history_variables[v][1][-1],
+                        cmap="gray",
+                        vmin=vm,
+                        vmax=vM,
+                        interpolation="nearest",
+                    )
+
+            # plt.xticks(rotation=45, ha='right')
+            plt.subplots_adjust(bottom=0.30, wspace=0.8, hspace=0.8)
+            plt.title(f"{fi_key}, {entity_key}\n {name_to_display}")
+            plt.ylabel(f"{name_to_display}")
+            plt.xlabel("day")
+            plt.show(block=False)
+        plt.pause(0.1)
+
+    def stop(self):
+        plt.savefig(self.filename)
 
 
 def make_variables_to_be_monitored(variables):
@@ -165,7 +254,6 @@ def make_variables_to_be_monitored(variables):
     Output:
     list of variables var ready to be used in farm.add_monitoring(var)
     """
-
     myfunc = {"sum": sum_value, "mat": mat2d_value}
     var = []
     for v in variables:

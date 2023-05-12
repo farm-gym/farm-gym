@@ -3,7 +3,7 @@ from gymnasium.spaces import Discrete, Box, Dict, Tuple
 from gymnasium.utils import seeding
 from farmgym.v2.gymUnion import Union, MultiUnion, Sequence
 import numpy as np
-from farmgym.v2.rendering.monitoring import Monitor
+from farmgym.v2.rendering.monitoring import MonitorTensorBoard, MonitorPlt
 
 
 from gym.spaces.utils import flatdim, flatten_space, flatten
@@ -257,7 +257,7 @@ class Farm(gym.Env):
 
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
 
-    def add_monitoring(self, list_of_variables):
+    def add_monitoring(self, list_of_variables, tensorboard=True):
         """
         Adds a Monitor to the farm, allowing to observe evolution of some state variables with time.
         list_of_variables: the list of variables to be monitored.
@@ -265,7 +265,10 @@ class Farm(gym.Env):
         For instance:
         ("Field-0","Plant-0","fruits_per_plant#nb",lambda x: sum_value(x),"Fruits (nb)","range_auto")
         """
-        self.monitor = Monitor(self, list_of_variables)
+        if tensorboard:
+            self.monitor = MonitorTensorBoard(self, list_of_variables)
+        else:
+            self.monitor = MonitorPlt(self, list_of_variables)
 
     def reset(self, seed=None, options=None):
         """

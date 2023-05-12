@@ -291,6 +291,9 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
         cumcosts.append(cumcost)
         i = i + 1
 
+    if monitoring:
+        farm.monitor.stop()
+
     if render:
         farm.render()
         generate_video(image_folder=".", video_name="farm.avi")
