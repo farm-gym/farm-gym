@@ -7,6 +7,10 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 import time
 
+import tensorflow as tf
+import datetime
+import os
+
 
 def sum_value(value_array):
     sum = 0
@@ -58,85 +62,100 @@ def sname_to_name(text):
     else:
         return text[0].upper() + text[1:] + "-0"
 
-
 class Monitor:
-    def __init__(self, farm, list_of_variables_to_monitor, filename="monitor.png"):
+    def __init__(self, farm, list_of_variables_to_monitor, logdir="logs", run_name=None):
         """
-
         :param farm:
         :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
+        :param logdir: directory to store the TensorBoard logs
+
+        #TODO:
+        [ ] Test monitoring on bigger farms
+        [X] Check if matrix view is working
+        [ ] Add legends to Tensorboard
         """
         self.farm = farm
         self.variables = list_of_variables_to_monitor
-        self.filename = filename
+        self.logdir = logdir
+        self.run_name = run_name if run_name is not None else datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        self.images = {}
 
         self.history_variables = {}
         for v in self.variables:
             self.history_variables[v] = ([], [])
 
-        self.sizex = (int)(np.ceil(np.sqrt(len(self.variables)) / 1.3))
-        self.sizey = (int)(np.ceil(np.sqrt(len(self.variables)) * 1.3))
-
-        self.fig = plt.figure(figsize=(3 * self.sizey, 3 * self.sizex))
+        self.writer = tf.summary.create_file_writer(f"{self.logdir}/{self.run_name}")
 
     def update_fig(self):
+        with self.writer.as_default():
+            for i in range(len(self.variables)):
+                v = self.variables[i]
+                fi_key, entity_key, var_key, map_v, name_to_display, v_range = v
+                day = self.farm.fields[fi_key].entities["Weather-0"].variables["day#int365"].value
+                value = map_v(self.farm.fields[fi_key].entities[entity_key].variables[var_key])
 
-        for i in range(len(self.variables)):
-            v = self.variables[i]
-            fi_key, entity_key, var_key, map_v, name_to_display, v_range = v
-            day = self.farm.fields[fi_key].entities["Weather-0"].variables["day#int365"].value
-            value = map_v(self.farm.fields[fi_key].entities[entity_key].variables[var_key])
+                days, values = self.history_variables[v]
 
-            days, values = self.history_variables[v]
+                # days.append(f'day {day}')
+                days.append(day)
+                values.append(value)
 
-            # days.append(f'day {day}')
-            days.append(day)
-            values.append(value)
+                if isinstance(value, Image.Image):
+                    self.history_variables[v] = (days[-2:], values[-2:])
+                    img = np.asarray(self.history_variables[v][1][-1])
+                    tf.summary.image(f"{name_to_display} ({fi_key}, {entity_key})", img, step=day)
+                elif isinstance(value, (float, int, np.integer, float)):
+                    self.history_variables[v] = (days[-20:], values[-20:])
+                    if v_range != "range_auto":
+                        vm, vM = v_range
+                        value = tf.clip_by_value(value, vm, vM)
+                    tf.summary.scalar(f"{name_to_display} ({fi_key}, {entity_key})", value, step=day)
+                else:  # assumes it is matrix
+                    self.history_variables[v] = (days[-2:], values[-2:])
+                    if v_range == "range_auto":
+                        plt.imshow(self.history_variables[v][1][-1],cmap="hot",
+                            interpolation="nearest",
+                            )
+                        plt.savefig(f'history_variables_{day}')
+                        image = Image.open(f'history_variables_{day}.png')
+                        image = tf.expand_dims(image, axis=0)
+                        if name_to_display not in self.images:
+                            self.images[name_to_display] = [(fi_key,entity_key,image,day)]
+                        else:
+                            self.images[name_to_display].append((fi_key,entity_key,image,day))
+                                                
+                        os.remove(f'history_variables_{day}.png')
 
-            # print(v,day,value,self.history_variables[v])
-            ax = plt.subplot(self.sizex, self.sizey, 1 + i)
-            ax.clear()
-            # If real value !
-            if isinstance(value, Image.Image):
-                self.history_variables[v] = (days[-2:], values[-2:])
-                ax.imshow(self.history_variables[v][1][-1])
-            elif isinstance(value, (float, int, np.integer, np.float)):
-                # print("V", v, value)
-                self.history_variables[v] = (days[-20:], values[-20:])
-                ax.plot(self.history_variables[v][0], self.history_variables[v][1])
-                if v_range != "range_auto":
-                    vm, vM = v_range
-                    plt.ylim(vm, vM)
-
-            else:  # assumes it is matrix
-                # print("TYPE",value,type(value),isinstance(value,float),type(value)==int,v)
-                self.history_variables[v] = (days[-2:], values[-2:])
-                if v_range == "range_auto":
-                    ax.imshow(
-                        self.history_variables[v][1][-1],
-                        cmap="hot",
-                        interpolation="nearest",
-                    )
-                else:
-                    vm, vM = v_range
-                    ax.imshow(
-                        self.history_variables[v][1][-1],
-                        cmap="gray",
-                        vmin=vm,
-                        vmax=vM,
-                        interpolation="nearest",
-                    )
-
-            # plt.xticks(rotation=45, ha='right')
-            plt.subplots_adjust(bottom=0.30, wspace=0.8, hspace=0.8)
-            plt.title(f"{fi_key}, {entity_key}\n {name_to_display}")
-            plt.ylabel(f"{name_to_display}")
-            plt.xlabel("day")
-            plt.show(block=False)
-        plt.pause(0.1)
+                    else:
+                        vm, vM = v_range
+                        img = np.asarray(self.history_variables[v][1][-1])
+                        img = np.clip(img, vm, vM)
+                        img = (img - vm) / (vM - vm)  # scale to [0, 1] for visualization
+                        plt.imshow(img ,cmap="hot",
+                            interpolation="nearest",
+                            )
+                        plt.savefig(f'history_variables_{day}')
+                        image = Image.open(f'history_variables_{day}.png')
+                        image = tf.expand_dims(image, axis=0)
+                        if name_to_display not in self.images:
+                            self.images[name_to_display] = [(fi_key,entity_key,image,day)]
+                        else:
+                            self.images[name_to_display].append((fi_key,entity_key,image,day))
+                        os.remove(f'history_variables_{day}.png')
+                self.writer.flush()
 
     def stop(self):
-        plt.savefig(self.filename)
+        for name in self.images:
+            image_list = []
+            for fi_key, entity_key, image, day in self.images[name]:
+                image_data = np.squeeze(image)
+                image_list.append(image_data)
+            image_array = np.array(image_list)
+            for i, image in enumerate(image_array):
+                # Write the summary image to a TensorBoard log file
+                with self.writer.as_default():
+                    tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
+        self.writer.close()
 
 
 def make_variables_to_be_monitored(variables):

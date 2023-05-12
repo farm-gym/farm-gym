@@ -537,6 +537,7 @@ if __name__ == "__main__":
                 "f0.plant.fruit_weight#g",
                 "f0.weeds.seeds#nb",
                 "f0.weeds.grow#nb",
+                "f0.weeds.flowers#nb.mat",
                 "f0.weeds.flowers#nb",
                 "f0.cide.amount#kg",
                 "f0.pests.plot_population#nb",
@@ -593,34 +594,34 @@ if __name__ == "__main__":
     #         ]
     #     )
     # )
-    f3.add_monitoring(
-        make_variables_to_be_monitored(
-            [
-                "f0.soil.available_Water#L",
-                #    "soil.available_N#g",
-                #    "soil.microlife_health_index#%",
-                #    "plant.pollinator_visits#nb",
-                #    "plant.size#cm",
-                #    "plant.flowers_per_plant#nb",
-                #    "plant.flowers_pollinated_per_plant#nb",
-                #    "plant.cumulated_water#L",
-                #    "plant.cumulated_stress_water#L",
-                #    "plant.cumulated_nutrients_N#g",
-                #    "plant.cumulated_stress_nutrients_N#g",
-                #    "plant.fruits_per_plant#nb",
-                #    "plant.fruit_weight#g",
-                #    "weeds.seeds#nb",
-                #    "weeds.grow#nb",
-                #    "weeds.flowers#nb",
-                "f0.weeds.flowers#nb",
-                "f0.weeds.flowers#nb.mat",
-                "f0.fertilizer.amount#kg.mat",
-            ]
-        )
-    )
+    # f3.add_monitoring(
+    #     make_variables_to_be_monitored(
+    #         [
+    #             "f0.soil.available_Water#L",
+    #             #    "soil.available_N#g",
+    #             #    "soil.microlife_health_index#%",
+    #             #    "plant.pollinator_visits#nb",
+    #             #    "plant.size#cm",
+    #             #    "plant.flowers_per_plant#nb",
+    #             #    "plant.flowers_pollinated_per_plant#nb",
+    #             #    "plant.cumulated_water#L",
+    #             #    "plant.cumulated_stress_water#L",
+    #             #    "plant.cumulated_nutrients_N#g",
+    #             #    "plant.cumulated_stress_nutrients_N#g",
+    #             #    "plant.fruits_per_plant#nb",
+    #             #    "plant.fruit_weight#g",
+    #             #    "weeds.seeds#nb",
+    #             #    "weeds.grow#nb",
+    #             #    "weeds.flowers#nb",
+    #             "f0.weeds.flowers#nb",
+    #             "f0.weeds.flowers#nb.mat",
+    #             "f0.fertilizer.amount#kg.mat",
+    #         ]
+    #     )
+    # )
 
     policy = make_policy_herbicide(0.005, 10, 8)
-    run_policy(f3, policy, max_steps=60, render=True, monitoring=True)
+    run_policy(f2, policy, max_steps=60, render=False, monitoring=True)
 
     # policy = make_policy_fertilize(0.5, 10, 2)
     # run_policy(f3, policy, max_steps=60, render=False, monitoring=True)
