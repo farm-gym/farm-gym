@@ -18,7 +18,7 @@ setup(
     version=__version__,
     packages=packages,
     install_requires=[
-        "gym>=0.25",
+        "gymnasium",
         "numpy",
         "pillow",
         "scipy",

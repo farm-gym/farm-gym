@@ -1,4 +1,4 @@
-gym
+gymnasium
 numpy
 pillow
 scipy
