@@ -1,5 +1,18 @@
-from gym.spaces.space import Space
+from gymnasium.spaces.space import Space
 import numpy as np
+
+from gymnasium.spaces import Discrete, Box, Dict, Tuple
+
+
+def str_pretty(d, indent=0):
+    s = ""
+    for key, value in d.items():
+        s += "\t" * indent + str(key) + "\n"
+        if isinstance(value, dict) or isinstance(value, Dict):
+            s += str_pretty(value, indent + 1)
+        else:
+            s += "\t" * (indent + 1) + str(value) + "\n"
+    return s
 
 
 class Union(Space):
@@ -66,8 +79,8 @@ class MultiUnion(Space):
     def seed(self, seed=None):
         [space.seed(seed) for space in self.spaces]
 
-    def sample(self):
-        m = np.random.randint(min(self.maxnonzero + 1, len(self.spaces)))
+    def sample(self):  # Sampling without replacement (not twice in the same space).
+        m = np.random.randint(min(self.maxnonzero + 1, len(self.spaces) + 1))
         indexes = list(range(len(self.spaces)))
         sampled_indexes = []
         for j in range(m):
@@ -76,7 +89,7 @@ class MultiUnion(Space):
             sampled_indexes.append(n)
         samples = []
         for n in sampled_indexes:
-            samples.append((n, self.spaces[n].sample()))
+            samples.append(self.spaces[n].sample())
         return samples
 
     def contains(self, x):
@@ -86,23 +99,27 @@ class MultiUnion(Space):
         # print("X",x)
         for xx in x:
             contains = []
-            for space in self.spaces:
-                # print("xx",xx,"space",space)
-                try:
+            if len(self.spaces) == 1:
+                if self.spaces[0].contains(xx):
+                    contains.append(True)
+                    break
+            else:
+                # n, xy = xx
+                # if self.spaces[n].contains(xy):
+                #    contains.append(True)
+                #    break
+                for space in self.spaces:
+                    # print("CHECK IF",space, "\n\tcontains",xx, "\n\tAnswer:",space.contains(xx))
                     if space.contains(xx):
                         contains.append(True)
                         break
-                except:
-                    pass
             if contains == []:
                 return False
-            # if not any(space.contains(xx) for space in self.spaces):
-            #    return False
         return True
 
     def __repr__(self):
         s = "MultiUnion" + (("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else "")
-        return s + "(" + ", ".join([str(s) for s in self.spaces]) + ")"
+        return s + "(\n" + ",\n".join([str_pretty(s, 0) for s in self.spaces]) + ")"
 
     def to_jsonable(self, sample_n):
         # serialize as list-repr of union of vectors
@@ -121,3 +138,48 @@ class MultiUnion(Space):
 
     def __eq__(self, other):
         return isinstance(other, MultiUnion) and self.spaces == other.spaces
+
+
+class Sequence(Space):
+    def __init__(self, space, maxnonzero=np.infty):
+        self.space = space
+        self.maxnonzero = maxnonzero
+        assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
+        super(Sequence, self).__init__(None, None)
+
+    def seed(self, seed=None):
+        self.space.seed(seed)
+
+    def sample(self):  # Sampling with replacement
+        m = np.random.randint(self.maxnonzero + 1)
+        samples = []
+        for n in range(m):
+            samples.append(self.space.sample())
+        return samples
+
+    def contains(self, x):
+        if len(x) > self.maxnonzero:
+            return False
+        for xx in x:
+            if not self.space.contains(xx):
+                return False
+        return True
+
+    def __repr__(self):
+        s = "Sequence" + (("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else "")
+        return s + "(" + str(self.space) + ")"
+
+    def to_jsonable(self, sample_n):
+        # serialize as list-repr of union of vectors
+        return []
+        # return [space.to_jsonable([sample[i] for sample in sample_n]) \                for i, space in enumerate(self.spaces)]
+
+    def from_jsonable(self, sample_n):
+        return []
+        # return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
+
+    def __len__(self):
+        return len(self.space) ** self.maxnonzero if self.maxnonzero < np.infty else np.infty
+
+    def __eq__(self, other):
+        return isinstance(other, Sequence) and self.space == other.space

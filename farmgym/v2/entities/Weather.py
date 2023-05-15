@@ -15,15 +15,15 @@ class Weather(Entity_API):
 
         self.variables = {}
 
-        # TODO: add units in all variables, propagate in all other entities where it is used.
         # Global weather
-        self.variables["day#int365"] = Range(list(range(365)), 0.0)
+        self.variables["year#int100"] = Range(list(range(100)), 0)
+        self.variables["day#int365"] = Range(list(range(365)), 0)
         self.variables["air_temperature"] = {
-            "mean#°C": Range((-100, 100), 0.0),
-            "min#°C": Range((-100, 100), 0.0),
-            "max#°C": Range((-100, 100), 0.0),
+            "max#°C": Range((-100, 100), 22.0),
+            "mean#°C": Range((-100, 100), 20.0),
+            "min#°C": Range((-100, 100), 18.0),
         }
-        self.variables["humidity_index#%"] = Range((0.0, 100.0), 0.0)
+        self.variables["humidity_index#%"] = Range((0.0, 100.0), 50.0)
         self.variables["wind"] = {
             "speed#km.h-1": Range((0.0, 500), 0.0),
             "direction": Range(self.wind_directions, "W"),
@@ -38,15 +38,15 @@ class Weather(Entity_API):
         self.variables["air_temperature.forecast"] = {
             "mean#°C": np.full(
                 self.parameters["forecast_lookahead"],
-                fill_value=Range((-100, 100), 0.0),
+                fill_value=Range((-100, 100), 20.0),
             ),
             "min#°C": np.full(
                 self.parameters["forecast_lookahead"],
-                fill_value=Range((-100, 100), 0.0),
+                fill_value=Range((-100, 100), 18.0),
             ),
             "max#°C": np.full(
                 self.parameters["forecast_lookahead"],
-                fill_value=Range((-100, 100), 0.0),
+                fill_value=Range((-100, 100), 22.0),
             ),
         }
 
@@ -75,6 +75,9 @@ class Weather(Entity_API):
         # print("WEATHER INIT", self.initial_conditions)
         self.initialize_variables(self.initial_conditions)
         # Init variables:
+
+        if "year#int100" not in self.initial_conditions:
+            self.variables["year#int100"].set_value((0))
         if "day#int365" not in self.initial_conditions:
             self.variables["day#int365"].set_value(((-1) % 365))
         else:
@@ -95,6 +98,8 @@ class Weather(Entity_API):
 
     def update_variables(self, field, entities):
         day = (self.variables["day#int365"].value + 1) % 365
+        if day == 0:
+            self.variables["year#int100"].set_value(self.variables["year#int100"].value + 1)
         self.variables["day#int365"].set_value(((day) % 365))
 
         eps = self.np_random.normal(0, self.parameters["air_temperature_noise"], 1)[0]

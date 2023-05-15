@@ -28,19 +28,8 @@ class BasicFarmer(Farmer_API):
         self.nb_interventions_in_day = 0
         self.nb_observations_in_day = 0
 
-    def perform_action(self, fi_key, entity_key, action, params):
+    def perform_intervention(self, fi_key, entity_key, action, params):
         observations = []
-        # obs_vec = self.farmers[fa_key].perform_action(fi_key,po,action)
-        # [observations.append(o) for o in obs_vec]
-        # if (action_type == "observe"):
-        #     if ((self.nb_observations_in_day < self.max_daily_observations) and self.can_observe[fi_key]):
-        #             obs = self.fields[fi_key].entities[entity_key].act_on_variables(action_type, value, pos)
-        #             #obs = self.fields[fi_key].entities[entity_key].observe_variable(variable_key,path)
-        #             self.nb_observations_in_day += 1
-        #             #TODO: !! Some actions return no observations, some return a single value, some return a vector (e.g. Forecast).
-        #             if (obs is not None):
-        #                 observations.append((fi_key, pos, entity_key, value, obs))
-        # else:
         if (self.nb_interventions_in_day < self.max_daily_interventions) and self.can_intervene[fi_key]:
             obs = self.fields[fi_key].entities[entity_key].act_on_variables(action, params)
             self.nb_interventions_in_day += 1
@@ -52,17 +41,14 @@ class BasicFarmer(Farmer_API):
                 "[Farmgym:Farmer] Intervention",
                 str((fi_key, entity_key, action, params)),
                 "aborted by",
-                self.name,
+                self.name+ ". Too many interventions today."
             )
 
         return observations
 
     def perform_observation(self, fi_key, entity_key, variable_key, path):
         observations = []
-        # obs_vec = self.farmers[fa_key].perform_action(fi_key,po,action)
-        # [observations.append(o) for o in obs_vec]
         if (self.nb_observations_in_day < self.max_daily_observations) and self.can_observe[fi_key]:
-            # obs = self.fields[fi_key].entities[entity_key].act_on_variables(action_type, value, pos)
             obs = self.fields[fi_key].entities[entity_key].observe_variable(variable_key, path)
             self.nb_observations_in_day += 1
             # TODO: !! Some actions return no observations, some return a single value, some return a vector (e.g. Forecast).
@@ -73,7 +59,7 @@ class BasicFarmer(Farmer_API):
                 "[Farmgym:Farmer] Observation",
                 str((fi_key, entity_key, variable_key, path)),
                 "aborted by",
-                self.name,
+                self.name+ ". Too many observations today."
             )
         return observations
 

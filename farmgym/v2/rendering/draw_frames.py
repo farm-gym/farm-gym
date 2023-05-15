@@ -9,13 +9,6 @@ file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
 
 
-# def get_concat_h(im1, im2):
-#     dst = Image.new('RGB', (im1.width + im2.width, im1.height))
-#     dst.paste(im1, (0, 0))
-#     dst.paste(im2, (im1.width, 0))
-#     return dst
-
-
 def tile(im1, length, wide):
     dst = Image.new("RGB", (im1.width * wide, im1.height * length))
     for i in range(wide):

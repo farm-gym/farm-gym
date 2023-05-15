@@ -20,10 +20,9 @@ class Facility(Entity_API):
     def get_parameter_keys(self):
         return ["scarecrow_strength"]
 
-    # TODO: Add effective time parameter, saying for how long the scarecrw is actually working.
+    # TODO: Add effective time parameter, saying for how long the scarecrw is actually working ?.
 
     def scarecrow_strength(self, value):
-        # strength={'none': 0, 'basic':1, 'advanced':3}
         return self.parameters["scarecrow_strength"][value]
 
     def reset(self):

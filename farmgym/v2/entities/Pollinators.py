@@ -10,9 +10,7 @@ class Pollinators(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
-        self.variables["occurrence#bin"] = fillarray(
-            X, Y, ["True", "False"], "False"
-        )  # np.full((X,Y),fill_value=Range(['True','False'],'True'))
+        self.variables["occurrence#bin"] = fillarray(X, Y, ["True", "False"], "False")
 
         # Actions
         self.actions = {}

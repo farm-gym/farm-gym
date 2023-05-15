@@ -10,26 +10,18 @@ class Pests(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
-        self.variables["plot_population#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["plot_population#nb"] = fillarray(X, Y, (0, 1000), 0.0)
 
         # TODO: This is bad, as plants are perhaps added later on. + What about weeds?
         plants = [field.entities[e] for e in field.entities if checkissubclass(field.entities[e].__class__, "Plant")]
         weeds = [
-            self.field.entities[e]
-            for e in self.field.entities
-            if checkissubclass(self.field.entities[e].__class__, "Weeds")
+            self.field.entities[e] for e in self.field.entities if checkissubclass(self.field.entities[e].__class__, "Weeds")
         ]
         self.variables["onplant_population#nb"] = {}
         for i in range(len(plants)):
-            self.variables["onplant_population#nb"][plants[i].name] = fillarray(
-                X, Y, (0, 1000), 0.0
-            )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+            self.variables["onplant_population#nb"][plants[i].name] = fillarray(X, Y, (0, 1000), 0.0)
         for i in range(len(weeds)):
-            self.variables["onplant_population#nb"][weeds[i].name] = fillarray(
-                X, Y, (0, 1000), 0.0
-            )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+            self.variables["onplant_population#nb"][weeds[i].name] = fillarray(X, Y, (0, 1000), 0.0)
 
         # Actions
         self.actions = {}
@@ -52,19 +44,13 @@ class Pests(Entity_API):
         X = self.field.X
         Y = self.field.Y
 
-        self.variables["plot_population#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["plot_population#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
 
         plants = [
-            self.field.entities[e]
-            for e in self.field.entities
-            if checkissubclass(self.field.entities[e].__class__, "Plant")
+            self.field.entities[e] for e in self.field.entities if checkissubclass(self.field.entities[e].__class__, "Plant")
         ]
         weeds = [
-            self.field.entities[e]
-            for e in self.field.entities
-            if checkissubclass(self.field.entities[e].__class__, "Weeds")
+            self.field.entities[e] for e in self.field.entities if checkissubclass(self.field.entities[e].__class__, "Weeds")
         ]
         self.variables["onplant_population#nb"] = {}
         for i in range(len(plants)):

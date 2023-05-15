@@ -55,9 +55,7 @@ class Cide(Entity_API):
         self.assert_action(action_name, action_params)
         if action_name == "scatter":
             x, y = action_params["plot"]
-            self.variables["amount#kg"][x, y].set_value(
-                self.variables["amount#kg"][x, y].value + action_params["amount#kg"]
-            )
+            self.variables["amount#kg"][x, y].set_value(self.variables["amount#kg"][x, y].value + action_params["amount#kg"])
             self.variables["total_cumulated_scattered_amount#kg"].set_value(
                 self.variables["total_cumulated_scattered_amount#kg"].value + action_params["amount#kg"]
             )
@@ -81,7 +79,6 @@ class Cide(Entity_API):
         )
         for x in range(self.field.X):
             for y in range(self.field.Y):
-                # print("XY",x,y,self.variables['wet_surface#m2.day-1'][x,y].value)
                 if self.variables["amount#kg"][x, y].value > 0:
                     image.paste(self.images["some"], (im_width * x, im_height * y))
         return image

@@ -24,9 +24,9 @@ class Weeds(Entity_API):
         Y = self.field.Y
 
         self.variables = {}
-        self.variables["grow#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["seeds#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
-        self.variables["flowers#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["grow#nb"] = fillarray(X, Y, (0, 1000), 0.0)
+        self.variables["seeds#nb"] = fillarray(X, Y, (0, 1000), 0.0)
+        self.variables["flowers#nb"] = fillarray(X, Y, (0, 1000), 0.0)
 
         #
         self.variables["total_cumulated_plot_population#nb"] = Range((0, 10000), 0.0)
@@ -78,18 +78,6 @@ class Weeds(Entity_API):
                         pos_grow.append((x, y))
                     else:
                         pos_bloom.append((x, y))
-        # random.shuffle(positions)
-
-        #        index = (int) (np.ceil(len(positions)/(0.+self.parameters['time_to_grow#day'])))
-        #        i_ = self.np_random.rand(2)
-        #        i_.sort()
-
-        #  index_seed =(int) (np.floor(i_[0]*index))
-        # index_grow =min(index_seed + (int) (np.ceil(i_[1]*index)), index)
-        # index_bloom = index
-        # print("INDEX",i_, index_seed,index_grow,index_bloom)
-
-        # print("index:",index_seed,index_grow,index_bloom,index,len(positions))
 
         for pos in positions:
             x, y = pos
@@ -161,6 +149,7 @@ class Weeds(Entity_API):
                     p["grow_herbicide_max#g"],
                 )
             )
+            # TODO: SHOULD WE ADD THESE CONDITIONS?
             #            q.append(
             #                (np.infty, soil.variables['available_N#g'][(x, y)].value, p['N_grow_consumption#g.mm-1'], np.infty))
             #            q.append(
@@ -267,7 +256,6 @@ class Weeds(Entity_API):
             p_stayalive = expglm(p["sensitivity_death_0"], q)
             z = self.np_random.binomial(self.variables["grow#nb"][x, y].value, p_stayalive, 1)[0]
 
-            # print(x, y, "N", soil.variables['available_N#g'][(x, y)], "stayalive", p_stayalive, "grow#nb",  self.variables["grow#nb"][x, y], z)
             self.variables["grow#nb"][x, y].set_value(z)
 
     def act_on_variables(self, action_name, action_params):
@@ -276,8 +264,6 @@ class Weeds(Entity_API):
             s = self.variables["grow#nb"][position].value + self.variables["flowers#nb"][position].value
             self.variables["grow#nb"][position].set_value(0)
             self.variables["flowers#nb"][position].set_value(0)
-            # if (s>0):
-            #    return s
 
     def requirement(self, position):
         nb = self.variables["grow#nb"][position].value

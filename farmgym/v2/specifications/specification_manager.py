@@ -37,7 +37,8 @@ def load_weather_table(filename):
         return [table], [1]
 
 
-def build_scoreyaml(filepath, fields):
+def build_scoreyaml(filepath, farm):
+    fields = farm.fields
     s = "observation-cost" + ":\n"
     for fi in fields:
         s += "  " + fi + ":\n"
@@ -56,11 +57,20 @@ def build_scoreyaml(filepath, fields):
                 s += ("    " + e + ":\n") + ss
 
     s += "reward-mix:\n"
-    s += "     alpha_bio: 0.\n"
-    s += "     alpha_resource: 0.\n"
-    s += "     alpha_soil: 0.\n"
-    s += "     alpha_harvest: 1.\n"
-    s += "     alpha_stage: 0.\n"
+    s += "     weight_biodiversitycounts: 0.\n"
+    s += "     weight_resourceadded: 0.\n"
+    s += "     weight_soilmicrolife: 0.\n"
+    s += "     weight_harvest: 0.\n"
+    s += "     weight_stagecount: 0.\n"
+    s += "     weight_stagetransition: 1.\n"
+
+    s += "final-reward-mix:\n"
+    s += "     weight_biodiversitycounts: 0.\n"
+    s += "     weight_resourceadded: 0.\n"
+    s += "     weight_soilmicrolife: 0.\n"
+    s += "     weight_harvest: 1.\n"
+    s += "     weight_stagecount: 0.\n"
+    s += "     weight_stagetransition: 0.\n"
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)
 
@@ -69,7 +79,9 @@ import numpy as np
 from farmgym.v2.entity_api import Range
 
 
-def build_inityaml(filepath, fields, mode="default", init_values=None):
+def build_inityaml(filepath, farm, mode="default", init_values=None):
+    fields = farm.fields
+
     def make(x, indent="", mode="default", value=None):
         s = ""
         if type(x) == dict:
@@ -83,7 +95,7 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
         elif type(x) == np.ndarray:
             it = np.nditer(x, flags=["multi_index", "refs_ok"])
             if mode == "default":
-                r = x[it.multi_index].default_value()
+                r = x[it.multi_index].get_default_value()
             elif mode == "random":
                 r = x[it.multi_index].random_value()
             else:  # custom
@@ -91,7 +103,8 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
             s += str(r) + "\n"
         elif type(x) in [Range]:
             if mode == "default":
-                r = x.default_value()
+                print("x", x, type(x))
+                r = x.get_default_value()
             elif mode == "random":
                 r = x.random_value()
             else:  # custom
@@ -119,8 +132,9 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
     #             else:
     #                 s+="      " + v + ": " + make(fields[fi].entities[e].variables[v],indent="      ",mode=mode)
 
+    s = "Initial:\n"
     if init_values not in [None, []]:
-        s = ""
+        s += ""
         for fi in fields:
             is_fi = False
             for ifi, ie, iv, value in init_values:
@@ -154,7 +168,7 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
                                     break
 
     else:
-        s = ""
+        s += ""
         for fi in fields:
             s += "  " + fi + ":\n"
             for e in fields[fi].entities:
@@ -170,13 +184,29 @@ def build_inityaml(filepath, fields, mode="default", init_values=None):
                             mode=mode,
                         )
                     )
+
+    s += "Terminal:\n"
+    #    [
+    #        [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=",
+    #          ref_value: 360}],
+    #        [{state_variable: ["Field-0", "Plant-0", "global_stage", []], function: "value", operator: "==",
+    #          ref_value: "dead"}],
+    #    ]
+    s += "  [\n"
+    s += '    [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=", ref_value: 360}],\n'
+    s += '    [{state_variable: ["Field-0", "Plant-0", "global_stage", []], function: "value", operator: "==", ref_value: "dead"}],\n'
+    s += "  ]"
+
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)
 
 
-def build_actionsyaml(filepath, fields):
+def build_actionsyaml(filepath, farm):
     s = "params:\n"
     s += "  max_action_schedule_size: 5\n"
+    s += "  number_of_bins_to_discretize_continuous_actions: 11\n"
+
+    fields = farm.fields
 
     def make_s(x, indent=""):
         s = ""
@@ -214,15 +244,25 @@ def build_actionsyaml(filepath, fields):
         return s
 
     s += "observations:\n"
-    for fi in fields:
-        s += "  " + fi + ":\n"
-        for e in fields[fi].entities:
-            s += "    " + e + ":\n"
-            for v in fields[fi].entities[e].variables:
-                if type(fields[fi].entities[e].variables[v]) == np.ndarray:
-                    s += "      " + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="      ")
-                else:
-                    s += "      " + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="      ")
+
+    s += "  " * 1 + "Free" + ":\n"
+    s += "  " * 2 + "Field-0" + ":\n"
+    s += "  " * 3 + "Weather-0" + ":\n"
+    s += "  " * 4 + "day#int365" + ": \n"
+    s += "  " * 4 + "air_temperature" + ": \n"
+    s += "  " * 5 + "'*'" + ":\n"
+
+    for fa in farm.farmers:
+        s += "  " * 1 + fa + ":\n"
+        for fi in fields:
+            s += "  " * 2 + fi + ":\n"
+            for e in fields[fi].entities:
+                s += "  " * 3 + e + ":\n"
+                for v in fields[fi].entities[e].variables:
+                    if type(fields[fi].entities[e].variables[v]) == np.ndarray:
+                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
+                    else:
+                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
 
     def make_a(x, indent):
         s = "\n"
@@ -231,14 +271,16 @@ def build_actionsyaml(filepath, fields):
         return s
 
     s += "interventions:\n"
-    for fi in fields:
-        s += "  " + fi + ":\n"
-        for e in fields[fi].entities:
-            ss = ""
-            for a in fields[fi].entities[e].actions:
-                ss += "      " + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="        ")
-            if ss != "":
-                s += ("    " + e + ":\n") + ss
+    for fa in farm.farmers:
+        s += "  " * 1 + fa + ":\n"
+        for fi in fields:
+            s += "  " * 2 + fi + ":\n"
+            for e in fields[fi].entities:
+                ss = ""
+                for a in fields[fi].entities[e].actions:
+                    ss += "  " * 4 + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="  " * 5)
+                if ss != "":
+                    s += ("  " * 3 + e + ":\n") + ss
 
     with open(filepath, "w", encoding="utf8") as file:
         print(s, file=file)

@@ -1,0 +1,28 @@
+Farm:
+  Field-0:
+    localization:
+      latitude#°: 43
+      longitude#°: 4
+      altitude#m: 150
+    shape:
+      length#nb: 1
+      width#nb: 1
+      scale#m: 1.0
+    entities:
+      - Weather: lille
+      - Soil: clay
+      - Plant: tomato
+  Farmer-0:
+    type: basic
+    parameters:
+      max_daily_interventions: 1
+      max_daily_observations: 2
+actions: actions.yaml
+score: score.yaml
+initialization: init.yaml
+interaction_mode: POMDP
+
+
+
+
+

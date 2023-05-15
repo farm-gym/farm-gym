@@ -6,19 +6,17 @@ class BasicRule(Rules_API):
     def __init__(
         self,
         init_configuration,
-        free_observations,
         actions_configuration,
-        terminal_CNF_conditions,
+        # terminal_CNF_conditions,
         max_action_schedule_cost=np.infty,
-        initial_conditions_values=None,
+        # initial_conditions_values=None,
     ):
         Rules_API.__init__(
             self,
             init_configuration,
-            free_observations,
             actions_configuration,
-            terminal_CNF_conditions,
-            initial_conditions_values=initial_conditions_values,
+            # terminal_CNF_conditions,
+            # initial_conditions_values=initial_conditions_values,
         )
 
         self.max_action_schedule_cost = max_action_schedule_cost
@@ -30,6 +28,7 @@ class BasicRule(Rules_API):
     def filter_actions(self, farm, actions, is_observation_time):
         actions_schedule = []
         for a in actions:
+            # print("A",actions,"a",a)
             if self.is_allowed_action(a, is_observation_time):
                 actions_schedule.append(a)
             else:
@@ -46,9 +45,6 @@ class BasicRule(Rules_API):
             total_cost = 0
             for observation_item in actions_schedule:
                 fa_key, fi_key, entity, variable_key, path = observation_item
-                # assert(action_type=='observe')
-                # We can change this to policies using:
-                # fa_key,fi_key,pos,action = policy_item.action(observations)
                 cost = farm.scoring.observation_cost(
                     farm.farmers[fa_key],
                     farm.fields[fi_key],
