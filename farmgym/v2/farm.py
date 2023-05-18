@@ -406,15 +406,16 @@ class Farm(gym.Env):
         Performs a step evolution of the system, from current stage to next state given the input action.
         A farm gym step alternates between observation step and action step before moving to next day.
         """
-        self.last_farmgym_action = action_schedule
         # print("AS",action_schedule)
         filtered_action_schedule = self.rules.filter_actions(self, action_schedule, self.is_new_day)
         self.rules.assert_actions(filtered_action_schedule)
         if self.is_new_day:
+            self.last_farmgym_action = (filtered_action_schedule, None)
             output = self.observation_step(filtered_action_schedule)
             self.is_new_day = False
             return output
         else:
+            self.last_farmgym_action = (self.last_farmgym_action[0], filtered_action_schedule)
             output = self.intervention_step(filtered_action_schedule)
             self.is_new_day = True
             return output
@@ -571,61 +572,62 @@ class Farm(gym.Env):
 
         fg_actions = []
         for action in actions:
-            if action < len(self.farmgym_observation_actions):
-                fg_actions.append(self.farmgym_observation_actions[action])
-            else:
-                theindex = action - len(self.farmgym_observation_actions)
-                theaction = None
-                # print("A",action)
-                for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
-                    if ng > theindex:
-                        theaction = (fa, fi, e, a, f_a, g, ng)
-                        break
-                    else:
-                        theindex -= ng
-                # print("B",theaction,theindex)
+            if action < len(self.farmgym_observation_actions) + len(self.farmgym_intervention_actions):
+                if action < len(self.farmgym_observation_actions):
+                    fg_actions.append(self.farmgym_observation_actions[action])
+                else:
+                    theindex = action - len(self.farmgym_observation_actions)
+                    theaction = None
+                    # print("A", action)
+                    for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
+                        if ng > theindex:
+                            theaction = (fa, fi, e, a, f_a, g, ng)
+                            break
+                        else:
+                            theindex -= ng
+                    # print("B", theaction, theindex)
 
-                fa, fi, e, a, f_a, g, ng = theaction
+                    fa, fi, e, a, f_a, g, ng = theaction
 
-                # print("B1",g,type(g), theindex, ng)
+                    # print("B1",g,type(g), theindex, ng)
 
-                if type(g) == Discrete:
-                    act = theindex
-                elif type(g) == Box:
-                    m = g.low
-                    M = g.high
-                    factor = ng // self.discretization_nbins
-                    # factor = nbins
-                    j = i // factor
-                    i = i - j * factor
-                    act = m + j / (self.discretization_nbins + 1) * (M - m)
+                    if type(g) == Discrete:
+                        act = theindex
+                    elif type(g) == Box:
+                        m = g.low
+                        M = g.high
+                        factor = ng // self.discretization_nbins
+                        # factor = nbins
+                        j = i // factor
+                        i = i - j * factor
+                        act = m + j / (self.discretization_nbins + 1) * (M - m)
 
-                elif type(g) == Dict:
-                    i = theindex
-                    factor = ng
-                    act = {}
-                    for key in g:
-                        if type(g[key]) == Discrete:
-                            factor = factor // g[key].n
-                            # factor = g[key].n
-                            j = i // factor
-                            i = i - j * factor
-                            act[key] = j
-                            # print(g[key], i,j, act[key],factor)
-                        elif type(g[key]) == Box:
-                            # print("B2", g[key], g[key].shape, i, ng)
-                            # print(g[key].low, g[key].high)
-                            m = g[key].low
-                            M = g[key].high
-                            factor = factor // self.discretization_nbins
-                            # factor = nbins
-                            j = i // factor
-                            i = i - j * factor
-                            act[key] = m + j / (self.discretization_nbins + 1) * (M - m)
-                            # print(g[key], i,j, act[key],factor)
-                    # print("C",act,i,f_a)
-                farmgym_act = convert(act, f_a)
-                fg_actions.append((fa, fi, e, a, farmgym_act))
+                    elif type(g) == Dict:
+                        i = theindex
+                        factor = ng
+                        act = {}
+                        for key in g:
+                            if type(g[key]) == Discrete:
+                                factor = factor // g[key].n
+                                # factor = g[key].n
+                                j = i // factor
+                                i = i - j * factor
+                                act[key] = j
+                                # print(g[key], i,j, act[key],factor)
+                            elif type(g[key]) == Box:
+                                # print("B2", g[key], g[key].shape, i, ng)
+                                # print(g[key].low, g[key].high)
+                                m = g[key].low
+                                M = g[key].high
+                                factor = factor // self.discretization_nbins
+                                # factor = nbins
+                                j = i // factor
+                                i = i - j * factor
+                                act[key] = m + j / (self.discretization_nbins + 1) * (M - m)
+                                # print(g[key], i,j, act[key],factor)
+                        # print("C",act,i,f_a)
+                    farmgym_act = convert(act, f_a)
+                    fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
 
     def random_allowed_intervention(self):
@@ -1040,7 +1042,13 @@ class Farm(gym.Env):
         if mode == "human":
             image = self.make_rendering_image()
             day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
-            image.save("farm-day-" + "{:03d}".format(day) + ".png")
+            if(self.interaction_mode=="AOMDP"):
+                if (self.is_new_day): # Assumes it just switch from False to True
+                    image.save("farm-day-" + "{:03d}".format(day) + "-2.png")
+                else:
+                    image.save("farm-day-" + "{:03d}".format(day) + "-1.png")
+            else:
+                image.save("farm-day-" + "{:03d}".format(day) + ".png")
 
     def make_rendering_image(self):
         max_display_actions = self.rules.actions_allowed["params"]["max_action_schedule_size"]
@@ -1163,30 +1171,41 @@ class Farm(gym.Env):
 
             nb_a = 0
             if self.last_farmgym_action:
-                for a in self.last_farmgym_action:
-                    fa_key, fi_key, entity_key, action_name, params = a
-                    if a[1] == fi and nb_a <= max_display_actions:
-                        text = action_name
-                        # print("DISPLAY ACTION",action_name, params)
-                        if (type(params) == dict) and ("plot" in params.keys()):
-                            text += " " + str(params["plot"])
-                        xx_a = offsetx + im_width // 100
-                        yy_a = offset_field_y + nb_a * car_height + im_width // 100
-                        d.text(
-                            (xx_a, yy_a),
-                            text,
-                            font=font_action,
-                            fill=(100, 100, 100),
-                            stroke_width=1,
-                            stroke_fill="black",
-                        )
-                        nb_a += 1
+                #print("LAST ACTION", self.is_new_day, self.last_farmgym_action)
+                mor,aft=self.last_farmgym_action
+                if (self.is_new_day):
+                    actions=aft
+                else:
+                    actions=mor
+                if actions:
+                    for a in actions:
+                        #print("A", a)
+                        fa_key, fi_key, entity_key, action_name, params = a
+                        if a[1] == fi and nb_a <= max_display_actions:
+                            text = action_name
+                            # print("DISPLAY ACTION",action_name, params)
+                            if type(params) == dict:
+                                for p in params:
+                                    text += " " + str(params[p])
+                            # if (type(params) == dict) and ("plot" in params.keys()):
+                            #    text += " " + str(params["plot"])
+                            xx_a = offsetx + im_width // 100
+                            yy_a = offset_field_y + nb_a * car_height + im_width // 100
+                            d.text(
+                                (xx_a, yy_a),
+                                text,
+                                font=font_action,
+                                fill=(100, 100, 100),
+                                stroke_width=1,
+                                stroke_fill="black",
+                            )
+                            nb_a += 1
 
             offsetx += (self.fields[fi].X + 1) * im_width
 
             # offset_field+=(self.fields[fi].X+1)*im_width
 
-        dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
+        #dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
         return dashboard_picture
 
     def render_step(self, action, observation, reward, terminated, truncated, info):
