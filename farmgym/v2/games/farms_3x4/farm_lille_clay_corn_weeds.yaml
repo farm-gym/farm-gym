@@ -5,8 +5,8 @@ Farm:
       longitude#°: 4
       altitude#m: 150
     shape:
-      length#nb: 1
-      width#nb: 1
+      length#nb: 3
+      width#nb: 4
       scale#m: 1.0
     entities:
       - Weather: lille

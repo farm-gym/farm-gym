@@ -134,296 +134,296 @@ def make_basicfarm(name, field, entities, farmers=[{"max_daily_interventions": 1
     farm.name = name
     return farm
 
-
-def make_policies_water_harvest(amounts):
-    policies = []
-    for amount in amounts:
-        triggered_observations = []
-        policy_observe = (
-            [[]],
-            [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])],
-        )
-        triggered_observations.append(policy_observe)
-
-        triggered_interventions = []
-        policy_harvest = (
-            [
-                [
-                    (
-                        ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                        lambda x: x,
-                        "in",
-                        ["ripe"],
-                    )
-                ]
-            ],
-            [
-                {
-                    "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                    "delay": 0,
-                }
-            ],
-        )
-        triggered_interventions.append(policy_harvest)
-        policy_harvest = (
-            [
-                [
-                    (
-                        ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                        lambda x: x,  # TODO: rather x??
-                        "in",
-                        ["fruit"],
-                    )
-                ]
-            ],
-            [
-                {
-                    "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                    "delay": 18,
-                }
-            ],
-        )
-        triggered_interventions.append(policy_harvest)
-
-        if amount > 0.0:
-            policy_water = (
-                [[]],
-                [
-                    {
-                        "action": (
-                            "BasicFarmer-0",
-                            "Field-0",
-                            "Soil-0",
-                            "water_continuous",
-                            {"plot": (0, 0), "amount#L": amount, "duration#min": 60},
-                        ),
-                        "delay": 0,
-                    }
-                ],
-            )
-            triggered_interventions.append(policy_water)
-
-        policies.append(Policy_API(triggered_observations, triggered_interventions))
-
-    return policies
-
-
-def make_policy_water_harvest(amount):
-    triggered_observations = []
-    policy_observe = (
-        [[]],
-        [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])],
-    )
-    triggered_observations.append(policy_observe)
-
-    triggered_interventions = []
-    policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
-        [
-            {
-                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 1,
-            }
-        ],
-    )
-    triggered_interventions.append(policy_harvest)
-    policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
-        [
-            {
-                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 18,
-            }
-        ],
-    )
-    triggered_interventions.append(policy_harvest)
-
-    if amount > 0.0:
-        policy_water = (
-            [[]],
-            [
-                {
-                    "action": (
-                        "BasicFarmer-0",
-                        "Field-0",
-                        "Soil-0",
-                        "water_continuous",
-                        {"plot": (0, 0), "amount#L": amount, "duration#min": 60},
-                    ),
-                    "delay": 0,
-                }
-            ],
-        )
-        triggered_interventions.append(policy_water)
-    p = Policy_API(triggered_observations, triggered_interventions)
-    p.reset()
-    return p
-
-
-def make_policy_herbicide(amount_herbicide, frequency, amount_water):
-    triggered_observations = []
-    policy_observe = (
-        [[]],
-        [
-            ("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)]),
-            ("BasicFarmer-0", "Field-0", "Weeds-0", "grow#nb", [(0, 0)]),
-        ],
-    )
-    triggered_observations.append(policy_observe)
-
-    triggered_interventions = []
-    policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
-        [
-            {
-                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 1,
-            }
-        ],
-    )
-    triggered_interventions.append(policy_harvest)
-    policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
-        [
-            {
-                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 18,
-            }
-        ],
-    )
-    triggered_interventions.append(policy_harvest)
-    if amount_herbicide > 0.0:
-        policy_herbicide = (
-            [
-                [
-                    (
-                        ("Field-0", "Weather-0", "day#int365", []),
-                        lambda x: x % frequency,
-                        "==",
-                        0,
-                    )
-                ]
-            ],
-            [
-                {
-                    "action": (
-                        "BasicFarmer-0",
-                        "Field-0",
-                        "Cide-0",
-                        "scatter",
-                        {"plot": (0, 0), "amount#kg": amount_herbicide},
-                    ),
-                    "delay": 0,
-                }
-            ],
-        )
-
-        # policy_herbicide= ([[(("Field-0", 'Weeds-0', 'grow#nb', [(0, 0)]), lambda x: x, ">=", 2.),(("Field-0", 'Weather-0', 'day#int365', []), lambda x: x%f, "==", 0)]], [{'action':('BasicFarmer-0', 'Field-0', 'Cide-0', 'scatter', {'plot': (0,0), 'amount#kg':amount_herbicide}),'delay':2}])
-        triggered_interventions.append(policy_herbicide)
-
-    if amount_water > 0.0:
-        policy_water = (
-            [[]],
-            [
-                {
-                    "action": (
-                        "BasicFarmer-0",
-                        "Field-0",
-                        "Soil-0",
-                        "water_continuous",
-                        {"plot": (0, 0), "amount#L": amount_water, "duration#min": 60},
-                    ),
-                    "delay": 0,
-                }
-            ],
-        )
-        triggered_interventions.append(policy_water)
-    p = Policy_API(triggered_observations, triggered_interventions)
-    p.reset()
-    return p
-
-
-def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
-    triggered_observations = []
-    policy_observe = (
-        [[]],
-        [
-            ("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)]),
-            ("BasicFarmer-0", "Field-0", "Weeds-0", "grow#nb", [(0, 0)]),
-        ],
-    )
-    triggered_observations.append(policy_observe)
-
-    triggered_interventions = []
-    policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
-        [
-            {
-                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 1,
-            }
-        ],
-    )
-    triggered_interventions.append(policy_harvest)
-    policy_harvest = (
-        [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
-        [
-            {
-                "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
-                "delay": 18,
-            }
-        ],
-    )
-    triggered_interventions.append(policy_harvest)
-    if amount_fertilizer > 0.0:
-        policy_fertilize = (
-            [
-                [
-                    (
-                        ("Field-0", "Weather-0", "day#int365", []),
-                        lambda x: x % frequency,
-                        "==",
-                        0,
-                    )
-                ]
-            ],
-            [
-                {
-                    "action": (
-                        "BasicFarmer-0",
-                        "Field-0",
-                        "Fertilizer-0",
-                        "scatter",
-                        {"plot": (0, 0), "amount#kg": amount_fertilizer},
-                    ),
-                    "delay": 0,
-                }
-            ],
-        )
-
-        # policy_herbicide= ([[(("Field-0", 'Weeds-0', 'grow#nb', [(0, 0)]), lambda x: x, ">=", 2.),(("Field-0", 'Weather-0', 'day#int365', []), lambda x: x%f, "==", 0)]], [{'action':('BasicFarmer-0', 'Field-0', 'Cide-0', 'scatter', {'plot': (0,0), 'amount#kg':amount_herbicide}),'delay':2}])
-        triggered_interventions.append(policy_fertilize)
-
-    if amount_water > 0.0:
-        policy_water = (
-            [[]],
-            [
-                {
-                    "action": (
-                        "BasicFarmer-0",
-                        "Field-0",
-                        "Soil-0",
-                        "water_continuous",
-                        {"plot": (0, 0), "amount#L": amount_water, "duration#min": 60},
-                    ),
-                    "delay": 0,
-                }
-            ],
-        )
-        triggered_interventions.append(policy_water)
-    p = Policy_API(triggered_observations, triggered_interventions)
-    p.reset()
-    return p
+#
+# def make_policies_water_harvest(amounts):
+#     policies = []
+#     for amount in amounts:
+#         triggered_observations = []
+#         policy_observe = (
+#             [[]],
+#             [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])],
+#         )
+#         triggered_observations.append(policy_observe)
+#
+#         triggered_interventions = []
+#         policy_harvest = (
+#             [
+#                 [
+#                     (
+#                         ("Field-0", "Plant-0", "stage", [(0, 0)]),
+#                         lambda x: x,
+#                         "in",
+#                         ["ripe"],
+#                     )
+#                 ]
+#             ],
+#             [
+#                 {
+#                     "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                     "delay": 0,
+#                 }
+#             ],
+#         )
+#         triggered_interventions.append(policy_harvest)
+#         policy_harvest = (
+#             [
+#                 [
+#                     (
+#                         ("Field-0", "Plant-0", "stage", [(0, 0)]),
+#                         lambda x: x,  # TODO: rather x??
+#                         "in",
+#                         ["fruit"],
+#                     )
+#                 ]
+#             ],
+#             [
+#                 {
+#                     "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                     "delay": 18,
+#                 }
+#             ],
+#         )
+#         triggered_interventions.append(policy_harvest)
+#
+#         if amount > 0.0:
+#             policy_water = (
+#                 [[]],
+#                 [
+#                     {
+#                         "action": (
+#                             "BasicFarmer-0",
+#                             "Field-0",
+#                             "Soil-0",
+#                             "water_continuous",
+#                             {"plot": (0, 0), "amount#L": amount, "duration#min": 60},
+#                         ),
+#                         "delay": 0,
+#                     }
+#                 ],
+#             )
+#             triggered_interventions.append(policy_water)
+#
+#         policies.append(Policy_API(triggered_observations, triggered_interventions))
+#
+#     return policies
+#
+#
+# def make_policy_water_harvest(amount):
+#     triggered_observations = []
+#     policy_observe = (
+#         [[]],
+#         [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])],
+#     )
+#     triggered_observations.append(policy_observe)
+#
+#     triggered_interventions = []
+#     policy_harvest = (
+#         [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
+#         [
+#             {
+#                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                 "delay": 1,
+#             }
+#         ],
+#     )
+#     triggered_interventions.append(policy_harvest)
+#     policy_harvest = (
+#         [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
+#         [
+#             {
+#                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                 "delay": 18,
+#             }
+#         ],
+#     )
+#     triggered_interventions.append(policy_harvest)
+#
+#     if amount > 0.0:
+#         policy_water = (
+#             [[]],
+#             [
+#                 {
+#                     "action": (
+#                         "BasicFarmer-0",
+#                         "Field-0",
+#                         "Soil-0",
+#                         "water_continuous",
+#                         {"plot": (0, 0), "amount#L": amount, "duration#min": 60},
+#                     ),
+#                     "delay": 0,
+#                 }
+#             ],
+#         )
+#         triggered_interventions.append(policy_water)
+#     p = Policy_API(triggered_observations, triggered_interventions)
+#     p.reset()
+#     return p
+#
+#
+# def make_policy_herbicide(amount_herbicide, frequency, amount_water):
+#     triggered_observations = []
+#     policy_observe = (
+#         [[]],
+#         [
+#             ("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)]),
+#             ("BasicFarmer-0", "Field-0", "Weeds-0", "grow#nb", [(0, 0)]),
+#         ],
+#     )
+#     triggered_observations.append(policy_observe)
+#
+#     triggered_interventions = []
+#     policy_harvest = (
+#         [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
+#         [
+#             {
+#                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                 "delay": 1,
+#             }
+#         ],
+#     )
+#     triggered_interventions.append(policy_harvest)
+#     policy_harvest = (
+#         [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
+#         [
+#             {
+#                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                 "delay": 18,
+#             }
+#         ],
+#     )
+#     triggered_interventions.append(policy_harvest)
+#     if amount_herbicide > 0.0:
+#         policy_herbicide = (
+#             [
+#                 [
+#                     (
+#                         ("Field-0", "Weather-0", "day#int365", []),
+#                         lambda x: x % frequency,
+#                         "==",
+#                         0,
+#                     )
+#                 ]
+#             ],
+#             [
+#                 {
+#                     "action": (
+#                         "BasicFarmer-0",
+#                         "Field-0",
+#                         "Cide-0",
+#                         "scatter",
+#                         {"plot": (0, 0), "amount#kg": amount_herbicide},
+#                     ),
+#                     "delay": 0,
+#                 }
+#             ],
+#         )
+#
+#         # policy_herbicide= ([[(("Field-0", 'Weeds-0', 'grow#nb', [(0, 0)]), lambda x: x, ">=", 2.),(("Field-0", 'Weather-0', 'day#int365', []), lambda x: x%f, "==", 0)]], [{'action':('BasicFarmer-0', 'Field-0', 'Cide-0', 'scatter', {'plot': (0,0), 'amount#kg':amount_herbicide}),'delay':2}])
+#         triggered_interventions.append(policy_herbicide)
+#
+#     if amount_water > 0.0:
+#         policy_water = (
+#             [[]],
+#             [
+#                 {
+#                     "action": (
+#                         "BasicFarmer-0",
+#                         "Field-0",
+#                         "Soil-0",
+#                         "water_continuous",
+#                         {"plot": (0, 0), "amount#L": amount_water, "duration#min": 60},
+#                     ),
+#                     "delay": 0,
+#                 }
+#             ],
+#         )
+#         triggered_interventions.append(policy_water)
+#     p = Policy_API(triggered_observations, triggered_interventions)
+#     p.reset()
+#     return p
+#
+#
+# def make_policy_fertilize(amount_fertilizer, frequency, amount_water):
+#     triggered_observations = []
+#     policy_observe = (
+#         [[]],
+#         [
+#             ("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)]),
+#             ("BasicFarmer-0", "Field-0", "Weeds-0", "grow#nb", [(0, 0)]),
+#         ],
+#     )
+#     triggered_observations.append(policy_observe)
+#
+#     triggered_interventions = []
+#     policy_harvest = (
+#         [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["ripe"])]],
+#         [
+#             {
+#                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                 "delay": 1,
+#             }
+#         ],
+#     )
+#     triggered_interventions.append(policy_harvest)
+#     policy_harvest = (
+#         [[(("Field-0", "Plant-0", "stage", [(0, 0)]), lambda x: x, "in", ["fruit"])]],
+#         [
+#             {
+#                 "action": ("BasicFarmer-0", "Field-0", "Plant-0", "harvest", {}),
+#                 "delay": 18,
+#             }
+#         ],
+#     )
+#     triggered_interventions.append(policy_harvest)
+#     if amount_fertilizer > 0.0:
+#         policy_fertilize = (
+#             [
+#                 [
+#                     (
+#                         ("Field-0", "Weather-0", "day#int365", []),
+#                         lambda x: x % frequency,
+#                         "==",
+#                         0,
+#                     )
+#                 ]
+#             ],
+#             [
+#                 {
+#                     "action": (
+#                         "BasicFarmer-0",
+#                         "Field-0",
+#                         "Fertilizer-0",
+#                         "scatter",
+#                         {"plot": (0, 0), "amount#kg": amount_fertilizer},
+#                     ),
+#                     "delay": 0,
+#                 }
+#             ],
+#         )
+#
+#         # policy_herbicide= ([[(("Field-0", 'Weeds-0', 'grow#nb', [(0, 0)]), lambda x: x, ">=", 2.),(("Field-0", 'Weather-0', 'day#int365', []), lambda x: x%f, "==", 0)]], [{'action':('BasicFarmer-0', 'Field-0', 'Cide-0', 'scatter', {'plot': (0,0), 'amount#kg':amount_herbicide}),'delay':2}])
+#         triggered_interventions.append(policy_fertilize)
+#
+#     if amount_water > 0.0:
+#         policy_water = (
+#             [[]],
+#             [
+#                 {
+#                     "action": (
+#                         "BasicFarmer-0",
+#                         "Field-0",
+#                         "Soil-0",
+#                         "water_continuous",
+#                         {"plot": (0, 0), "amount#L": amount_water, "duration#min": 60},
+#                     ),
+#                     "delay": 0,
+#                 }
+#             ],
+#         )
+#         triggered_interventions.append(policy_water)
+#     p = Policy_API(triggered_observations, triggered_interventions)
+#     p.reset()
+#     return p
 
 
 if __name__ == "__main__":
@@ -537,7 +537,6 @@ if __name__ == "__main__":
                 "f0.plant.fruit_weight#g",
                 "f0.weeds.seeds#nb",
                 "f0.weeds.grow#nb",
-                "f0.weeds.flowers#nb.mat",
                 "f0.weeds.flowers#nb",
                 "f0.cide.amount#kg",
                 "f0.pests.plot_population#nb",
@@ -594,34 +593,34 @@ if __name__ == "__main__":
     #         ]
     #     )
     # )
-    # f3.add_monitoring(
-    #     make_variables_to_be_monitored(
-    #         [
-    #             "f0.soil.available_Water#L",
-    #             #    "soil.available_N#g",
-    #             #    "soil.microlife_health_index#%",
-    #             #    "plant.pollinator_visits#nb",
-    #             #    "plant.size#cm",
-    #             #    "plant.flowers_per_plant#nb",
-    #             #    "plant.flowers_pollinated_per_plant#nb",
-    #             #    "plant.cumulated_water#L",
-    #             #    "plant.cumulated_stress_water#L",
-    #             #    "plant.cumulated_nutrients_N#g",
-    #             #    "plant.cumulated_stress_nutrients_N#g",
-    #             #    "plant.fruits_per_plant#nb",
-    #             #    "plant.fruit_weight#g",
-    #             #    "weeds.seeds#nb",
-    #             #    "weeds.grow#nb",
-    #             #    "weeds.flowers#nb",
-    #             "f0.weeds.flowers#nb",
-    #             "f0.weeds.flowers#nb.mat",
-    #             "f0.fertilizer.amount#kg.mat",
-    #         ]
-    #     )
-    # )
+    f3.add_monitoring(
+        make_variables_to_be_monitored(
+            [
+                "f0.soil.available_Water#L",
+                #    "soil.available_N#g",
+                #    "soil.microlife_health_index#%",
+                #    "plant.pollinator_visits#nb",
+                #    "plant.size#cm",
+                #    "plant.flowers_per_plant#nb",
+                #    "plant.flowers_pollinated_per_plant#nb",
+                #    "plant.cumulated_water#L",
+                #    "plant.cumulated_stress_water#L",
+                #    "plant.cumulated_nutrients_N#g",
+                #    "plant.cumulated_stress_nutrients_N#g",
+                #    "plant.fruits_per_plant#nb",
+                #    "plant.fruit_weight#g",
+                #    "weeds.seeds#nb",
+                #    "weeds.grow#nb",
+                #    "weeds.flowers#nb",
+                "f0.weeds.flowers#nb",
+                "f0.weeds.flowers#nb.mat",
+                "f0.fertilizer.amount#kg.mat",
+            ]
+        )
+    )
 
-    policy = make_policy_herbicide(0.005, 10, 8)
-    run_policy(f2, policy, max_steps=60, render=False, monitoring=True)
+    #policy = make_policy_herbicide(0.005, 10, 8)
+    #run_policy(f3, policy, max_steps=60, render=True, monitoring=True)
 
     # policy = make_policy_fertilize(0.5, 10, 2)
     # run_policy(f3, policy, max_steps=60, render=False, monitoring=True)
