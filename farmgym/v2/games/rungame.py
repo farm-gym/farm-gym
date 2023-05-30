@@ -29,16 +29,18 @@ class Farmgym_Agent:
 
 
 class Farmgym_RandomAgent(Farmgym_Agent):
-    def __init__(self):
+    def __init__(self, mode="POMDP"):
         super(Farmgym_RandomAgent, self).__init__()
         self.x = 1
+        self.mode = mode
 
     def choose_action(self):
-        self.x += 0.25
-        threshold = 10 / self.x
-        if np.random.rand() > threshold:
-            return [12]
-        return self.farm.action_space.sample()
+        #if self.mode == "POMDP":
+            self.x += 0.25
+            threshold = 10 / self.x
+            if np.random.rand() > threshold:
+                return [27]
+            return self.farm.action_space.sample()
 
 
 def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
@@ -365,46 +367,46 @@ if __name__ == "__main__":
     # run_randomactions(cb.env(), max_steps=100, render=True, monitoring=False)
 
     from farmgym.v2.policy_api import Policy_API
+    #
+    # def make_policy():
+    #     triggered_observations = []
+    #
+    #     trigger_constant = [[]]
+    #     action_schedule1 = [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])]
+    #     triggered_observations.append((trigger_constant, action_schedule1))
+    #
+    #     trigger_periodic = [[(("Field-0", "Weather-0", "day#int365", []), lambda x: x % 7, "==", 0)]]
+    #     action_schedule2 = [("BasicFarmer-0", "Field-0", "Weather-0", "rain_amount", [])]
+    #     triggered_observations.append((trigger_periodic, action_schedule2))
+    #
+    #     triggered_interventions = []
+    #
+    #     trigger_bloom = [
+    #         [
+    #             (
+    #                 ("Field-0", "Plant-0", "stage", [(0, 0)]),
+    #                 lambda x: x,
+    #                 "==",
+    #                 "entered_grow",
+    #             )
+    #         ]
+    #     ]
+    #     action_schedule3 = [
+    #         {
+    #             "action": (
+    #                 "BasicFarmer-0",
+    #                 "Field-0",
+    #                 "Soil-0",
+    #                 "water_discrete",
+    #                 {"plot": (0, 0), "amount#L": 4, "duration#min": 30},
+    #             ),
+    #             "delay": 0,
+    #         }
+    #     ]
+    #     triggered_interventions.append((trigger_bloom, action_schedule3))
+    #
+    #     return Policy_API("config-file", triggered_observations, triggered_interventions)
 
-    def make_policy():
-        triggered_observations = []
-
-        trigger_constant = [[]]
-        action_schedule1 = [("BasicFarmer-0", "Field-0", "Plant-0", "stage", [(0, 0)])]
-        triggered_observations.append((trigger_constant, action_schedule1))
-
-        trigger_periodic = [[(("Field-0", "Weather-0", "day#int365", []), lambda x: x % 7, "==", 0)]]
-        action_schedule2 = [("BasicFarmer-0", "Field-0", "Weather-0", "rain_amount", [])]
-        triggered_observations.append((trigger_periodic, action_schedule2))
-
-        triggered_interventions = []
-
-        trigger_bloom = [
-            [
-                (
-                    ("Field-0", "Plant-0", "stage", [(0, 0)]),
-                    lambda x: x,
-                    "==",
-                    "entered_grow",
-                )
-            ]
-        ]
-        action_schedule3 = [
-            {
-                "action": (
-                    "BasicFarmer-0",
-                    "Field-0",
-                    "Soil-0",
-                    "water_discrete",
-                    {"plot": (0, 0), "amount#L": 4, "duration#min": 30},
-                ),
-                "delay": 0,
-            }
-        ]
-        triggered_interventions.append((trigger_bloom, action_schedule3))
-
-        return Policy_API("config-file", triggered_observations, triggered_interventions)
-
-    policy = make_policy()
+    # policy = make_policy()
     # run_xps(farm, policy, 10, 1)
     # run_policy(cb.env(), policy, max_steps=20, render=False, monitoring=True)

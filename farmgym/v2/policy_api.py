@@ -433,7 +433,7 @@ class Policy_helper:
 
 
 if __name__ == "__main__":
-    from farmgym.v2.games.make_farm import make_farm
+    from farmgym.v2.make_farm import make_farm
     farm = make_farm("games/farms_1x1/farm_lille_clay_bean.yaml")
     
     # Policy helper example

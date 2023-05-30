@@ -44,4 +44,4 @@ base_weed:
 
   appear_conditions:
     sensitivity_dist_edge: 0.3
-    sensitivity_0: 0.3
+    sensitivity_0: 0.2
