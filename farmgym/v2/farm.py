@@ -202,7 +202,6 @@ class Farm(gym.Env):
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
             self.rules.actions_allowed["interventions"]
         )
-        self.intervention_actions_count = self.count_farmgym_intervention_actions()
         self.farmgym_state_space = self.build_gym_state_space()
 
         # GYM SPACES:
@@ -575,63 +574,61 @@ class Farm(gym.Env):
                 return c_v
 
         fg_actions = []
-        #print(num_interventions)
         for action in actions:
-            if action < len(self.farmgym_observation_actions) + self.intervention_actions_count:
-                if action < len(self.farmgym_observation_actions):
-                    fg_actions.append(self.farmgym_observation_actions[action])
-                else:
-                    theindex = action - len(self.farmgym_observation_actions)
-                    theaction = None
-                    # print("A", action)
-                    for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
-                        if ng > theindex:
-                            theaction = (fa, fi, e, a, f_a, g, ng)
-                            break
-                        else:
-                            theindex -= ng
+            if action < len(self.farmgym_observation_actions):
+                fg_actions.append(self.farmgym_observation_actions[action])
+            else:
+                theindex = action - len(self.farmgym_observation_actions)
+                theaction = None
+                # print("A", action)
+                for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
+                    if ng > theindex:
+                        theaction = (fa, fi, e, a, f_a, g, ng)
+                        break
+                    else:
+                        theindex -= ng
 
-                    fa, fi, e, a, f_a, g, ng = theaction
+                fa, fi, e, a, f_a, g, ng = theaction
 
-                    # print("B1",g,type(g), theindex, ng)
+                # print("B1",g,type(g), theindex, ng)
 
-                    if type(g) == Discrete:
-                        act = theindex
-                    elif type(g) == Box:
-                        m = g.low
-                        M = g.high
-                        factor = ng // self.discretization_nbins
-                        # factor = nbins
-                        j = i // factor
-                        i = i - j * factor
-                        act = m + j / (self.discretization_nbins + 1) * (M - m)
+                if type(g) == Discrete:
+                    act = theindex
+                elif type(g) == Box:
+                    m = g.low
+                    M = g.high
+                    factor = ng // self.discretization_nbins
+                    # factor = nbins
+                    j = i // factor
+                    i = i - j * factor
+                    act = m + j / (self.discretization_nbins + 1) * (M - m)
 
-                    elif type(g) == Dict:
-                        i = theindex
-                        factor = ng
-                        act = {}
-                        for key in g:
-                            if type(g[key]) == Discrete:
-                                factor = factor // g[key].n
-                                # factor = g[key].n
-                                j = i // factor
-                                i = i - j * factor
-                                act[key] = j
-                                # print(g[key], i,j, act[key],factor)
-                            elif type(g[key]) == Box:
-                                # print("B2", g[key], g[key].shape, i, ng)
-                                # print(g[key].low, g[key].high)
-                                m = g[key].low
-                                M = g[key].high
-                                factor = factor // self.discretization_nbins
-                                # factor = nbins
-                                j = i // factor
-                                i = i - j * factor
-                                act[key] = m + j / (self.discretization_nbins + 1) * (M - m)
-                                # print(g[key], i,j, act[key],factor)
-                        # print("C",act,i,f_a)
-                    farmgym_act = convert(act, f_a)
-                    fg_actions.append((fa, fi, e, a, farmgym_act))
+                elif type(g) == Dict:
+                    i = theindex
+                    factor = ng
+                    act = {}
+                    for key in g:
+                        if type(g[key]) == Discrete:
+                            factor = factor // g[key].n
+                            # factor = g[key].n
+                            j = i // factor
+                            i = i - j * factor
+                            act[key] = j
+                            # print(g[key], i,j, act[key],factor)
+                        elif type(g[key]) == Box:
+                            # print("B2", g[key], g[key].shape, i, ng)
+                            # print(g[key].low, g[key].high)
+                            m = g[key].low
+                            M = g[key].high
+                            factor = factor // self.discretization_nbins
+                            # factor = nbins
+                            j = i // factor
+                            i = i - j * factor
+                            act[key] = m + j / (self.discretization_nbins + 1) * (M - m)
+                            # print(g[key], i,j, act[key],factor)
+                    # print("C",act,i,f_a)
+                farmgym_act = convert(act, f_a)
+                fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
 
     def random_allowed_intervention(self):
