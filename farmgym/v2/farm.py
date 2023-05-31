@@ -202,13 +202,14 @@ class Farm(gym.Env):
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
             self.rules.actions_allowed["interventions"]
         )
+        self.intervention_actions_count = self.count_farmgym_intervention_actions()
         self.farmgym_state_space = self.build_gym_state_space()
 
         # GYM SPACES:
         self.observation_space = self.build_gym_observation_space()
         # self.action_space = self.build_gym_action_space()
         self.action_space = self.build_gym_discretized_action_space()
-
+        
         self.name = self.build_name()
         self.shortname = self.build_shortname()
 
@@ -574,8 +575,9 @@ class Farm(gym.Env):
                 return c_v
 
         fg_actions = []
+        #print(num_interventions)
         for action in actions:
-            if action < len(self.farmgym_observation_actions) + len(self.farmgym_intervention_actions):
+            if action < len(self.farmgym_observation_actions) + self.intervention_actions_count:
                 if action < len(self.farmgym_observation_actions):
                     fg_actions.append(self.farmgym_observation_actions[action])
                 else:
@@ -588,7 +590,6 @@ class Farm(gym.Env):
                             break
                         else:
                             theindex -= ng
-                    # print("B", theaction, theindex)
 
                     fa, fi, e, a, f_a, g, ng = theaction
 
@@ -638,9 +639,11 @@ class Farm(gym.Env):
         Outputs a randomly generated intervention, as allowed by the yaml file, in farmgym format.
         """
         n = self.np_random.integers(len(self.farmgym_intervention_actions))
+        print("n = ",n)
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
         fa, fi, e, inter, params, gym_space, len_gym_space = self.farmgym_intervention_actions[n]
         o = gym_space.sample()
+        print("o = ",o)
 
         def convert(value, ranges):
             if type(ranges) == list:
@@ -723,6 +726,7 @@ class Farm(gym.Env):
                             if e in action_yaml[fa][fi].keys():
                                 if action_yaml[fa][fi][e] != None:
                                     for action in action_yaml[fa][fi][e]:
+                                        print(action)
                                         gym_a = make(action_yaml[fa][fi][e][action])
                                         # print(gym_a)
                                         actions.append(
@@ -737,6 +741,12 @@ class Farm(gym.Env):
                                             )
                                         )
         return actions
+    
+    def count_farmgym_intervention_actions(self):
+        n = 0
+        for i in self.farmgym_intervention_actions:
+            n += i[6]
+        return n
 
     def build_farmgym_observation_actions(self, action_yaml):
         """
@@ -1269,7 +1279,6 @@ class Farm(gym.Env):
     def understand_the_farm(self):
         farm = self
         print(farm)
-
         # PLAY WITH ENVIRONMENT:
         print("#############INTERVENTIONS###############")
         actions = farm.farmgym_intervention_actions
