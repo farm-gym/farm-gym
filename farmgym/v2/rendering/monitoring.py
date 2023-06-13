@@ -29,7 +29,6 @@ def mat2d_value(value_array):
             mat[x, y] = value_array[x, y].value
     return mat
 
-
 def dict_select(x, vars):
     # print("D:",x,vars)
     y = x
@@ -89,6 +88,7 @@ class MonitorTensorBoard:
             self.history_variables[v] = ([], [])
         # Start Tensorboard writer
         self.writer = tf.summary.create_file_writer(f"{self.logdir}/{self.run_name}")
+        self.writer_closed = False
         # Launch TensorBoard
         tb = program.TensorBoard()
         tb.configure(argv=[None, '--logdir', os.path.join(os.getcwd(), logdir)])
@@ -152,24 +152,31 @@ class MonitorTensorBoard:
                 self.writer.flush()
 
     def stop(self):
-        for name in self.images:
-            image_list = []
-            for fi_key, entity_key, image, day in self.images[name]:
-                image_data = np.squeeze(image)
-                image_list.append(image_data)
-            image_array = np.array(image_list)
-            for i, image in enumerate(image_array):
-                # Write the summary image to a TensorBoard log file
-                with self.writer.as_default():
-                    tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
-        check_close = ""
-        while check_close.lower() != "exit":
-            check_close = input(f"Tensorflow is still listening on {self.tb_url}, type 'exit to close : ")
-        self.writer.close()
-
+        ## TODO : Add condition to check if it has been already stopped
+        ## Check for multiple stops
+        if not self.writer_closed:
+            print("Stopping monitoring ...")
+            for name in self.images:
+                image_list = []
+                for fi_key, entity_key, image, day in self.images[name]:
+                    image_data = np.squeeze(image)
+                    image_list.append(image_data)
+                image_array = np.array(image_list)
+                for i, image in enumerate(image_array):
+                    # Write the summary image to a TensorBoard log file
+                    with self.writer.as_default():
+                        tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
+            check_close = ""
+            while check_close.lower() != "exit":
+                check_close = input(f"Tensorflow is still listening on {self.tb_url}, type 'exit' to close : ")
+            print("Closing writer ...")
+            self.writer.close()
+            self.writer_closed = True
+        else:
+            print("Stopping the monitoring is impossible, the writer is already closed")
 
 class MonitorPlt:
-    def __init__(self, farm, list_of_variables_to_monitor, filename="monitor.png"):
+    def __init__(self, farm, list_of_variables_to_monitor, filename="monitor.png", matview=False):
         """
         :param farm:
         :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
