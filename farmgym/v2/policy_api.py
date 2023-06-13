@@ -1,4 +1,4 @@
-import yaml
+from typing import NamedTuple
 import copy
 
 class Policy_API:
@@ -55,7 +55,7 @@ class Policy_API:
         action_schedule = []
         for trigger, actions in self.triggered_observations:
             # Trigger is CNF
-            trigger_on = any([self.is_trigger_on(trigger, obs) for obs in observations]) or trigger == [[]]
+            trigger_on = self.is_trigger_on(trigger, observations)
             if trigger_on:
                 [action_schedule.append(action) for action in actions]
         return action_schedule
@@ -66,7 +66,7 @@ class Policy_API:
         action_schedule = []
         for trigger, actions in self.triggered_interventions:
             # Trigger is CNF
-            trigger_on = any([self.is_trigger_on(trigger, obs) for obs in observations]) or trigger == [[]]
+            trigger_on = self.is_trigger_on(trigger, observations)
             if trigger_on:
                 # [action_schedule.append(action) for action in actions]
                 [self.delayed_actions.append(action) for action in actions]
@@ -80,41 +80,42 @@ class Policy_API:
 
         return action_schedule
 
-    def is_trigger_on(self, trigger, var):
-        farm, field, entity, variable, path, v = var
+    def is_trigger_on(self, trigger, observations):
+        ## Check Breaks
         for and_conditions in trigger:
             bool_cond = True
             for condition in and_conditions:
-                variable_path, fun, operator, value = condition
-                # field,entity,variable,path = variable_path
-                # v = self.farm.fields[field].entities[entity].variables[variable]
-                if variable_path == (field, entity, variable, path):
-                    if operator == "==":
-                        bool_cond = bool_cond and fun(v) == value
-                    elif operator == "!=":
-                        bool_cond = bool_cond and fun(v) != value
-                    elif operator == "<=":
-                        bool_cond = bool_cond and fun(v) <= value
-                    elif operator == ">=":
-                        bool_cond = bool_cond and fun(v) >= value
-                    elif operator == "<":
-                        bool_cond = bool_cond and fun(v) < value
-                    elif operator == ">":
-                        bool_cond = bool_cond and fun(v) > value
-                    elif operator == "in":
-                        bool_cond = bool_cond and fun(v) in value
-                    elif operator == "ni":
-                        bool_cond = bool_cond and value in fun(v)
-                    elif operator == "not in":
-                        bool_cond = bool_cond and fun(v) not in value
-                    elif operator == "not ni":
-                        bool_cond = bool_cond and value not in fun(v)
-                else:
-                    bool_cond = False
+                bool_cond = True
+                for ob in observations:
+                    farm, field, entity, variable, path, v = ob
+                    variable_path, fun, operator, value = condition
+                    if variable_path == (field, entity, variable, path):
+                        if operator == "==":
+                            bool_cond = bool_cond and fun(v) == value
+                        elif operator == "!=":
+                            bool_cond = bool_cond and fun(v) != value
+                        elif operator == "<=":
+                            bool_cond = bool_cond and fun(v) <= value
+                        elif operator == ">=":
+                            bool_cond = bool_cond and fun(v) >= value
+                        elif operator == "<":
+                            bool_cond = bool_cond and fun(v) < value
+                        elif operator == ">":
+                            bool_cond = bool_cond and fun(v) > value
+                        elif operator == "in":
+                            bool_cond = bool_cond and fun(v) in value
+                        elif operator == "ni":
+                            bool_cond = bool_cond and value in fun(v)
+                        elif operator == "not in":
+                            bool_cond = bool_cond and fun(v) not in value
+                        elif operator == "not ni":
+                            bool_cond = bool_cond and value not in fun(v)
+                        else:
+                            bool_cond = False
             if bool_cond:
                 return True
-        return False
-    
+        return False    
+
     def __add__(self, other):
         combined_obs = self.triggered_observations + other.triggered_observations
         combined_interv = self.triggered_interventions + other.triggered_interventions
@@ -147,8 +148,6 @@ class Policy_API:
         combined.intervention_schedule = lambda obs: [a for p in policies for a in p.intervention_schedule(obs)]
 
         return combined
-
-from typing import NamedTuple
 
 class Policy(NamedTuple):
     name: str
@@ -210,14 +209,16 @@ class Policy_helper:
     def __init__(self, farm):
         self.farm = farm
         self.entities = set()
-        self.interventions = set()
+        self.interventions = {}
         for field in farm.fields:
             for entity in farm.fields[field].entities.keys():
                 self.entities.add((entity, farm.fields[field].entities[entity]))
+        self.entities = [e[0] for e in self.entities]
         
         for action in farm.farmgym_intervention_actions:
             fa, fi, e, inter, params, gym_space, len_gym_space = action
-            self.interventions.add(inter)
+            self.interventions[inter] = params
+        ## TODO check if value from create policy is permitted in farm actions
 
     # Single policies
 
@@ -243,7 +244,7 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]
+        harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]  
         harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
         harvest_ripe = (harvest_conditions, harvest_actions)
         policy_harvest_ripe = Policy_API([], [harvest_ripe])
@@ -271,16 +272,18 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        observation_conditions = []
+        observation_conditions = [[]]
         observation_actions = [("BasicFarmer-0", f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc])]
-        observe_weeds_growht = (observation_conditions, observation_actions)
-        policy_observe_weeds = Policy_API(observe_weeds_growht, [])
+        observe_weeds_growth = (observation_conditions, observation_actions)
+        policy_observe_weeds = Policy_API([observe_weeds_growth], [])
         policy_observe_weeds = Policy("observe_weeds",policy_observe_weeds)
         return policy_observe_weeds
     
-    def create_scatter_cide(self, field=0, index=0, location=(0,0), delay=2, amount=5, frequency=5, threshold=2.0):
+    def create_scatter_cide(self, field=0, index=0, location=(0,0), delay=2, amount=5,
+    frequency=5, threshold=2.0):
         """
-        Define policy to scatter herbicide every few days if number of weeds is greater than a threshold
+        Define policy to scatter herbicide every few days if number of weeds is greater 
+        than a threshold
         Args : 
             - delay : days before taking the action
             - amount : herbicide amount in kg
@@ -288,17 +291,25 @@ class Policy_helper:
             - threshold : threshold for taking the action
         """
         ## TODO : weather, cide can be different than 0 ?
+        
         assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        # Check if amount is specified in rules :
+        possible_amounts = self.interventions["scatter_bag"].get("amount#bag",[1])
+        if amount not in possible_amounts:
+            print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
+            amount = possible_amounts[0]
         fi, idx, loc = field, index, location
-        scatter_conditions = [
+        scatter_conditions = [[
         ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold)),
-        ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x%frequency, "==", 0)]
-        scatter_actions = [{'action':('BasicFarmer-0', f'Field-{fi}', 'Cide-0', 'scatter',
-         {'plot': loc, 'amount#kg':amount}),'delay':delay}]
+        ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x%frequency, "==", 0)]]
+        scatter_actions = [{'action':('BasicFarmer-0', f'Field-{fi}', 'Cide-0', 'scatter_bag',
+         {'plot': loc, 'amount#bag':amount}),'delay':delay}]
+        
         scatter_cide = (scatter_conditions, scatter_actions)
-        policy_scatter_cide = Policy_API([], scatter_cide)
-        policy_scatter_cide = Policy("scatter_cide",policy_scatter_cide, delay=delay, amount=amount, frequency=frequency, threshold=threshold)
+        policy_scatter_cide = Policy_API([], [scatter_cide])
+        policy_scatter_cide = Policy("scatter_cide",policy_scatter_cide, delay=delay, amount=amount,
+        frequency=frequency, threshold=threshold)
         return policy_scatter_cide
 
     def create_remove_weeds(self, field=0, index=0, location=(0,0), delay=2, frequency=5, threshold=2.0):
@@ -311,24 +322,34 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        remove_conditions = [
-        ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold)),
-        ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x % frequency, "==", 0)]
-        remove_actions = [{'action':('BasicFarmer-0', f'Field-{fi}', f'Weeds-{idx}', 'remove', {}),'delay':delay}]
+        # remove_conditions = [[
+        # ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold)),
+        # ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x % frequency, "==", 0)]]
+
+        remove_conditions = [[
+        ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold))]]
+
+        remove_actions = [{'action':('BasicFarmer-0', f'Field-{fi}', f'Weeds-{idx}', 'remove', {"plot": loc}),'delay':delay}]
         remove_weeds = (remove_conditions, remove_actions)
-        policy_remove_weeds = Policy_API([], remove_weeds)
+        policy_remove_weeds = Policy_API([], [remove_weeds])
         policy_remove_weeds = Policy("remove_weeds",policy_remove_weeds, delay=delay, frequency=frequency, threshold=threshold)
         return policy_remove_weeds
 
-    def create_water_soil(self, field=0, index=0, location=(0,0), delay=0, amount=8):
+    def create_water_soil(self, field=0, index=0, location=(0,0), delay=0, amount=5):
         """
         Define policy to water Soil-0 
         """
         assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        # Check if amount is specified in rules :
+        possible_amounts = self.interventions["water_discrete"].get("amount#L",[1])
+        if amount not in possible_amounts:
+            print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
+            amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         water_conditions = [[]]
-        water_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Soil-{idx}", "water_continuous", {"plot": loc, "amount#L": amount, "duration#min": 60}), "delay": 0}]
+        water_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Soil-{idx}", "water_discrete", {"plot": loc,
+        "amount#L": amount, "duration#min": 60}), "delay": 0}]
         water_soil = (water_conditions, water_actions)
         policy_water_soil = Policy_API([], [water_soil])
         policy_water_soil = Policy("water_soil",policy_water_soil, delay=delay, amount=amount)
@@ -338,11 +359,18 @@ class Policy_helper:
         """
         Define policy to scatter Fertilizer-0
         """
+        ###############################
         assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        # Check if amount is specified in rules :
+        possible_amounts = self.interventions["scatter_bag"].get("amount#bag",[1])
+        if amount not in possible_amounts:
+            print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
+            amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         scatter_conditions = []
-        scatter_actions = {"action": ("BasicFarmer-0", f"Field-{fi}", f"Fertilizer-{idx}", "scatter", {"plot": loc, "amount#kg": amount, "duration#min": 60}), "delay": 0}
+        scatter_actions = {"action": ("BasicFarmer-0", f"Field-{fi}", f"Fertilizer-{idx}", "scatter_bag", {"plot": loc,
+        "amount#bag": amount, "duration#min": 60}), "delay": 0}
         scatter_fert = (scatter_conditions, scatter_actions)
         policy_scatter_fert = Policy_API([], [scatter_fert])
         policy_scatter_fert = Policy("scatter_fert",policy_scatter_fert, delay=delay, amount=amount)
@@ -356,7 +384,8 @@ class Policy_helper:
         assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
         scarecrow_conditions = []
-        scarecrow_actions = {"action": ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}", "put_scarecrow", {}), "delay": delay}
+        scarecrow_actions = {"action": ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}",
+        "put_scarecrow", {}), "delay": delay}
         put_scarecrow = (scarecrow_conditions, scarecrow_actions)
         policy_put_scarecrow = Policy_API([], [put_scarecrow])
         policy_put_scarecrow = Policy("put_scarecrow",policy_put_scarecrow, delay=delay)
@@ -370,42 +399,45 @@ class Policy_helper:
         policy_plant_observe = self.create_plant_observe()
         policies.append(policy_plant_observe)
         # Define policy to harvest Plant-0 if its stage is 'ripe'
-        policy_harvest_ripe = self.create_harvest_ripe()
-        if "harvest" in self.interventions:
+        if "harvest" in self.interventions.keys():
+            policy_harvest_ripe = self.create_harvest_ripe()
             policies.append(policy_harvest_ripe)
         # Define policy to harvest Plant-0 if its stage is 'fruit'
-        policy_harvest_fruit = self.create_harvest_fruit()
-        if "harvest" in self.interventions:
+        if "harvest" in self.interventions.keys():
+            policy_harvest_fruit = self.create_harvest_fruit()
             policies.append(policy_harvest_fruit)
         return policies
 
     def get_weeds_policies(self):
         policies = []
         # Define policy to observe Weeds growth in Field-0
-        policy_observe_weeds = self.create_observe_weeds()
-        policies.append(policy_observe_weeds)
+        if "Weeds-0" in self.entities:
+            policy_observe_weeds = self.create_observe_weeds()
+            policies.append(policy_observe_weeds)
         # Define policy to scatter herbicide every few days if number of weeds is greater than a threshold
-        policy_scatter_cide = self.create_scatter_cide(amount=5)
-        if "scatter" in self.interventions:
+        if "scatter_bag" in self.interventions.keys() and "Cide-0" in self.entities:
+            policy_scatter_cide = self.create_scatter_cide(amount=5)
             policies.append(policy_scatter_cide)
         # Define policy to remove herbs every few days if number of weeds is greater than a threshold
-        policy_remove_weeds = self.create_remove_weeds()
-        if "remove" in self.interventions:
+        if "remove" in self.interventions.keys():
+            policy_remove_weeds = self.create_remove_weeds()
             policies.append(policy_remove_weeds)
         return policies
 
     def get_soil_policies(self):
         policies = []
         # Define policy to water Soil-0 
-        policy_water_soil = self.create_water_soil(amount=8)
-        policies.append(policy_water_soil)
+        if "water_discrete" in self.interventions.keys():
+            policy_water_soil = self.create_water_soil(amount=5)
+            policies.append(policy_water_soil)
         return policies
     
     def get_fertilizer_policies(self):
         policies = []
-        # Define policy to scatter Fertilizer-0
-        policy_scatter_fert = self.create_scatter_fert(amount=5)
-        policies.append(policy_scatter_fert)
+        # Define policy to scatter Fertilizer-0*
+        if "scatter_bag" in self.interventions.keys() and "Fertilizer-0" in self.entities:
+            policy_scatter_fert = self.create_scatter_fert(amount=5)
+            policies.append(policy_scatter_fert)
         return policies
 
     def get_facility_policies(self):
@@ -417,8 +449,7 @@ class Policy_helper:
     
     def get_policies(self):
         policies = []
-        entities = [e[0] for e in self.entities]
-        #print(entities)
+        entities = self.entities
         if "Plant-0" in entities:
             policies += self.get_plant_policies()
         if "Soil-0" in entities:
@@ -459,7 +490,7 @@ if __name__ == "__main__":
     # Combining policies example
     import numpy as np
     def run_policy_xp(farm, policy, max_steps=np.infty):
-        if farm.monitor != None:
+        if farm.monitor is not None:
             farm.monitor = None
         cumreward = 0.0
         cumcost = 0.0
