@@ -1,17 +1,14 @@
+import inspect
+import sys
 
 import farmgym
+import yaml
 
 from farmgym.v2.farm import Farm
 from farmgym.v2.field import Field
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer
 from farmgym.v2.scorings.BasicScore import BasicScore
 from farmgym.v2.rules.BasicRule import BasicRule
-#from farmgym.v2.policy_api import Policy_API
-import inspect
-
-import yaml
-import sys
-
 
 ## The following importe lines are import for the make_farm function that uses inspection module!
 from farmgym.v2.entities.Weather import Weather
@@ -24,7 +21,6 @@ from farmgym.v2.entities.Birds import Birds
 from farmgym.v2.entities.Facilities import Facility
 from farmgym.v2.entities.Fertilizer import Fertilizer
 from farmgym.v2.entities.Pollinators import Pollinators
-
 
 
 def make_farm(yamlfile):
@@ -44,7 +40,9 @@ def make_farm(yamlfile):
                 c = getattr(sys.modules[__name__], k)
                 # print("E",e, list(e.keys()), k,c)
                 ent.append((c, str(e[k])))
-            fields.append(Field(localization=farm[fi]["localization"], shape=farm[fi]["shape"], entities_specifications=ent))
+            fields.append(
+                Field(localization=farm[fi]["localization"], shape=farm[fi]["shape"], entities_specifications=ent)
+            )
         if "Farmer" in fi:
             if farm[fi]["type"] == "basic":
                 farmers.append(
@@ -56,21 +54,17 @@ def make_farm(yamlfile):
 
     interaction_mode = farm_yaml["interaction_mode"]
     name = yamlfile[:-5]
-    # TODO: Perhaps these names could be defined automatically? or actually remove the initailization file entirely, and proceed with init_values only.
+    # TODO: Perhaps these names could be defined automatically? or actually remove the initailization file entirely,
+    #  and proceed with init_values only.
     name_score = name + "_" + farm_yaml["score"]
     name_init = name + "_" + farm_yaml["initialization"]
     name_actions = name + "_" + farm_yaml["actions"]
 
     scoring = BasicScore(score_configuration=name_score)
 
+    rules = BasicRule(init_configuration=name_init, actions_configuration=name_actions)
 
-    rules = BasicRule(
-        init_configuration=name_init,
-        actions_configuration=name_actions
+    farm = Farm(
+        fields=fields, farmers=farmers, scoring=scoring, rules=rules, policies=[], interaction_mode=interaction_mode
     )
-
-    farm = Farm(fields=fields, farmers=farmers, scoring=scoring, rules=rules, policies=[], interaction_mode=interaction_mode)
     return farm
-
-
-

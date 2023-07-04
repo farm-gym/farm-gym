@@ -1,5 +1,6 @@
-from typing import NamedTuple
 import copy
+from typing import NamedTuple
+
 
 class Policy_API:
     """
@@ -7,7 +8,6 @@ class Policy_API:
     """
 
     def __init__(self, triggered_observations, triggered_interventions):
-
         self.triggered_observations = triggered_observations
         self.triggered_interventions = triggered_interventions
 
@@ -61,12 +61,17 @@ class Policy_API:
         return action_schedule
 
     def intervention_schedule(self, observations):
+        """
+        "And" condtions  [(),()]
+        "or" conditions  [()],[()]
+        """
         # observations: list of (farmer,field,entity,variable,path,value)
         # contains all free observations, hence current day as minimum info.
         action_schedule = []
         for trigger, actions in self.triggered_interventions:
             # Trigger is CNF
             trigger_on = self.is_trigger_on(trigger, observations)
+            #print("trigger_on", trigger_on)
             if trigger_on:
                 # [action_schedule.append(action) for action in actions]
                 [self.delayed_actions.append(action) for action in actions]
@@ -114,26 +119,19 @@ class Policy_API:
                             bool_cond = False
             if bool_cond:
                 return True
-        return False    
+        return False
 
     def __add__(self, other):
         combined_obs = self.triggered_observations + other.triggered_observations
         combined_interv = self.triggered_interventions + other.triggered_interventions
 
         combined = Policy_API(combined_obs, combined_interv)
-        combined.reset = lambda: (
-            self.reset(),
-            other.reset()
-        )
-        combined.observation_schedule = lambda obs: (
-            self.observation_schedule(obs) + other.observation_schedule(obs)
-        )
-        combined.intervention_schedule = lambda obs: (
-            self.intervention_schedule(obs) + other.intervention_schedule(obs)
-        )
+        combined.reset = lambda: (self.reset(), other.reset())
+        combined.observation_schedule = lambda obs: (self.observation_schedule(obs) + other.observation_schedule(obs))
+        combined.intervention_schedule = lambda obs: (self.intervention_schedule(obs) + other.intervention_schedule(obs))
 
         return combined
-    
+
     @classmethod
     def combine_policies(cls, policies):
         combined_obs = []
@@ -149,6 +147,7 @@ class Policy_API:
 
         return combined
 
+
 class Policy(NamedTuple):
     name: str
     api: Policy_API
@@ -159,7 +158,7 @@ class Policy(NamedTuple):
 
     def __repr__(self):
         return self.name
-    
+
     def infos(self):
         name = f"Name = {self.name}"
         delay = f"Delay = {self.delay}"
@@ -169,9 +168,10 @@ class Policy(NamedTuple):
         infos = ", ".join([name, delay, amount, frequency, threshold])
         return infos
 
-    #### ADD FREQUENCY 
+    #### ADD FREQUENCY
     #### ADD VALUE FOR PARAMETERS SUCH AS ( )
     ### TENSORBOARD MONITORING; simplexps
+
 
 class Policy_helper:
     """
@@ -183,7 +183,7 @@ class Policy_helper:
         interventions (set): A set containing all the interventions available in the farm.
 
     Methods:
-        Entity policies : 
+        Entity policies :
             get_plant_policies(): Generates all possible single policies for the plants in the farm.
             get_weeds_policies(): Generates all possible single policies for the weeds in the farm.
             get_soil_policies(): Generates all possible single policies for the soil in the farm.
@@ -204,8 +204,9 @@ class Policy_helper:
             Fertilizer:
                 create_scatter_fert(delay, amount)
             Facility:
-                create_put_scarecrow()              
+                create_put_scarecrow()
     """
+
     def __init__(self, farm):
         self.farm = farm
         self.entities = set()
@@ -214,7 +215,7 @@ class Policy_helper:
             for entity in farm.fields[field].entities.keys():
                 self.entities.add((entity, farm.fields[field].entities[entity]))
         self.entities = [e[0] for e in self.entities]
-        
+
         for action in farm.farmgym_intervention_actions:
             fa, fi, e, inter, params, gym_space, len_gym_space = action
             self.interventions[inter] = params
@@ -222,173 +223,213 @@ class Policy_helper:
 
     # Single policies
 
-    def create_plant_observe(self, field=0, index=0, location=(0,0)):
+    def create_plant_observe(self, field=0, index=0, location=(0, 0)):
         """
         Define policy to observe the stage of Plant-0 in Field-0
         """
         ### TODO : CAN IDX be * ?
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
         observation_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]
         observation_actions = [("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "stage", [loc])]
         observe_plant_stage = (observation_conditions, observation_actions)
         policy_plant_observe = Policy_API([observe_plant_stage], [])
-        policy_plant_observe = Policy("plant_observe",policy_plant_observe)
+        policy_plant_observe = Policy("plant_observe", policy_plant_observe)
         return policy_plant_observe
-    
-    def create_harvest_ripe(self, field=0, index=0, location=(0,0), delay=1):
+
+    def create_harvest_ripe(self, field=0, index=0, location=(0, 0), delay=1):
         """
         Define policy to harvest Plant-0 if its stage is 'ripe'
         """
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]  
+        harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]
         harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
         harvest_ripe = (harvest_conditions, harvest_actions)
         policy_harvest_ripe = Policy_API([], [harvest_ripe])
-        policy_harvest_ripe = Policy("harvest_ripe",policy_harvest_ripe, delay=delay)
+        policy_harvest_ripe = Policy("harvest_ripe", policy_harvest_ripe, delay=delay)
         return policy_harvest_ripe
-    
-    def create_harvest_fruit(self, field=0, index=0, location=(0,0), delay=18):
+
+    def create_harvest_fruit(self, field=0, index=0, location=(0, 0), delay=18):
         """
         Define policy to harvest Plant-0 if its stage is 'fruit'
         """
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
         harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["fruit"])]]
         harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
         harvest_fruit = (harvest_conditions, harvest_actions)
         policy_harvest_fruit = Policy_API([], [harvest_fruit])
-        policy_harvest_fruit = Policy("harvest_fruit",policy_harvest_fruit, delay=delay)
+        policy_harvest_fruit = Policy("harvest_fruit", policy_harvest_fruit, delay=delay)
         return policy_harvest_fruit
 
-    def create_observe_weeds(self, field=0, index=0, location=(0,0)):
+    def create_observe_weeds(self, field=0, index=0, location=(0, 0)):
         """
         Define policy to observe Weeds growth in Field-0
         """
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
         observation_conditions = [[]]
         observation_actions = [("BasicFarmer-0", f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc])]
         observe_weeds_growth = (observation_conditions, observation_actions)
         policy_observe_weeds = Policy_API([observe_weeds_growth], [])
-        policy_observe_weeds = Policy("observe_weeds",policy_observe_weeds)
+        policy_observe_weeds = Policy("observe_weeds", policy_observe_weeds)
         return policy_observe_weeds
-    
-    def create_scatter_cide(self, field=0, index=0, location=(0,0), delay=2, amount=5,
-    frequency=5, threshold=2.0):
+
+    def create_scatter_cide(self, field=0, index=0, location=(0, 0), delay=2, amount=5, frequency=5, threshold=2.0, day =-1):
         """
-        Define policy to scatter herbicide every few days if number of weeds is greater 
+        Define policy to scatter herbicide every few days if number of weeds is greater
         than a threshold
-        Args : 
+        Args :
             - delay : days before taking the action
             - amount : herbicide amount in kg
-            - frequency : frequency in days 
+            - frequency : frequency in days
             - threshold : threshold for taking the action
         """
         ## TODO : weather, cide can be different than 0 ?
-        
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         # Check if amount is specified in rules :
-        possible_amounts = self.interventions["scatter_bag"].get("amount#bag",[1])
+        possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
         if amount not in possible_amounts:
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
             amount = possible_amounts[0]
         fi, idx, loc = field, index, location
-        scatter_conditions = [[
-        ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold)),
-        ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x%frequency, "==", 0)]]
-        scatter_actions = [{'action':('BasicFarmer-0', f'Field-{fi}', 'Cide-0', 'scatter_bag',
-         {'plot': loc, 'amount#bag':amount}),'delay':delay}]
-        
+        scatter_conditions = [
+            [
+                ((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold)),
+                ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
+            ]
+        ]
+        if day >= 0:
+            scatter_conditions[0].append(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))
+        scatter_actions = [
+            {
+                "action": ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter_bag", {"plot": loc, "amount#bag": amount}),
+                "delay": delay,
+            }
+        ]
+
         scatter_cide = (scatter_conditions, scatter_actions)
         policy_scatter_cide = Policy_API([], [scatter_cide])
-        policy_scatter_cide = Policy("scatter_cide",policy_scatter_cide, delay=delay, amount=amount,
-        frequency=frequency, threshold=threshold)
+        policy_scatter_cide = Policy(
+            "scatter_cide", policy_scatter_cide, delay=delay, amount=amount, frequency=frequency, threshold=threshold
+        )
         return policy_scatter_cide
 
-    def create_remove_weeds(self, field=0, index=0, location=(0,0), delay=2, frequency=5, threshold=2.0):
+    def create_remove_weeds(self, field=0, index=0, location=(0, 0), delay=2, frequency=5, threshold=2.0):
         """
         Define policy to remove herbs every few days if number of weeds is greater than a threshold
-        Args : 
-            - frequency : frequency in days 
+        Args :
+            - frequency : frequency in days
             - threshold : threshold for taking the action
         """
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
         # remove_conditions = [[
         # ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold)),
         # ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x % frequency, "==", 0)]]
 
-        remove_conditions = [[
-        ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold))]]
+        remove_conditions = [[((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold))]]
 
-        remove_actions = [{'action':('BasicFarmer-0', f'Field-{fi}', f'Weeds-{idx}', 'remove', {"plot": loc}),'delay':delay}]
+        remove_actions = [
+            {"action": ("BasicFarmer-0", f"Field-{fi}", f"Weeds-{idx}", "remove", {"plot": loc}), "delay": delay}
+        ]
         remove_weeds = (remove_conditions, remove_actions)
         policy_remove_weeds = Policy_API([], [remove_weeds])
-        policy_remove_weeds = Policy("remove_weeds",policy_remove_weeds, delay=delay, frequency=frequency, threshold=threshold)
+        policy_remove_weeds = Policy(
+            "remove_weeds", policy_remove_weeds, delay=delay, frequency=frequency, threshold=threshold
+        )
         return policy_remove_weeds
 
-    def create_water_soil(self, field=0, index=0, location=(0,0), delay=0, amount=5):
+    def create_water_soil(self, field=0, index=0, location=(0, 0), delay=0, amount=5, day=-1):
         """
-        Define policy to water Soil-0 
+        Define policy to water Soil-0
         """
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         # Check if amount is specified in rules :
-        possible_amounts = self.interventions["water_discrete"].get("amount#L",[1])
+        possible_amounts = self.interventions["water_discrete"].get("amount#L", [1])
         if amount not in possible_amounts:
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
             amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         water_conditions = [[]]
-        water_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Soil-{idx}", "water_discrete", {"plot": loc,
-        "amount#L": amount, "duration#min": 60}), "delay": 0}]
+        # Try to do it on a specific day
+        if day >= 0:
+            water_conditions = [[((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day)]]
+        
+        water_actions = [
+            {
+                "action": (
+                    "BasicFarmer-0",
+                    f"Field-{fi}",
+                    f"Soil-{idx}",
+                    "water_discrete",
+                    {"plot": loc, "amount#L": amount, "duration#min": 60},
+                ),
+                "delay": 0,
+            }
+        ]
         water_soil = (water_conditions, water_actions)
         policy_water_soil = Policy_API([], [water_soil])
-        policy_water_soil = Policy("water_soil",policy_water_soil, delay=delay, amount=amount)
+        policy_water_soil = Policy("water_soil", policy_water_soil, delay=delay, amount=amount)
         return policy_water_soil
 
-    def create_scatter_fert(self, field=0, index=0, location=(0,0), delay=0, amount=5):
+    def create_scatter_fert(self, field=0, index=0, location=(0, 0), delay=0, amount=5, day=-1):
         """
         Define policy to scatter Fertilizer-0
         """
-        ###############################
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         # Check if amount is specified in rules :
-        possible_amounts = self.interventions["scatter_bag"].get("amount#bag",[1])
+        possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
         if amount not in possible_amounts:
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
             amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         scatter_conditions = []
-        scatter_actions = {"action": ("BasicFarmer-0", f"Field-{fi}", f"Fertilizer-{idx}", "scatter_bag", {"plot": loc,
-        "amount#bag": amount, "duration#min": 60}), "delay": 0}
+        if day >= 0:
+            scatter_conditions = [[(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))]]
+        
+        scatter_actions = [
+            {
+                "action": (
+                    "BasicFarmer-0",
+                    f"Field-{fi}",
+                    f"Fertilizer-{idx}",
+                    "scatter_bag",
+                    {"plot": loc, "amount#bag": amount},
+                ),
+                "delay": 0,
+            }
+        ]
         scatter_fert = (scatter_conditions, scatter_actions)
         policy_scatter_fert = Policy_API([], [scatter_fert])
-        policy_scatter_fert = Policy("scatter_fert",policy_scatter_fert, delay=delay, amount=amount)
+        policy_scatter_fert = Policy("scatter_fert", policy_scatter_fert, delay=delay, amount=amount)
         return policy_scatter_fert
 
-    def create_put_scarecrow(self, field=0, index=0, location=(0,0), delay=0):
+    def create_put_scarecrow(self, field=0, index=0, location=(0, 0), delay=0):
         """
-        Define policy to put scarecrow 
+        Define policy to put scarecrow
         """
-        assert isinstance(field, int) and isinstance(index, int) , "Field, index must be integers."
-        assert isinstance(location, tuple) , "Location must be a tuple, i.e : (0, 0)."
-        fi, idx, loc = field, index, location
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
+        fi, idx = field, index
         scarecrow_conditions = []
-        scarecrow_actions = {"action": ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}",
-        "put_scarecrow", {}), "delay": delay}
+        scarecrow_actions = {
+            "action": ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}", "put_scarecrow", {}),
+            "delay": delay,
+        }
         put_scarecrow = (scarecrow_conditions, scarecrow_actions)
         policy_put_scarecrow = Policy_API([], [put_scarecrow])
-        policy_put_scarecrow = Policy("put_scarecrow",policy_put_scarecrow, delay=delay)
+        policy_put_scarecrow = Policy("put_scarecrow", policy_put_scarecrow, delay=delay)
         return policy_put_scarecrow
 
     # Entity policies
@@ -426,12 +467,12 @@ class Policy_helper:
 
     def get_soil_policies(self):
         policies = []
-        # Define policy to water Soil-0 
+        # Define policy to water Soil-0
         if "water_discrete" in self.interventions.keys():
             policy_water_soil = self.create_water_soil(amount=5)
             policies.append(policy_water_soil)
         return policies
-    
+
     def get_fertilizer_policies(self):
         policies = []
         # Define policy to scatter Fertilizer-0*
@@ -442,11 +483,11 @@ class Policy_helper:
 
     def get_facility_policies(self):
         policies = []
-        # Define policy to put scarecrow 
+        # Define policy to put scarecrow
         policy_put_scarecrow = self.create_put_scarecrow()
         policies.append(policy_put_scarecrow)
         return policies
-    
+
     def get_policies(self):
         policies = []
         entities = self.entities
@@ -465,14 +506,15 @@ class Policy_helper:
 
 if __name__ == "__main__":
     from farmgym.v2.make_farm import make_farm
+
     farm = make_farm("games/farms_1x1/farm_lille_clay_bean.yaml")
-    
+
     # Policy helper example
     helper = Policy_helper(farm)
     print(helper.entities)
 
     policies = helper.get_policies()
-    print(f"All policies : {policies}")  
+    print(f"All policies : {policies}")
     plant_policies = helper.get_plant_policies()
     weeds_policies = helper.get_weeds_policies()
     soil_policies = helper.get_soil_policies()
@@ -485,10 +527,11 @@ if __name__ == "__main__":
     print(f"facility_policies = {facility_policies}")
     print(f"{facility_policies[0]}.api : {facility_policies[0].api}")
     print(f"{facility_policies[0]}.infos() : {facility_policies[0].infos()}")
-    water_soil = helper.create_water_soil(amount=8,delay =0)
-    
+    water_soil = helper.create_water_soil(amount=8, delay=0)
+
     # Combining policies example
     import numpy as np
+
     def run_policy_xp(farm, policy, max_steps=np.infty):
         if farm.monitor is not None:
             farm.monitor = None
@@ -501,7 +544,7 @@ if __name__ == "__main__":
         while (not terminated) and i <= max_steps:
             observations = farm.get_free_observations()
             observation_schedule = policy.observation_schedule(observations)
-            observation, _, _,_, info = farm.farmgym_step(observation_schedule)
+            observation, _, _, _, info = farm.farmgym_step(observation_schedule)
             obs_cost = info["observation cost"]
             intervention_schedule = policy.intervention_schedule(observation)
             obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
@@ -514,5 +557,5 @@ if __name__ == "__main__":
     combined = Policy_API.combine_policies([policies[0].api, policies[1].api, policies[2].api, policies[3].api])
     # or using addition operator
     combined = policies[0].api + policies[1].api + policies[2].api + policies[3].api
-    
+
     run_policy_xp(farm, copy.deepcopy(combined), max_steps=150)
