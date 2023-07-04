@@ -29,6 +29,7 @@ def mat2d_value(value_array):
             mat[x, y] = value_array[x, y].value
     return mat
 
+
 def dict_select(x, vars):
     # print("D:",x,vars)
     y = x
@@ -62,6 +63,7 @@ def sname_to_name(text):
     else:
         return text[0].upper() + text[1:] + "-0"
 
+
 class MonitorTensorBoard:
     def __init__(self, farm, list_of_variables_to_monitor, logdir="logs", run_name=None, matview=True):
         """
@@ -91,7 +93,7 @@ class MonitorTensorBoard:
         self.writer_closed = False
         # Launch TensorBoard
         tb = program.TensorBoard()
-        tb.configure(argv=[None, '--logdir', os.path.join(os.getcwd(), logdir)])
+        tb.configure(argv=[None, "--logdir", os.path.join(os.getcwd(), logdir)])
         self.tb_url = tb.launch()
         print(f"Tensorflow listening on {self.tb_url}")
 
@@ -120,40 +122,42 @@ class MonitorTensorBoard:
                 elif self.matview:  # assumes it is matrix
                     self.history_variables[v] = (days[-2:], values[-2:])
                     if v_range == "range_auto":
-                        plt.imshow(self.history_variables[v][1][-1],cmap="hot",
+                        plt.imshow(
+                            self.history_variables[v][1][-1],
+                            cmap="hot",
                             interpolation="nearest",
-                            )
-                        plt.savefig(f'history_variables_{day}')
-                        image = Image.open(f'history_variables_{day}.png')
+                        )
+                        plt.savefig(f"history_variables_{day}")
+                        image = Image.open(f"history_variables_{day}.png")
                         image = tf.expand_dims(image, axis=0)
                         if name_to_display not in self.images:
-                            self.images[name_to_display] = [(fi_key,entity_key,image,day)]
+                            self.images[name_to_display] = [(fi_key, entity_key, image, day)]
                         else:
-                            self.images[name_to_display].append((fi_key,entity_key,image,day))
-                                                
-                        os.remove(f'history_variables_{day}.png')
+                            self.images[name_to_display].append((fi_key, entity_key, image, day))
+
+                        os.remove(f"history_variables_{day}.png")
 
                     else:
                         vm, vM = v_range
                         img = np.asarray(self.history_variables[v][1][-1])
                         img = np.clip(img, vm, vM)
                         img = (img - vm) / (vM - vm)  # scale to [0, 1] for visualization
-                        plt.imshow(img ,cmap="hot",
+                        plt.imshow(
+                            img,
+                            cmap="hot",
                             interpolation="nearest",
-                            )
-                        plt.savefig(f'history_variables_{day}')
-                        image = Image.open(f'history_variables_{day}.png')
+                        )
+                        plt.savefig(f"history_variables_{day}")
+                        image = Image.open(f"history_variables_{day}.png")
                         image = tf.expand_dims(image, axis=0)
                         if name_to_display not in self.images:
-                            self.images[name_to_display] = [(fi_key,entity_key,image,day)]
+                            self.images[name_to_display] = [(fi_key, entity_key, image, day)]
                         else:
-                            self.images[name_to_display].append((fi_key,entity_key,image,day))
-                        os.remove(f'history_variables_{day}.png')
+                            self.images[name_to_display].append((fi_key, entity_key, image, day))
+                        os.remove(f"history_variables_{day}.png")
                 self.writer.flush()
 
     def stop(self):
-        ## TODO : Add condition to check if it has been already stopped
-        ## Check for multiple stops
         if not self.writer_closed:
             print("Stopping monitoring ...")
             for name in self.images:
@@ -175,6 +179,7 @@ class MonitorTensorBoard:
         else:
             print("Stopping the monitoring is impossible, the writer is already closed")
 
+
 class MonitorPlt:
     def __init__(self, farm, list_of_variables_to_monitor, filename="monitor.png", matview=False):
         """
@@ -195,7 +200,6 @@ class MonitorPlt:
         self.fig = plt.figure(figsize=(3 * self.sizey, 3 * self.sizex))
 
     def update_fig(self):
-
         for i in range(len(self.variables)):
             v = self.variables[i]
             fi_key, entity_key, var_key, map_v, name_to_display, v_range = v
@@ -264,7 +268,6 @@ def make_variables_to_be_monitored(variables):
     myfunc = {"sum": sum_value, "mat": mat2d_value}
     var = []
     for v in variables:
-
         v_parts = v.split(".")
         fi = v_parts[0]
         en = v_parts[1]

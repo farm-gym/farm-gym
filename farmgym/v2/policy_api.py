@@ -16,39 +16,6 @@ class Policy_API:
     def reset(self):
         self.delayed_actions = []
 
-    # def setup(self, farm):
-    #    with open(self.policy_configuration, "r", encoding="utf8") as file:
-    #        self.policy_parameters = yaml.safe_load(file)
-
-    # def available_ations(self,farm):
-    #     #TODO: Under construction, Output in gym format.
-    #     self.available_actions =[]
-    #     for fi_key in self.policy_parameters['actions']:
-    #         fi= self.policy_parameters['actions'][fi_key]
-    #         for e_key in fi:
-    #             e = fi[e_key]
-    #             for a_name in e:
-    #                 a = e[a_name]
-    #                 for i in it.product(*list(a[p] for p in a)):
-    #                     print(i)
-    #                     x={}
-    #                     pj=0
-    #                     for p in a:
-    #                         x[p]=i[pj]
-    #                         pj+=1
-    #
-    #                 # a: {p1: range1, p2:range2, etc}
-    #
-    #                     # if (type(range) == tuple):
-    #                     #     m, M = range
-    #                     #     Box(m, M, shape=(1,))
-    #                     # else:
-    #                     #     if (len(range) > 0):
-    #                     #         Discrete(len(range))
-    #                     #     pass
-    #                 for fa_key in farm.farmers:
-    #                     self.available_actions.append((fa_key, fi_key,e_key,a_name,x))
-
     def observation_schedule(self, observations):
         # observations: list of (farmer,field,entity,variable,path,value)
         # contains all free observations, hence current day as minimum info.
@@ -71,7 +38,6 @@ class Policy_API:
         for trigger, actions in self.triggered_interventions:
             # Trigger is CNF
             trigger_on = self.is_trigger_on(trigger, observations)
-            #print("trigger_on", trigger_on)
             if trigger_on:
                 # [action_schedule.append(action) for action in actions]
                 [self.delayed_actions.append(action) for action in actions]
@@ -168,10 +134,6 @@ class Policy(NamedTuple):
         infos = ", ".join([name, delay, amount, frequency, threshold])
         return infos
 
-    #### ADD FREQUENCY
-    #### ADD VALUE FOR PARAMETERS SUCH AS ( )
-    ### TENSORBOARD MONITORING; simplexps
-
 
 class Policy_helper:
     """
@@ -227,7 +189,6 @@ class Policy_helper:
         """
         Define policy to observe the stage of Plant-0 in Field-0
         """
-        ### TODO : CAN IDX be * ?
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
@@ -280,7 +241,7 @@ class Policy_helper:
         policy_observe_weeds = Policy("observe_weeds", policy_observe_weeds)
         return policy_observe_weeds
 
-    def create_scatter_cide(self, field=0, index=0, location=(0, 0), delay=2, amount=5, frequency=5, threshold=2.0, day =-1):
+    def create_scatter_cide(self, field=0, index=0, location=(0, 0), delay=2, amount=5, frequency=5, threshold=2.0, day=-1):
         """
         Define policy to scatter herbicide every few days if number of weeds is greater
         than a threshold
@@ -291,7 +252,6 @@ class Policy_helper:
             - threshold : threshold for taking the action
         """
         ## TODO : weather, cide can be different than 0 ?
-
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         # Check if amount is specified in rules :
@@ -332,10 +292,6 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        # remove_conditions = [[
-        # ((f"Field-{fi}", f'Weeds-{idx}', 'grow#nb', [loc]), lambda x: x, ">=", float(threshold)),
-        # ((f"Field-{fi}", 'Weather-0', 'day#int365', []), lambda x: x % frequency, "==", 0)]]
-
         remove_conditions = [[((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold))]]
 
         remove_actions = [
@@ -361,10 +317,9 @@ class Policy_helper:
             amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         water_conditions = [[]]
-        # Try to do it on a specific day
         if day >= 0:
             water_conditions = [[((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day)]]
-        
+
         water_actions = [
             {
                 "action": (
@@ -397,7 +352,7 @@ class Policy_helper:
         scatter_conditions = []
         if day >= 0:
             scatter_conditions = [[(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))]]
-        
+
         scatter_actions = [
             {
                 "action": (
