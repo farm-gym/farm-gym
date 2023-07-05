@@ -1,7 +1,6 @@
 import copy
 from typing import NamedTuple
 
-
 class Policy_API:
     """
     Class used to define an expert policy. Expert policies can then be attached to a farm.
@@ -53,14 +52,18 @@ class Policy_API:
 
     def is_trigger_on(self, trigger, observations):
         ## Check Breaks
+        if trigger == [[]]:
+            return True
         for and_conditions in trigger:
             bool_cond = True
+            observation_exists = False
             for condition in and_conditions:
                 bool_cond = True
                 for ob in observations:
                     farm, field, entity, variable, path, v = ob
                     variable_path, fun, operator, value = condition
                     if variable_path == (field, entity, variable, path):
+                        observation_exists = True
                         if operator == "==":
                             bool_cond = bool_cond and fun(v) == value
                         elif operator == "!=":
@@ -83,7 +86,7 @@ class Policy_API:
                             bool_cond = bool_cond and value not in fun(v)
                         else:
                             bool_cond = False
-            if bool_cond:
+            if bool_cond and observation_exists:
                 return True
         return False
 
@@ -192,7 +195,7 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        observation_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]
+        observation_conditions = [[]]
         observation_actions = [("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "stage", [loc])]
         observe_plant_stage = (observation_conditions, observation_actions)
         policy_plant_observe = Policy_API([observe_plant_stage], [])
@@ -313,8 +316,8 @@ class Policy_helper:
         # Check if amount is specified in rules :
         possible_amounts = self.interventions["water_discrete"].get("amount#L", [1])
         if amount not in possible_amounts:
+            amount = possible_amounts[-1]
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
-            amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         water_conditions = [[]]
         if day >= 0:
@@ -458,6 +461,31 @@ class Policy_helper:
             policies += self.get_facility_policies()
         return policies
 
+def run_policy_xp(farm, policy, max_steps=10000):
+    if farm.monitor is not None:
+        farm.monitor = None
+    cumreward = 0.0
+    cumcost = 0.0
+    policy.reset()
+    observation = farm.reset()
+    terminated = False
+    i = 0
+    while (not terminated) and i <= max_steps:
+        i+= 1
+        observations = farm.get_free_observations()
+        observation_schedule = policy.observation_schedule(observations)
+        observation, _, _, _, info = farm.farmgym_step(observation_schedule)
+        if len(observation) == 3 and i == 100:
+            print(observation[2][5])
+        obs_cost = info["observation cost"]
+        intervention_schedule = policy.intervention_schedule(observation)
+        #print(i, intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        
+        int_cost = info["intervention cost"]
+        cumreward += reward
+        cumcost += obs_cost + int_cost
+    return cumreward, cumcost
 
 if __name__ == "__main__":
     from farmgym.v2.make_farm import make_farm
@@ -485,28 +513,6 @@ if __name__ == "__main__":
     water_soil = helper.create_water_soil(amount=8, delay=0)
 
     # Combining policies example
-    import numpy as np
-
-    def run_policy_xp(farm, policy, max_steps=np.infty):
-        if farm.monitor is not None:
-            farm.monitor = None
-        cumreward = 0.0
-        cumcost = 0.0
-        policy.reset()
-        observation = farm.reset()
-        terminated = False
-        i = 0
-        while (not terminated) and i <= max_steps:
-            observations = farm.get_free_observations()
-            observation_schedule = policy.observation_schedule(observations)
-            observation, _, _, _, info = farm.farmgym_step(observation_schedule)
-            obs_cost = info["observation cost"]
-            intervention_schedule = policy.intervention_schedule(observation)
-            obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
-            int_cost = info["intervention cost"]
-            cumreward += reward
-            cumcost += obs_cost + int_cost
-        return cumreward, cumcost
 
     # It is possible to combine policy_apis with the combine method
     combined = Policy_API.combine_policies([policies[0].api, policies[1].api, policies[2].api, policies[3].api])
