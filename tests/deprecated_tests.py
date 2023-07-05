@@ -18,6 +18,7 @@ from farmgym.v2.games.rungame import run_randomactions
 import pytest
 
 # TODO:
+# Check if init from range follow seed or not
 # - make all games deterministic (see test_games below, two env fail)
 # - split this file in several files for better readability.
 # - Actually assert things to check that it works and don't check only Runtime Error.
@@ -391,7 +392,6 @@ FULL_ENTITY = [
     (Birds, "base_bird"),
     (Fertilizer, "basic_N"),
 ]
-
 
 
 # INIT_STAGE = [

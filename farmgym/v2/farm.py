@@ -257,7 +257,7 @@ class Farm(gym.Env):
 
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
 
-    def add_monitoring(self, list_of_variables, tensorboard=True):
+    def add_monitoring(self, list_of_variables, tensorboard=True, matview=True):
         """
         Adds a Monitor to the farm, allowing to observe evolution of some state variables with time.
         list_of_variables: the list of variables to be monitored.
@@ -266,7 +266,7 @@ class Farm(gym.Env):
         ("Field-0","Plant-0","fruits_per_plant#nb",lambda x: sum_value(x),"Fruits (nb)","range_auto")
         """
         if tensorboard:
-            self.monitor = MonitorTensorBoard(self, list_of_variables)
+            self.monitor = MonitorTensorBoard(self, list_of_variables, matview=matview)
         else:
             self.monitor = MonitorPlt(self, list_of_variables)
 
@@ -493,12 +493,9 @@ class Farm(gym.Env):
 
         if self.monitor != None:
             self.monitor.update_fig()
-            if terminated:
-                self.monitor.stop()
 
         # Compute final reward
         if terminated:
-
             for f in self.fields.values():
                 reward += self.scoring.final_reward(f.entities.values())
             if self.monitor != None:
@@ -636,11 +633,9 @@ class Farm(gym.Env):
         Outputs a randomly generated intervention, as allowed by the yaml file, in farmgym format.
         """
         n = self.np_random.integers(len(self.farmgym_intervention_actions))
-        print("n = ",n)
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
         fa, fi, e, inter, params, gym_space, len_gym_space = self.farmgym_intervention_actions[n]
         o = gym_space.sample()
-        print("o = ",o)
 
         def convert(value, ranges):
             if type(ranges) == list:
@@ -723,7 +718,6 @@ class Farm(gym.Env):
                             if e in action_yaml[fa][fi].keys():
                                 if action_yaml[fa][fi][e] != None:
                                     for action in action_yaml[fa][fi][e]:
-                                        print(action)
                                         gym_a = make(action_yaml[fa][fi][e][action])
                                         # print(gym_a)
                                         actions.append(
