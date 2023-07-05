@@ -1,14 +1,16 @@
+import os
+
 import pytest
 
 from farmgym.v2.entities.Plant import Plant
 from farmgym.v2.entities.Soil import Soil
 from farmgym.v2.entities.Weather import Weather
-
 from farmgym.v2.farm import Farm
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer
 from farmgym.v2.field import Field
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.scorings.BasicScore import BasicScore
+
 
 @pytest.fixture
 def sample_fields():
@@ -93,3 +95,7 @@ def test_build_shortname(sample_farm):
     farm = sample_farm
     expected_shortname = "farm_1x1(dry_clay_bean)"
     assert farm.build_shortname() == expected_shortname
+    # Clean folder
+    files_to_remove = ["test_actions.yaml", "test_init.yaml", "test_score.yaml"]
+    for file in files_to_remove:
+        os.remove(file)
