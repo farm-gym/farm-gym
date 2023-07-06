@@ -7,7 +7,6 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 import time
 
-import tensorflow as tf
 from tensorboard import program
 import datetime
 import os
@@ -78,6 +77,7 @@ class MonitorTensorBoard:
         [ ] Add legends to Tensorboard
         [X] Add option to switch to Plt
         """
+        import tensorflow as tf
         self.farm = farm
         self.variables = list_of_variables_to_monitor
         self.logdir = logdir

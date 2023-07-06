@@ -201,6 +201,20 @@ class Policy_helper:
         policy_plant_observe = Policy_API([observe_plant_stage], [])
         policy_plant_observe = Policy("plant_observe", policy_plant_observe)
         return policy_plant_observe
+    
+    def create_weed_observe(self, field=0, index=0, location=(0, 0)):
+        """
+        Define policy to observe the number of Weeds-0 in Field-0
+        """
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
+        fi, idx, loc = field, index, location
+        observation_conditions = [[]]
+        observation_actions = [("BasicFarmer-0", f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc])]
+        observe_weed_nb = (observation_conditions, observation_actions)
+        policy_weed_observe = Policy_API([observe_weed_nb], [])
+        policy_weed_observe = Policy("plant_observe", policy_weed_observe)
+        return policy_weed_observe
 
     def create_harvest_ripe(self, field=0, index=0, location=(0, 0), delay=1):
         """
@@ -260,8 +274,8 @@ class Policy_helper:
         # Check if amount is specified in rules :
         possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
         if amount not in possible_amounts:
+            amount = possible_amounts[-1]
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
-            amount = possible_amounts[0]
         fi, idx, loc = field, index, location
         scatter_conditions = [
             [
@@ -475,13 +489,9 @@ def run_policy_xp(farm, policy, max_steps=10000):
         observations = farm.get_free_observations()
         observation_schedule = policy.observation_schedule(observations)
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
-        if len(observation) == 3 and i == 100:
-            print(observation[2][5])
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
-        #print(i, intervention_schedule)
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
-        
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost
