@@ -1,5 +1,6 @@
 import copy
 from typing import NamedTuple
+import ast
 
 class Policy_API:
     """
@@ -346,7 +347,42 @@ class Policy_helper:
                     "water_discrete",
                     {"plot": loc, "amount#L": amount, "duration#min": 60},
                 ),
-                "delay": 0,
+                "delay": delay,
+            }
+        ]
+        water_soil = (water_conditions, water_actions)
+        policy_water_soil = Policy_API([], [water_soil])
+        policy_water_soil = Policy("water_soil", policy_water_soil, delay=delay, amount=amount)
+        return policy_water_soil
+
+    def create_water_soil_continious(self, field=0, index=0, location=(0, 0), delay=0, amount=5.0, day=-1):
+        """
+        Define policy to water Soil-0
+        """
+        assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
+        assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
+        # Check if amount is specified in ru.les :
+        possible_range = self.interventions["water_continuous"].get("amount#L", [1])
+        possible_range = ast.literal_eval(possible_range)
+        min_amount, max_amount = possible_range[0], possible_range[1]  
+        if not  min_amount <= amount <= max_amount:
+            amount = max_amount
+            print(f"Specified amount not defined in farm rules, setting default amount ({max_amount})")
+        fi, idx, loc = field, index, location
+        water_conditions = [[]]
+        if day >= 0:
+            water_conditions = [[((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day)]]
+
+        water_actions = [
+            {
+                "action": (
+                    "BasicFarmer-0",
+                    f"Field-{fi}",
+                    f"Soil-{idx}",
+                    "water_continuous",
+                    {"plot": loc, "amount#L": amount, "duration#min": 60},
+                ),
+                "delay": delay,
             }
         ]
         water_soil = (water_conditions, water_actions)
@@ -379,7 +415,7 @@ class Policy_helper:
                     "scatter_bag",
                     {"plot": loc, "amount#bag": amount},
                 ),
-                "delay": 0,
+                "delay": delay,
             }
         ]
         scatter_fert = (scatter_conditions, scatter_actions)
@@ -492,6 +528,8 @@ def run_policy_xp(farm, policy, max_steps=10000):
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        # if len(intervention_schedule) > 1:
+        #     print(i ,intervention_schedule)
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost
