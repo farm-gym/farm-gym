@@ -1,0 +1,81 @@
+observation-cost:
+  Field-0:
+    Weather-0:
+      year#int100: 1
+      day#int365: 1
+      air_temperature: 1
+      humidity_index#%: 1
+      wind: 1
+      sun_exposure#int5: 1
+      rain_amount: 1
+      rain_intensity: 1
+      consecutive_frost#day: 1
+      consecutive_dry#day: 1
+      air_temperature.forecast: 1
+    Soil-0:
+      available_N#g: 1
+      available_P#g: 1
+      available_K#g: 1
+      available_C#g: 1
+      available_Water#L: 1
+      wet_surface#m2.day-1: 1
+      microlife_health_index#%: 1
+      amount_cide#g: 1
+      total_cumulated_added_water#L: 1
+      total_cumulated_added_cide#g: 1
+    Plant-0:
+      stage: 1
+      global_stage: 1
+      population#nb: 1
+      size#cm: 1
+      flowers_per_plant#nb: 1
+      pollinator_visits#nb: 1
+      flowers_pollinated_per_plant#nb: 1
+      fruits_per_plant#nb: 1
+      fruit_weight#g: 1
+      harvest_weight#kg: 1
+      age_seed#day: 1
+      consecutive_nogrow#day: 1
+      age_bloom#day: 1
+      consecutive_noweight#day: 1
+      age_ripe#day: 1
+      cumulated_nutrients_N#g: 1
+      cumulated_nutrients_P#g: 1
+      cumulated_nutrients_K#g: 1
+      cumulated_nutrients_C#g: 1
+      cumulated_stress_nutrients_N#g: 1
+      cumulated_stress_nutrients_P#g: 1
+      cumulated_stress_nutrients_K#g: 1
+      cumulated_stress_nutrients_C#g: 1
+      cumulated_water#L: 1
+      cumulated_stress_water#L: 1
+      grow_size_threshold#cm: 1
+      fruit_weight_threshold#g: 1
+    Pollinators-0:
+      occurrence#bin: 1
+      total_cumulated_occurrence#nb: 1
+intervention-cost:
+  Field-0:
+    Soil-0:
+      water_discrete: 1
+      water_continuous: 1
+    Plant-0:
+      sow: 1
+      harvest: 1
+      micro_harvest: 1
+      remove: 1
+reward-mix:
+     weight_biodiversitycounts: 0.
+     weight_resourceadded: 0.
+     weight_soilmicrolife: 0.
+     weight_harvest: 0.
+     weight_stagecount: 0.
+     weight_stagetransition: 1.
+final-reward-mix:
+     weight_biodiversitycounts: 0.
+     weight_resourceadded: 0.
+     weight_soilmicrolife: 0.
+     weight_harvest: 1.
+     weight_stagecount: 0.
+     weight_stagetransition: 0.
+
