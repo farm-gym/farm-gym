@@ -528,8 +528,6 @@ def run_policy_xp(farm, policy, max_steps=10000):
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
-        # if len(intervention_schedule) > 1:
-        #     print(i ,intervention_schedule)
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost

@@ -1,7 +1,6 @@
-from gymnasium.spaces.space import Space
 import numpy as np
-
-from gymnasium.spaces import Discrete, Box, Dict, Tuple
+from gymnasium.spaces import Box, Dict, Discrete, Tuple
+from gymnasium.spaces.space import Space
 
 
 def str_pretty(d, indent=0):
@@ -33,7 +32,7 @@ class Union(Space):
         [space.seed(seed) for space in self.spaces]
 
     def sample(self):
-        n = np.random.randint(len(self.spaces))
+        n = self.np_random.randint(len(self.spaces))
         return n, self.spaces[n].sample()
 
     def contains(self, x):
@@ -80,11 +79,11 @@ class MultiUnion(Space):
         [space.seed(seed) for space in self.spaces]
 
     def sample(self):  # Sampling without replacement (not twice in the same space).
-        m = np.random.randint(min(self.maxnonzero + 1, len(self.spaces) + 1))
+        m = self.np_random.randint(min(self.maxnonzero + 1, len(self.spaces) + 1))
         indexes = list(range(len(self.spaces)))
         sampled_indexes = []
         for j in range(m):
-            n = np.random.choice(indexes)
+            n = self.np_random.choice(indexes)
             indexes.remove(n)
             sampled_indexes.append(n)
         samples = []
@@ -151,7 +150,7 @@ class Sequence(Space):
         self.space.seed(seed)
 
     def sample(self):  # Sampling with replacement
-        m = np.random.randint(self.maxnonzero + 1)
+        m = self.np_random.integers(self.maxnonzero + 1)
         samples = []
         for n in range(m):
             samples.append(self.space.sample())

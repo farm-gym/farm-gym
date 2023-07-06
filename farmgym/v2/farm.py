@@ -1,20 +1,16 @@
-import gymnasium as gym
-from gymnasium.spaces import Discrete, Box, Dict, Tuple
-from gymnasium.utils import seeding
-from farmgym.v2.gymUnion import Union, MultiUnion, Sequence
-import numpy as np
-from farmgym.v2.rendering.monitoring import MonitorTensorBoard, MonitorPlt
-
-
-from gym.spaces.utils import flatdim, flatten_space, flatten
-
 ######################################
 import inspect
-from textwrap import indent
-
-
 import os
 from pathlib import Path
+from textwrap import indent
+
+import gymnasium as gym
+import numpy as np
+from farmgym.v2.gymUnion import MultiUnion, Sequence, Union
+from farmgym.v2.rendering.monitoring import MonitorPlt, MonitorTensorBoard
+from gym.spaces.utils import flatdim, flatten, flatten_space
+from gymnasium.spaces import Box, Dict, Discrete, Tuple
+from gymnasium.utils import seeding
 
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
@@ -28,11 +24,9 @@ def yml_tuple_constructor(v, f=float):
     return tup
 
 
-from farmgym.v2.specifications.specification_manager import (
-    build_inityaml,
-    build_scoreyaml,
-    build_actionsyaml,
-)
+from farmgym.v2.specifications.specification_manager import (build_actionsyaml,
+                                                             build_inityaml,
+                                                             build_scoreyaml)
 
 
 class Farm(gym.Env):
@@ -194,21 +188,25 @@ class Farm(gym.Env):
         self.policies = policies
 
         try:
-            self.discretization_nbins = self.rules.actions_allowed["params"]["number_of_bins_to_discretize_continuous_actions"]
+            self.discretization_nbins = self.rules.actions_allowed["params"][
+                "number_of_bins_to_discretize_continuous_actions"
+            ]
         except:
             self.discretization_nbins = 11
 
-        self.farmgym_observation_actions = self.build_farmgym_observation_actions(self.rules.actions_allowed["observations"])
+        self.farmgym_observation_actions = self.build_farmgym_observation_actions(
+            self.rules.actions_allowed["observations"]
+        )
         self.farmgym_intervention_actions = self.build_farmgym_intervention_actions(
             self.rules.actions_allowed["interventions"]
         )
         self.farmgym_state_space = self.build_gym_state_space()
 
         # GYM SPACES:
-        self.observation_space = self.build_gym_observation_space()
+        self.observation_space = self.build_gym_observation_space(seed)
         # self.action_space = self.build_gym_action_space()
-        self.action_space = self.build_gym_discretized_action_space()
-        
+        self.action_space = self.build_gym_discretized_action_space(seed)
+
         self.name = self.build_name()
         self.shortname = self.build_shortname()
 
@@ -316,10 +314,9 @@ class Farm(gym.Env):
 
         self.last_farmgym_action = None
         self.np_random, seed = seeding.np_random(seed)
-
         self.is_new_day = True
-
         for f in self.fields.values():
+            f.np_random = self.np_random
             f.reset()
 
         observations = []
@@ -732,7 +729,7 @@ class Farm(gym.Env):
                                             )
                                         )
         return actions
-    
+
     def count_farmgym_intervention_actions(self):
         n = 0
         for i in self.farmgym_intervention_actions:
@@ -880,7 +877,7 @@ class Farm(gym.Env):
 
         return Dict(make_s(state_space_))  # Tuple(state_space)
 
-    def build_gym_observation_space(self):
+    def build_gym_observation_space(self, seed):
         """
         Outputs an observation space in gym MultiUnion format from all possible observations.
         """
@@ -951,14 +948,19 @@ class Farm(gym.Env):
                 o_space[fa_key][fi_key][e_key][variable_key] = x
             observation_space.append(make_space(o_space))
 
-        return MultiUnion(observation_space)
+        multi_union = MultiUnion(observation_space)
+        multi_union.seed(seed)
+        return multi_union
 
-    def build_gym_action_space(self):
-        return MultiUnion(
+    def build_gym_action_space(self, seed):
+        multi_union = MultiUnion(
             [Discrete(1) for x in range(len(self.farmgym_observation_actions))]
             + [g for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions],
             maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
+            np_random=self.np_random,
         )
+        multi_union.seed(seed)
+        return multi_union
 
         # return MultiUnion(
         #    [Discrete(len(self.farmgym_observation_actions))]
@@ -966,13 +968,15 @@ class Farm(gym.Env):
         #    maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
         # )
 
-    def build_gym_discretized_action_space(self):
+    def build_gym_discretized_action_space(self, seed):
         """Whenever encounters a continuous box, split each dimension into nbins bins"""
         naction = len(self.farmgym_observation_actions)
         for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
             naction += ng
         # print("BUILD DISCRETIZED A", naction)
-        return Sequence(Discrete(naction), maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+        sequence = Sequence(Discrete(naction), maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+        sequence.seed(seed)
+        return sequence
         # return MultiUnion([Discrete(naction)],maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
 
     def actions_to_string(self):
@@ -1046,8 +1050,8 @@ class Farm(gym.Env):
         if mode == "human":
             image = self.make_rendering_image()
             day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
-            if(self.interaction_mode=="AOMDP"):
-                if (self.is_new_day): # Assumes it just switch from False to True
+            if self.interaction_mode == "AOMDP":
+                if self.is_new_day:  # Assumes it just switch from False to True
                     image.save("farm-day-" + "{:03d}".format(day) + "-2.png")
                 else:
                     image.save("farm-day-" + "{:03d}".format(day) + "-1.png")
@@ -1068,7 +1072,9 @@ class Farm(gym.Env):
                 self.fields[fi].Y
                 + (int)(
                     np.ceil(
-                        len([1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None])
+                        len(
+                            [1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None]
+                        )
                         / self.fields[fi].X
                     )
                 )
@@ -1161,7 +1167,10 @@ class Farm(gym.Env):
                     index += 1
 
             offset_field_y = (
-                offset_header + self.fields[fi].Y * im_height + offset_sep + ((index - 1) // self.fields[fi].X + 1) * im_height
+                offset_header
+                + self.fields[fi].Y * im_height
+                + offset_sep
+                + ((index - 1) // self.fields[fi].X + 1) * im_height
             )
             d.rectangle(
                 (
@@ -1175,15 +1184,15 @@ class Farm(gym.Env):
 
             nb_a = 0
             if self.last_farmgym_action:
-                #print("LAST ACTION", self.is_new_day, self.last_farmgym_action)
-                mor,aft=self.last_farmgym_action
-                if (self.is_new_day):
-                    actions=aft
+                # print("LAST ACTION", self.is_new_day, self.last_farmgym_action)
+                mor, aft = self.last_farmgym_action
+                if self.is_new_day:
+                    actions = aft
                 else:
-                    actions=mor
+                    actions = mor
                 if actions:
                     for a in actions:
-                        #print("A", a)
+                        # print("A", a)
                         fa_key, fi_key, entity_key, action_name, params = a
                         if a[1] == fi and nb_a <= max_display_actions:
                             text = action_name
@@ -1209,7 +1218,7 @@ class Farm(gym.Env):
 
             # offset_field+=(self.fields[fi].X+1)*im_width
 
-        #dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
+        # dashboard_picture.save("farm-day-" + "{:03d}".format(day) + ".png")
         return dashboard_picture
 
     def render_step(self, action, observation, reward, terminated, truncated, info):
@@ -1378,7 +1387,6 @@ def generate_gif(image_folder=".", video_name="farm.gif"):
     import imageio.v2 as imageio
 
     # TODO: This way of generating gif is very slow, inefficient, and unreliable. An alternative should be found.
-
     # os.chdir("/home/ganesh/Desktop/video")
     images = [
         imageio.imread(img)
