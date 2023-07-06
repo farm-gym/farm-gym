@@ -1,5 +1,3 @@
-import gym
-#from farmgym.v2.games.register_all import register_farms
 from farmgym.v2.games.rungame import run_policy, run_policy_xp
 import numpy as np
 from farmgym.v2.games.rungame import run_xps

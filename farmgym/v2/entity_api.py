@@ -365,7 +365,7 @@ class Entity_API:
 
 
 ############ Possibly useful
-import gym
+import gymnasium as gym
 import itertools
 
 

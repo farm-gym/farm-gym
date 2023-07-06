@@ -1,13 +1,8 @@
-import copy
 import os
 import time
 import numpy as np
-from gym.utils.env_checker import check_env
-import gym
 
 from farmgym.v2.farm import generate_video, generate_gif
-
-from distutils.version import LooseVersion
 
 
 class Farmgym_Agent:
@@ -90,7 +85,6 @@ def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
 
         policy.reset()
         observation = farm.farmgym_reset()
-        # check_env(farm)
         is_done = False
         i = 0
         while (not is_done) and i <= max_steps:
@@ -121,8 +115,6 @@ def run_xps(farm, policy, max_steps=np.infty, nb_replicate=100):
 
 
 def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
-    #   if LooseVersion(gym.__version__) >= LooseVersion("0.25.2"):
-    #        check_env(farm)
     # Gym 0.21 has bugs: does not support dictionaries for instance, it has the following:
     # def _is_numpy_array_space(space: spaces.Space) -> bool:
     #    """
@@ -155,7 +147,6 @@ def run_randomactions(farm, max_steps=np.infty, render="", monitoring=True):
     if render:
         print("Initial observations", observation)
 
-    # check_env(farm)
     terminated = False
     i = 0
     while (not terminated) and i <= max_steps:
@@ -252,7 +243,6 @@ def run_policy(farm, policy, max_steps=np.infty, render=True, monitoring=True):
     if render:
         print("Initial observations", observation)
 
-    # check_env(farm)
     terminated = False
     i = 0
     while (not terminated) and i <= max_steps:
