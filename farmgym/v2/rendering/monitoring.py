@@ -84,6 +84,7 @@ class MonitorTensorBoard:
         self.run_name = run_name if run_name is not None else datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         self.images = {}
         self.matview = matview
+        self.tf = tf
 
         self.history_variables = {}
         for v in self.variables:
@@ -112,13 +113,13 @@ class MonitorTensorBoard:
                 if isinstance(value, Image.Image):
                     self.history_variables[v] = (days[-2:], values[-2:])
                     img = np.asarray(self.history_variables[v][1][-1])
-                    tf.summary.image(f"{name_to_display} ({fi_key}, {entity_key})", img, step=day)
+                    self.tf.summary.image(f"{entity_key}/{name_to_display} ({fi_key}, {entity_key})", img, step=day)
                 elif isinstance(value, (float, int, np.integer, float)):
                     self.history_variables[v] = (days[-20:], values[-20:])
                     if v_range != "range_auto":
                         vm, vM = v_range
-                        value = tf.clip_by_value(value, vm, vM)
-                    tf.summary.scalar(f"{name_to_display} ({fi_key}, {entity_key})", value, step=day)
+                        value = self.tf.clip_by_value(value, vm, vM)
+                    self.tf.summary.scalar(f"{entity_key}/{name_to_display} ({fi_key}, {entity_key})", value, step=day)
                 elif self.matview:  # assumes it is matrix
                     self.history_variables[v] = (days[-2:], values[-2:])
                     if v_range == "range_auto":
@@ -129,7 +130,7 @@ class MonitorTensorBoard:
                         )
                         plt.savefig(f"history_variables_{day}")
                         image = Image.open(f"history_variables_{day}.png")
-                        image = tf.expand_dims(image, axis=0)
+                        image = self.tf.expand_dims(image, axis=0)
                         if name_to_display not in self.images:
                             self.images[name_to_display] = [(fi_key, entity_key, image, day)]
                         else:
@@ -149,7 +150,7 @@ class MonitorTensorBoard:
                         )
                         plt.savefig(f"history_variables_{day}")
                         image = Image.open(f"history_variables_{day}.png")
-                        image = tf.expand_dims(image, axis=0)
+                        image = self.tf.expand_dims(image, axis=0)
                         if name_to_display not in self.images:
                             self.images[name_to_display] = [(fi_key, entity_key, image, day)]
                         else:
@@ -169,7 +170,7 @@ class MonitorTensorBoard:
                 for i, image in enumerate(image_array):
                     # Write the summary image to a TensorBoard log file
                     with self.writer.as_default():
-                        tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
+                        self.tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
             check_close = ""
             while check_close.lower() != "exit":
                 check_close = input(f"Tensorflow is still listening on {self.tb_url}, type 'exit' to close : ")
