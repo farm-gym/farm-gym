@@ -65,9 +65,9 @@ reward-mix:
      weight_biodiversitycounts: 0.
      weight_resourceadded: 0.
      weight_soilmicrolife: 0.
-     weight_harvest: 0.
+     weight_harvest: 1.
      weight_stagecount: 0.
-     weight_stagetransition: 1.
+     weight_stagetransition: 0.
 final-reward-mix:
      weight_biodiversitycounts: 0.
      weight_resourceadded: 0.

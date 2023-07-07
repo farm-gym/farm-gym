@@ -2,7 +2,7 @@ Initial:
   Field-0:
     Weather-0:
       year#int100: 0
-      day#int365: 0
+      day#int365: 121
       air_temperature: 
         max#°C: 22.0
         mean#°C: 20.0
@@ -21,13 +21,13 @@ Initial:
         min#°C: 18.0
         max#°C: 22.0
     Soil-0:
-      available_N#g: 100.0
-      available_P#g: 100.0
-      available_K#g: 100.0
-      available_C#g: 100.0
-      available_Water#L: 1.0
+      available_N#g: 5000.0
+      available_P#g: 5000.0
+      available_K#g: 5000.0
+      available_C#g: 5000.0
+      available_Water#L: 5.0
       wet_surface#m2.day-1: 0.0
-      microlife_health_index#%: 75
+      microlife_health_index#%: 50
       amount_cide#g: 
         pollinators: 0.0
         pests: 0.0
@@ -71,7 +71,7 @@ Initial:
       occurrence#bin: False
       total_cumulated_occurrence#nb: 0.0
     Weeds-0:
-      grow#nb: 0.0
+      grow#nb: 3.0
       seeds#nb: 0.0
       flowers#nb: 0.0
       total_cumulated_plot_population#nb: 0.0
