@@ -1,15 +1,12 @@
-import matplotlib.pyplot as plt, mpld3
+import datetime
+import os
+import re
+
+import matplotlib.pyplot as plt
 
 # http://mpld3.github.io/quickstart.html
 import numpy as np
-
-from PIL import Image, ImageDraw, ImageFont
-import re
-import time
-
-from tensorboard import program
-import datetime
-import os
+from PIL import Image
 
 
 def sum_value(value_array):
@@ -78,6 +75,8 @@ class MonitorTensorBoard:
         [X] Add option to switch to Plt
         """
         import tensorflow as tf
+        from tensorboard import program
+        
         self.farm = farm
         self.variables = list_of_variables_to_monitor
         self.logdir = logdir
