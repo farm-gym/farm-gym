@@ -8,7 +8,7 @@ import gymnasium as gym
 import numpy as np
 from farmgym.v2.gymUnion import MultiUnion, Sequence, Union
 from farmgym.v2.rendering.monitoring import MonitorPlt, MonitorTensorBoard
-from gym.spaces.utils import flatdim, flatten, flatten_space
+from gymnasium.spaces.utils import flatdim, flatten, flatten_space
 from gymnasium.spaces import Box, Dict, Discrete, Tuple
 from gymnasium.utils import seeding
 
