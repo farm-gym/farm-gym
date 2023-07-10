@@ -41,7 +41,6 @@ class Field:
     """
 
     def __init__(self, localization, shape, entities_specifications: list):
-
         self.name = "Field"
         self.localization = localization
         assert list(localization.keys()) == ["latitude#°", "longitude#°", "altitude#m"]
@@ -56,6 +55,7 @@ class Field:
         self.plots = [str((x, y)) for x in range(self.X) for y in range(self.Y)]
 
         self.entity_managers = entities_specifications
+        self.np_random = None
 
         self.entities = {}
         cpt = {}
@@ -82,6 +82,7 @@ class Field:
         Reset to initial values
         """
         for e in self.entities.values():
+            e.set_random(self.np_random)
             e.reset()
 
     def get_neighbors(self, plot):

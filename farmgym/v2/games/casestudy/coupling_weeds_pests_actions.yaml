@@ -1,0 +1,135 @@
+params:
+  max_action_schedule_size: 5
+  number_of_bins_to_discretize_continuous_actions: 11
+observations:
+  Free:
+    Field-0:
+      Weather-0:
+        day#int365: 
+        air_temperature: 
+          '*':
+  BasicFarmer-0:
+    Field-0:
+      Weather-0:
+        year#int100: 
+        day#int365: 
+        air_temperature: 
+            '*': 
+            max#°C: 
+            mean#°C: 
+            min#°C: 
+        humidity_index#%: 
+        wind: 
+            '*': 
+            speed#km.h-1: 
+            direction: 
+        sun_exposure#int5: 
+        rain_amount: 
+        rain_intensity: 
+        consecutive_frost#day: 
+        consecutive_dry#day: 
+        air_temperature.forecast: 
+            '*': 
+            mean#°C: ['*',0, 1, 2, 3, 4]
+            min#°C: ['*',0, 1, 2, 3, 4]
+            max#°C: ['*',0, 1, 2, 3, 4]
+      Soil-0:
+        available_N#g: ['*','(0, 0)']
+        available_P#g: ['*','(0, 0)']
+        available_K#g: ['*','(0, 0)']
+        available_C#g: ['*','(0, 0)']
+        available_Water#L: ['*','(0, 0)']
+        wet_surface#m2.day-1: ['*','(0, 0)']
+        microlife_health_index#%: ['*','(0, 0)']
+        amount_cide#g: 
+            '*': 
+            pollinators: ['*','(0, 0)']
+            pests: ['*','(0, 0)']
+            soil: ['*','(0, 0)']
+            weeds: ['*','(0, 0)']
+        total_cumulated_added_water#L: 
+        total_cumulated_added_cide#g: 
+            '*': 
+            pollinators: 
+            pests: 
+            soil: 
+            weeds: 
+      Plant-0:
+        stage: ['*','(0, 0)']
+        global_stage: 
+        population#nb: ['*','(0, 0)']
+        size#cm: ['*','(0, 0)']
+        flowers_per_plant#nb: ['*','(0, 0)']
+        pollinator_visits#nb: ['*','(0, 0)']
+        flowers_pollinated_per_plant#nb: ['*','(0, 0)']
+        fruits_per_plant#nb: ['*','(0, 0)']
+        fruit_weight#g: ['*','(0, 0)']
+        harvest_weight#kg: 
+        age_seed#day: ['*','(0, 0)']
+        consecutive_nogrow#day: ['*','(0, 0)']
+        age_bloom#day: ['*','(0, 0)']
+        consecutive_noweight#day: ['*','(0, 0)']
+        age_ripe#day: ['*','(0, 0)']
+        cumulated_nutrients_N#g: ['*','(0, 0)']
+        cumulated_nutrients_P#g: ['*','(0, 0)']
+        cumulated_nutrients_K#g: ['*','(0, 0)']
+        cumulated_nutrients_C#g: ['*','(0, 0)']
+        cumulated_stress_nutrients_N#g: ['*','(0, 0)']
+        cumulated_stress_nutrients_P#g: ['*','(0, 0)']
+        cumulated_stress_nutrients_K#g: ['*','(0, 0)']
+        cumulated_stress_nutrients_C#g: ['*','(0, 0)']
+        cumulated_water#L: ['*','(0, 0)']
+        cumulated_stress_water#L: ['*','(0, 0)']
+        grow_size_threshold#cm: ['*','(0, 0)']
+        fruit_weight_threshold#g: ['*','(0, 0)']
+      Pollinators-0:
+        occurrence#bin: ['*','(0, 0)']
+        total_cumulated_occurrence#nb: 
+      Weeds-0:
+        grow#nb: ['*','(0, 0)']
+        seeds#nb: ['*','(0, 0)']
+        flowers#nb: ['*','(0, 0)']
+        total_cumulated_plot_population#nb: 
+      Pests-0:
+        plot_population#nb: ['*','(0, 0)']
+        onplant_population#nb: 
+            '*': 
+            Plant-0: ['*','(0, 0)']
+            Weeds-0: ['*','(0, 0)']
+        total_cumulated_plot_population#nb: 
+      Cide-0:
+        amount#kg: ['*','(0, 0)']
+        total_cumulated_scattered_amount#kg: 
+interventions:
+  BasicFarmer-0:
+    Field-0:
+      Soil-0:
+        water_discrete: 
+          plot: ['(0, 0)']
+          amount#L: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0]
+          duration#min: [30, 60]
+        water_continuous: 
+          plot: ['(0, 0)']
+          amount#L: (0.0, 20.0)
+          duration#min: [30, 60]
+      Plant-0:
+        sow: 
+          plot: ['(0, 0)']
+          amount#seed: [1, 3, 5, 10, 15, 20, 25, 30]
+          spacing#cm: [5, 10, 15, 20]
+        harvest: 
+        micro_harvest: 
+          plot: ['(0, 0)']
+        remove: 
+          plot: ['(0, 0)']
+      Weeds-0:
+        remove: 
+          plot: ['(0, 0)']
+      Cide-0:
+        scatter: 
+          plot: ['(0, 0)']
+          amount#kg: (0, 10)
+        scatter_bag: 
+          plot: ['(0, 0)']
+          amount#bag: [0, 1, 2, 3, 4]
+
