@@ -24,7 +24,7 @@ class Policy_API:
             # Trigger is CNF
             trigger_on = self.is_trigger_on(trigger, observations)
             if trigger_on:
-                [action_schedule.append(action) for action in actions]
+                [action_schedule.append(copy.copy(action)) for action in actions]
         return action_schedule
 
     def intervention_schedule(self, observations):
@@ -40,9 +40,9 @@ class Policy_API:
             trigger_on = self.is_trigger_on(trigger, observations)
             if trigger_on:
                 # [action_schedule.append(action) for action in actions]
-                [self.delayed_actions.append(action) for action in actions]
+                [self.delayed_actions.append(copy.copy(action)) for action in actions]
 
-        for action in self.delayed_actions:
+        for action in reversed(self.delayed_actions):
             if action["delay"] == 0:
                 action_schedule.append(action["action"])
                 self.delayed_actions.remove(action)
@@ -217,28 +217,38 @@ class Policy_helper:
         policy_weed_observe = Policy("plant_observe", policy_weed_observe)
         return policy_weed_observe
 
-    def create_harvest_ripe(self, field=0, index=0, location=(0, 0), delay=1):
+    def create_harvest_ripe(self, field=0, index=0, location=(0, 0), delay=1, frequency=1):
         """
         Define policy to harvest Plant-0 if its stage is 'ripe'
         """
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])]]
+        harvest_conditions = [
+            [
+                ((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])
+                ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
+        ]
+        ]
         harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
         harvest_ripe = (harvest_conditions, harvest_actions)
         policy_harvest_ripe = Policy_API([], [harvest_ripe])
         policy_harvest_ripe = Policy("harvest_ripe", policy_harvest_ripe, delay=delay)
         return policy_harvest_ripe
 
-    def create_harvest_fruit(self, field=0, index=0, location=(0, 0), delay=18):
+    def create_harvest_fruit(self, field=0, index=0, location=(0, 0), delay=18, frequency=1):
         """
         Define policy to harvest Plant-0 if its stage is 'fruit'
         """
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["fruit"])]]
+        harvest_conditions = [
+            [
+                ((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["fruit"]),
+                ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
+            ]
+        ]
         harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
         harvest_fruit = (harvest_conditions, harvest_actions)
         policy_harvest_fruit = Policy_API([], [harvest_fruit])
@@ -310,7 +320,12 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx, loc = field, index, location
-        remove_conditions = [[((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold))]]
+        remove_conditions = [
+            [
+            ((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold)),
+            ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
+        ]
+        ]
 
         remove_actions = [
             {"action": ("BasicFarmer-0", f"Field-{fi}", f"Weeds-{idx}", "remove", {"plot": loc}), "delay": delay}
@@ -322,7 +337,7 @@ class Policy_helper:
         )
         return policy_remove_weeds
 
-    def create_water_soil(self, field=0, index=0, location=(0, 0), delay=0, amount=5, day=-1):
+    def create_water_soil(self, field=0, index=0, location=(0, 0), delay=0, amount=5, frequency=1, day=-1):
         """
         Define policy to water Soil-0
         """
@@ -334,7 +349,9 @@ class Policy_helper:
             amount = possible_amounts[-1]
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
         fi, idx, loc = field, index, location
-        water_conditions = [[]]
+        water_conditions = [[
+            ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
+        ]]
         if day >= 0:
             water_conditions = [[((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day)]]
 
@@ -355,7 +372,7 @@ class Policy_helper:
         policy_water_soil = Policy("water_soil", policy_water_soil, delay=delay, amount=amount)
         return policy_water_soil
 
-    def create_water_soil_continious(self, field=0, index=0, location=(0, 0), delay=0, amount=5.0, day=-1):
+    def create_water_soil_continious(self, field=0, index=0, location=(0, 0), delay=0, amount=5.0, frequency=1, day=-1):
         """
         Define policy to water Soil-0
         """
@@ -369,7 +386,9 @@ class Policy_helper:
             amount = max_amount
             print(f"Specified amount not defined in farm rules, setting default amount ({max_amount})")
         fi, idx, loc = field, index, location
-        water_conditions = [[]]
+        water_conditions = [[
+            ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
+        ]]
         if day >= 0:
             water_conditions = [[((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day)]]
 
@@ -390,7 +409,7 @@ class Policy_helper:
         policy_water_soil = Policy("water_soil", policy_water_soil, delay=delay, amount=amount)
         return policy_water_soil
 
-    def create_scatter_fert(self, field=0, index=0, location=(0, 0), delay=0, amount=5, day=-1):
+    def create_scatter_fert(self, field=0, index=0, location=(0, 0), delay=0, amount=5, frequency=1, day=-1):
         """
         Define policy to scatter Fertilizer-0
         """
@@ -399,10 +418,12 @@ class Policy_helper:
         # Check if amount is specified in rules :
         possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
         if amount not in possible_amounts:
+            amount = possible_amounts[-1]
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
-            amount = possible_amounts[0]
         fi, idx, loc = field, index, location
-        scatter_conditions = []
+        scatter_conditions = [[
+            ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
+        ]]
         if day >= 0:
             scatter_conditions = [[(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))]]
 
@@ -423,18 +444,20 @@ class Policy_helper:
         policy_scatter_fert = Policy("scatter_fert", policy_scatter_fert, delay=delay, amount=amount)
         return policy_scatter_fert
 
-    def create_put_scarecrow(self, field=0, index=0, location=(0, 0), delay=0):
+    def create_put_scarecrow(self, field=0, index=0, location=(0, 0), frequency=1, delay=0):
         """
         Define policy to put scarecrow
         """
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         fi, idx = field, index
-        scarecrow_conditions = []
-        scarecrow_actions = {
+        scarecrow_conditions = [[
+            ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
+        ]]
+        scarecrow_actions = [{
             "action": ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}", "put_scarecrow", {}),
             "delay": delay,
-        }
+        }]
         put_scarecrow = (scarecrow_conditions, scarecrow_actions)
         policy_put_scarecrow = Policy_API([], [put_scarecrow])
         policy_put_scarecrow = Policy("put_scarecrow", policy_put_scarecrow, delay=delay)
@@ -512,8 +535,8 @@ class Policy_helper:
         return policies
 
 def run_policy_xp(farm, policy, max_steps=10000):
-    if farm.monitor is not None:
-        farm.monitor = None
+#    if farm.monitor is not None:
+#        farm.monitor = None
     cumreward = 0.0
     cumcost = 0.0
     policy.reset()
@@ -527,7 +550,8 @@ def run_policy_xp(farm, policy, max_steps=10000):
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
-        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        #print(i, intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)        
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost
