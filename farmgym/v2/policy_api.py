@@ -59,7 +59,6 @@ class Policy_API:
             bool_cond = True
             observation_exists = False
             for condition in and_conditions:
-                bool_cond = True
                 for ob in observations:
                     farm, field, entity, variable, path, v = ob
                     variable_path, fun, operator, value = condition
@@ -226,7 +225,7 @@ class Policy_helper:
         fi, idx, loc = field, index, location
         harvest_conditions = [
             [
-                ((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"])
+                ((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["ripe"]),
                 ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
         ]
         ]
@@ -550,7 +549,6 @@ def run_policy_xp(farm, policy, max_steps=10000):
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
-        #print(i, intervention_schedule)
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)        
         int_cost = info["intervention cost"]
         cumreward += reward
