@@ -274,7 +274,7 @@ class Policy_helper:
         than a threshold
         Args :
             - delay : days before taking the action
-            - amount : herbicide amount in kg
+            - amount : herbicide amount in bags
             - frequency : frequency in days
             - threshold : threshold for taking the action
         """
@@ -550,6 +550,7 @@ def run_policy_xp(farm, policy, max_steps=10000):
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)        
+        #print(i, intervention_schedule)
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost
