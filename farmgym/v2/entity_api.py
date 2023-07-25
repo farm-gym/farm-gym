@@ -90,7 +90,7 @@ class Range:
     def to_gym_space(self):
         if type(self.range) == tuple:
             m, M = self.range
-            return Box(low=np.array([m]), high=np.array([M]), dtype=np.float32)
+            return Box(low=np.array([np.float32(m)]), high=np.array([np.float32(M)]), dtype=np.float32)
         else:
             return Discrete(len(self.range))
 

@@ -203,8 +203,14 @@ def xp_watering():
 
 
 
-farms, policy_parameters, results = xp_watering()
-plot_results2(farms, policy_parameters, results, "Watering policy (daily input in L)")
+#farms, policy_parameters, results = xp_watering()
+#plot_results2(farms, policy_parameters, results, "Watering policy (daily input in L)")
 
 # farms,policy_parameters,results = xp_coupling()
 # plot_results3(farms,policy_parameters,results,'Herbicide policy (every x day)')
+
+
+from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored
+f1.add_monitoring(make_variables_to_be_monitored(["f0.soil.available_Water#L"]))
+policy = make_policy_water_harvest(farm=f1, amount_water=5.)
+cr, _ = run_policy_xp(f1, copy.deepcopy(policy), max_steps=150)
