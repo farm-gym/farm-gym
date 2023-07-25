@@ -64,4 +64,4 @@ setup(
 
 # run with: pip install -e .
 # python setup.py bdist_wheel
-# python -m pip install dist/farmgym-0.2.9-py3-none-any.whl
+# python -m pip install dist/farmgym-1.23.3-py3-none-any.whl
