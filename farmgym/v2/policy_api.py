@@ -282,6 +282,7 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         # Check if amount is specified in rules :
+        # TODO : renable this
         # possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
         # if amount not in possible_amounts:
         #     amount = possible_amounts[-1]

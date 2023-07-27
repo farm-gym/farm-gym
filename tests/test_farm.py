@@ -130,7 +130,7 @@ POLICY_ACTIONS = [
     ),
     (
         "create_scatter_cide",
-        ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter_bag", {"plot": loc, "amount#bag": 4}),
+        ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter", {"plot": loc, "amount#kg": 5}),
         [("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 4), ("Free", "Field-0", "Weather-0", "day#int365", [], 360)],
     ),
     (
