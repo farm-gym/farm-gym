@@ -282,10 +282,10 @@ class Policy_helper:
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
         # Check if amount is specified in rules :
-        possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
-        if amount not in possible_amounts:
-            amount = possible_amounts[-1]
-            print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
+        # possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
+        # if amount not in possible_amounts:
+        #     amount = possible_amounts[-1]
+        #     print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
         fi, idx, loc = field, index, location
         scatter_conditions = [
             [
@@ -297,7 +297,7 @@ class Policy_helper:
             scatter_conditions[0].append(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))
         scatter_actions = [
             {
-                "action": ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter_bag", {"plot": loc, "amount#bag": amount}),
+                "action": ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter", {"plot": loc, "amount#kg": amount}),
                 "delay": delay,
             }
         ]
@@ -463,23 +463,22 @@ class Policy_helper:
         return policy_put_scarecrow
 
     # Entity policies
-
-    def get_plant_policies(self):
+    def get_plant_policies(self, frequency):
         policies = []
         # Define policy to observe the stage of Plant-0 in Field-0
         policy_plant_observe = self.create_plant_observe()
         policies.append(policy_plant_observe)
         # Define policy to harvest Plant-0 if its stage is 'ripe'
         if "harvest" in self.interventions.keys():
-            policy_harvest_ripe = self.create_harvest_ripe()
+            policy_harvest_ripe = self.create_harvest_ripe(frequency=frequency)
             policies.append(policy_harvest_ripe)
         # Define policy to harvest Plant-0 if its stage is 'fruit'
         if "harvest" in self.interventions.keys():
-            policy_harvest_fruit = self.create_harvest_fruit()
+            policy_harvest_fruit = self.create_harvest_fruit(frequency=frequency)
             policies.append(policy_harvest_fruit)
         return policies
 
-    def get_weeds_policies(self):
+    def get_weeds_policies(self, frequency):
         policies = []
         # Define policy to observe Weeds growth in Field-0
         if "Weeds-0" in self.entities:
@@ -487,50 +486,50 @@ class Policy_helper:
             policies.append(policy_observe_weeds)
         # Define policy to scatter herbicide every few days if number of weeds is greater than a threshold
         if "scatter_bag" in self.interventions.keys() and "Cide-0" in self.entities:
-            policy_scatter_cide = self.create_scatter_cide(amount=5)
+            policy_scatter_cide = self.create_scatter_cide(amount=5,frequency=frequency)
             policies.append(policy_scatter_cide)
         # Define policy to remove herbs every few days if number of weeds is greater than a threshold
         if "remove" in self.interventions.keys():
-            policy_remove_weeds = self.create_remove_weeds()
+            policy_remove_weeds = self.create_remove_weeds(frequency=frequency)
             policies.append(policy_remove_weeds)
         return policies
 
-    def get_soil_policies(self):
+    def get_soil_policies(self, frequency):
         policies = []
         # Define policy to water Soil-0
         if "water_discrete" in self.interventions.keys():
-            policy_water_soil = self.create_water_soil(amount=5)
+            policy_water_soil = self.create_water_soil(amount=5, frequency=frequency)
             policies.append(policy_water_soil)
         return policies
 
-    def get_fertilizer_policies(self):
+    def get_fertilizer_policies(self, frequency):
         policies = []
         # Define policy to scatter Fertilizer-0*
         if "scatter_bag" in self.interventions.keys() and "Fertilizer-0" in self.entities:
-            policy_scatter_fert = self.create_scatter_fert(amount=5)
+            policy_scatter_fert = self.create_scatter_fert(amount=5, frequency=frequency)
             policies.append(policy_scatter_fert)
         return policies
 
-    def get_facility_policies(self):
+    def get_facility_policies(self, frequency):
         policies = []
         # Define policy to put scarecrow
-        policy_put_scarecrow = self.create_put_scarecrow()
+        policy_put_scarecrow = self.create_put_scarecrow(frequency=frequency)
         policies.append(policy_put_scarecrow)
         return policies
 
-    def get_policies(self):
+    def get_policies(self, frequency=1):
         policies = []
         entities = self.entities
         if "Plant-0" in entities:
-            policies += self.get_plant_policies()
+            policies += self.get_plant_policies(frequency=frequency)
         if "Soil-0" in entities:
-            policies += self.get_soil_policies()
+            policies += self.get_soil_policies(frequency=frequency)
         if "Weeds-0" in entities:
-            policies += self.get_weeds_policies()
+            policies += self.get_weeds_policies(frequency=frequency)
         if "Fertilizer-0" in entities:
-            policies += self.get_facility_policies()
+            policies += self.get_facility_policies(frequency=frequency)
         if "Facility-0" in entities:
-            policies += self.get_facility_policies()
+            policies += self.get_facility_policies(frequency=frequency)
         return policies
 
 def run_policy_xp(farm, policy, max_steps=10000):
@@ -550,7 +549,6 @@ def run_policy_xp(farm, policy, max_steps=10000):
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)        
-        #print(i, intervention_schedule)
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost

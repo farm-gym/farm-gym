@@ -137,7 +137,7 @@ def make_policy_herbicide(farm, amount_herbicide, frequency, amount_water):
     observe_plant = helper.create_plant_observe()
     weed_observe = helper.create_weed_observe()
     water_soil = helper.create_water_soil_continious(amount=amount_water, delay=0)
-    scatter_cide = helper.create_scatter_cide(amount=amount_herbicide, frequency=frequency)
+    scatter_cide = helper.create_scatter_cide(amount=amount_herbicide, frequency=frequency, threshold=0)
     harvest_ripe = helper.create_harvest_ripe(delay=1)
     harvest_fruit = helper.create_harvest_fruit(delay=18)
     policies = [observe_plant, weed_observe, water_soil, scatter_cide, harvest_ripe, harvest_fruit]
@@ -187,5 +187,5 @@ def xp_watering():
 farms, policy_parameters, results = xp_watering()
 plot_watering_results(farms, policy_parameters, results, "Watering policy (daily input in L)")
 
-farms, policy_parameters, results = xp_coupling(0.002, 7)
+farms, policy_parameters, results = xp_coupling(0.0015, 5)
 plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)", "fname")
