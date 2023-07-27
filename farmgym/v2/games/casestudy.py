@@ -11,88 +11,49 @@ from farmgym.v2.policy_api import Policy_API, Policy_helper, run_policy_xp
 
 from utils import make_basicfarm, plot_coupling_results, plot_watering_results
 
+field0 = {
+        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
+        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
+    }
+
 f1 = make_basicfarm(
-    "dry_clay_bean",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
-    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")],
-)
+    "dry_clay_bean", field0,
+    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")])
 f2 = make_basicfarm(
-    "dry_sand_bean",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_sand_bean", field0,
     [(Weather, "dry"), (Soil, "sand"), (Plant, "bean")],
 )
 f3 = make_basicfarm(
-    "dry_clay_corn",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_clay_corn", field0,
     [(Weather, "dry"), (Soil, "clay"), (Plant, "corn")],
 )
 f4 = make_basicfarm(
-    "dry_sand_corn",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_sand_corn", field0,
     [(Weather, "dry"), (Soil, "sand"), (Plant, "corn")],
 )
-
 f5 = make_basicfarm(
-    "dry_clay_tomato",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_clay_tomato", field0,
     [(Weather, "dry"), (Soil, "clay"), (Plant, "tomato")],
 )
 f6 = make_basicfarm(
-    "dry_sand_tomato",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_sand_tomato", field0,
     [(Weather, "dry"), (Soil, "sand"), (Plant, "tomato")],
 )
 f7 = make_basicfarm(
-    "dry_clay_bean_pollinator",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
-    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean"), (Pollinators, "bee")],
+    "dry_clay_bean_pollinator", field0,
+    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean"), (Pollinators, "bee")]
 )
-
-
 f8 = make_basicfarm(
-    "dry_clay_corn_pollinator",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_clay_corn_pollinator", field0,
     [(Weather, "dry"), (Soil, "clay"), (Plant, "corn"), (Pollinators, "bee")],
 )
 f9 = make_basicfarm(
-    "dry_clay_tomato_pollinator",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "dry_clay_tomato_pollinator", field0,
     [(Weather, "dry"), (Soil, "clay"), (Plant, "tomato"), (Pollinators, "bee")],
 )
 
 ff1 = make_basicfarm(
-    "coupling_weeds_pests",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "coupling_weeds_pests", field0,
     [
         (Weather, "dry"),
         (Soil, "clay"),
@@ -105,11 +66,7 @@ ff1 = make_basicfarm(
 )
 
 ff2 = make_basicfarm(
-    "coupling_weeds_nopests",
-    {
-        "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
-        "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
-    },
+    "coupling_weeds_nopests", field0,
     [
         (Weather, "dry"),
         (Soil, "clay"),
@@ -120,14 +77,13 @@ ff2 = make_basicfarm(
     ],
 )
 
-
-def make_policy_water_harvest(farm, amounts):
+def make_policy_water_harvest(farm, amount_water):
     helper = Policy_helper(farm)
     observe_plant = helper.create_plant_observe()
-    water_soil_day1_5l = helper.create_water_soil_continious(amount=amounts, delay=0)
+    water_soil_day1_5l = helper.create_water_soil_continious(amount=amount_water, delay=0)
     harvest_ripe = helper.create_harvest_ripe(delay=1)
     harvest_fruit = helper.create_harvest_fruit(delay=18)
-    policies = [observe_plant, water_soil_day1_5l, harvest_ripe, harvest_fruit]
+    policies = [observe_plant, water_soil_day1_5l,harvest_ripe, harvest_fruit]
     combined_policy = Policy_API.combine_policies([policy.api for policy in policies])
     return combined_policy
 
@@ -149,7 +105,7 @@ def xp_coupling(cide_amount, water_amount):
     farms = [ff1, ff2]
 
     policy_parameters = [2.0, 4.0, 6.0, 10.0, 12.0, 15.0, 20.0]
-    scale = 12.5
+    scale = 17.5
     nb_replicate = 100
 
     results = []
@@ -174,7 +130,7 @@ def xp_watering():
     results = []
     for idx, f in enumerate(farms):
         for p in range(len(policy_parameters)):
-            policy = make_policy_water_harvest(farm=f, amounts=policy_parameters[p])
+            policy = make_policy_water_harvest(farm=f, amount_water=policy_parameters[p])
             cumrewards = []
             for n in range(nb_replicate):
                 cr, _ = run_policy_xp(f, copy.deepcopy(policy), max_steps=150)
@@ -187,5 +143,5 @@ def xp_watering():
 farms, policy_parameters, results = xp_watering()
 plot_watering_results(farms, policy_parameters, results, "Watering policy (daily input in L)")
 
-farms, policy_parameters, results = xp_coupling(0.0015, 5)
-plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)", "fname")
+farms, policy_parameters, results = xp_coupling(0.0015, 6)
+plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)")
