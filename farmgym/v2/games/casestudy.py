@@ -145,17 +145,17 @@ def make_policy_herbicide(farm, amount_herbicide, frequency, amount_water):
     return combined_policy
 
 
-def xp_coupling():
+def xp_coupling(cide_amount, water_amount):
     farms = [ff1, ff2]
 
     policy_parameters = [2.0, 4.0, 6.0, 10.0, 12.0, 15.0, 20.0]
-    scale = 15
+    scale = 12.5
     nb_replicate = 100
 
     results = []
     for f in farms:
         for p in range(len(policy_parameters)):
-            policy = make_policy_herbicide(f, 3, policy_parameters[p], 15)
+            policy = make_policy_herbicide(f, cide_amount, policy_parameters[p], water_amount)
             cumrewards = []
             for n in range(nb_replicate):
                 cr, _ = run_policy_xp(f, copy.deepcopy(policy), max_steps=150)
@@ -167,7 +167,7 @@ def xp_coupling():
 
 def xp_watering():
     farms = [f1, f2, f3, f4, f5, f6, f7, f8, f9]
-    policy_parameters = [4.0, 6.0, 8.0, 10.0, 12.0]
+    policy_parameters = [0.0, 0.25, 0.5, 1.0, 2, 5]
     scale = 15
     nb_replicate = 100
 
@@ -187,5 +187,5 @@ def xp_watering():
 farms, policy_parameters, results = xp_watering()
 plot_watering_results(farms, policy_parameters, results, "Watering policy (daily input in L)")
 
-farms, policy_parameters, results = xp_coupling()
-plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)")
+farms, policy_parameters, results = xp_coupling(0.002, 7)
+plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)", "fname")

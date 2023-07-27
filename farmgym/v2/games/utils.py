@@ -149,7 +149,7 @@ def plot_watering_results(farms, policy_parameters, results, title):
     plt.show()
 
 
-def plot_coupling_results(farms, policy_parameters, results, title):
+def plot_coupling_results(farms, policy_parameters, results, title, fname):
     nb_pol = len(policy_parameters)
     all_data = [res["r"] for res in results]
     labels = [str(policy_parameters[i % nb_pol]) for i in range(len(results))]
@@ -188,4 +188,3 @@ def plot_coupling_results(farms, policy_parameters, results, title):
 
     plt.savefig("coupling_results.pdf")
     plt.savefig("coupling_results.png")
-    plt.show()

@@ -383,6 +383,7 @@ class Farm(gym.Env):
             # gym_observations[str(fa_key)+"."+str(fi_key)+"."+str(e_key)+"."+str(variable_key)+"."+str(path)]=gym_value
             gym_observations.append(g)
         return gym_observations
+    
 
     def gym_step_AOMDP(self, gym_action):
         """
