@@ -511,7 +511,7 @@ class Policy_helper:
             policies += self.get_facility_policies()
         return policies
 
-def run_policy_xp(farm, policy, max_steps=10000):
+def run_policy_xp(farm, policy, max_steps=10000, show_actions=False):
 #    if farm.monitor is not None:
 #        farm.monitor = None
     cumreward = 0.0
@@ -521,16 +521,18 @@ def run_policy_xp(farm, policy, max_steps=10000):
     terminated = False
     i = 0
     while (not terminated) and i <= max_steps:
-        i+= 1
         observations = farm.get_free_observations()
         observation_schedule = policy.observation_schedule(observations)
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
+        if show_actions:
+            print(f"Day = {i}, Actions : {intervention_schedule}")
         obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost
+        i+= 1
     return cumreward, cumcost
 
 if __name__ == "__main__":
