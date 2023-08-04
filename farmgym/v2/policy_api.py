@@ -521,6 +521,7 @@ def run_policy_xp(farm, policy, max_steps=10000, show_actions=False):
     terminated = False
     i = 0
     while (not terminated) and i <= max_steps:
+        i+= 1
         observations = farm.get_free_observations()
         observation_schedule = policy.observation_schedule(observations)
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
@@ -532,7 +533,6 @@ def run_policy_xp(farm, policy, max_steps=10000, show_actions=False):
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost
-        i+= 1
     return cumreward, cumcost
 
 if __name__ == "__main__":

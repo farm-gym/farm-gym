@@ -28,7 +28,7 @@ class BasicFarmer(Farmer_API):
         self.nb_interventions_in_day = 0
         self.nb_observations_in_day = 0
 
-    def perform_intervention(self, fi_key, entity_key, action, params):
+    def perform_intervention(self, fi_key, entity_key, action, params, day):
         observations = []
         if (self.nb_interventions_in_day < self.max_daily_interventions) and self.can_intervene[fi_key]:
             obs = self.fields[fi_key].entities[entity_key].act_on_variables(action, params)
@@ -38,7 +38,7 @@ class BasicFarmer(Farmer_API):
                 observations.append((self.name, fi_key, entity_key, action, params, obs))
         else:
             print(
-                "[Farmgym:Farmer] Intervention",
+                f"[Farmgym:Farmer, Day:{day}] Intervention",
                 str((fi_key, entity_key, action, params)),
                 "aborted by",
                 self.name+ ". Too many interventions today."
@@ -46,7 +46,7 @@ class BasicFarmer(Farmer_API):
 
         return observations
 
-    def perform_observation(self, fi_key, entity_key, variable_key, path):
+    def perform_observation(self, fi_key, entity_key, variable_key, path, day):
         observations = []
         if (self.nb_observations_in_day < self.max_daily_observations) and self.can_observe[fi_key]:
             obs = self.fields[fi_key].entities[entity_key].observe_variable(variable_key, path)
@@ -56,7 +56,7 @@ class BasicFarmer(Farmer_API):
                 observations.append((self.name, fi_key, entity_key, variable_key, path, obs))
         else:
             print(
-                "[Farmgym:Farmer] Observation",
+                f"[Farmgym:Farmer, Day:{day}] Observation",
                 str((fi_key, entity_key, variable_key, path)),
                 "aborted by",
                 self.name+ ". Too many observations today."
