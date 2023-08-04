@@ -512,8 +512,8 @@ class Policy_helper:
         return policies
 
 def run_policy_xp(farm, policy, max_steps=10000):
-    if farm.monitor is not None:
-        farm.monitor = None
+#    if farm.monitor is not None:
+#        farm.monitor = None
     cumreward = 0.0
     cumcost = 0.0
     policy.reset()
