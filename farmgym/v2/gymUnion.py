@@ -80,6 +80,7 @@ class MultiUnion(Space):
 
     def sample(self):  # Sampling without replacement (not twice in the same space).
         m = self.np_random.randint(min(self.maxnonzero + 1, len(self.spaces) + 1))
+        #np.random.Generator.integers()
         indexes = list(range(len(self.spaces)))
         sampled_indexes = []
         for j in range(m):

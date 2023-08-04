@@ -219,5 +219,6 @@ v=make_variables_to_be_monitored(["f0.soil.available_Water#L", "f0.soil.microlif
 
 farm=f2
 farm.add_monitoring(v,tensorboard=True)
-policy = make_policy_water_harvest(farm=farm, amount_water=7.)
-cr, _ = run_policy_xp(farm, copy.deepcopy(policy), max_steps=150)
+farm.understand_the_farm()
+#policy = make_policy_water_harvest(farm=farm, amount_water=7.)
+#cr, _ = run_policy_xp(farm, copy.deepcopy(policy), max_steps=150)

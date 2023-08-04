@@ -66,6 +66,6 @@ class BasicFarmer(Farmer_API):
     def __str__(self):
         s = self.name + ":"
         for f in self.fields:
-            s += "\n\t" + f + " Observation authorization: " + ("Y" if self.can_observe[f] else "N")
-            s += "\n\t" + f + " Intervention authorization: " + ("Y" if self.can_intervene[f] else "N") + "\n"
+            s += "\n\t" + f + " Observation authorization: " + ("Y" if self.can_observe[f] else "N") + ". Maximum observations per day: " + str(self.max_daily_observations)+"."
+            s += "\n\t" + f + " Intervention authorization: " + ("Y" if self.can_intervene[f] else "N") + ". Maximum interventions per day: " + str(self.max_daily_interventions)+"." + "\n"
         return s
