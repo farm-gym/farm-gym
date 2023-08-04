@@ -219,7 +219,7 @@ class MonitorPlt:
             if isinstance(value, Image.Image):
                 self.history_variables[v] = (days[-2:], values[-2:])
                 ax.imshow(self.history_variables[v][1][-1])
-            elif isinstance(value, (float, int, np.integer, np.float)):
+            elif isinstance(value, (float, int, np.integer, float)):
                 # print("V", v, value)
                 self.history_variables[v] = (days[-20:], values[-20:])
                 ax.plot(self.history_variables[v][0], self.history_variables[v][1])
