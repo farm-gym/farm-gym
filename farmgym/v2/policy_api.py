@@ -1,6 +1,7 @@
 import copy
 from typing import NamedTuple
 import ast
+import random 
 
 class Policy_API:
     """
@@ -183,7 +184,7 @@ class Policy_helper:
 
         for action in farm.farmgym_intervention_actions:
             fa, fi, e, inter, params, gym_space, len_gym_space = action
-            self.interventions[inter] = params
+            self.interventions[(e,inter)] = params
         ## TODO check if value from create policy is permitted in farm actions
 
     # Single policies
@@ -268,7 +269,7 @@ class Policy_helper:
         policy_observe_weeds = Policy("observe_weeds", policy_observe_weeds)
         return policy_observe_weeds
 
-    def create_scatter_cide(self, field=0, index=0, location=(0, 0), delay=2, amount=5, frequency=5, threshold=2.0, day=-1):
+    def create_scatter_cide(self, field=0, index=0, location=(0, 0), delay=2, amount=5, frequency=5, threshold=2.0, day=-1, bag=False):
         """
         Define policy to scatter herbicide every few days if number of weeds is greater
         than a threshold
@@ -296,12 +297,20 @@ class Policy_helper:
         ]
         if day >= 0:
             scatter_conditions[0].append(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))
-        scatter_actions = [
-            {
-                "action": ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter", {"plot": loc, "amount#kg": amount}),
-                "delay": delay,
-            }
-        ]
+        if bag:
+            scatter_actions = [
+                {
+                    "action": ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter_bag", {"plot": loc, "amount#bag": amount}),
+                    "delay": delay,
+                }
+            ]
+        else:
+            scatter_actions = [
+                {
+                    "action": ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter", {"plot": loc, "amount#kg": amount}),
+                    "delay": delay,
+                }
+            ]
 
         scatter_cide = (scatter_conditions, scatter_actions)
         policy_scatter_cide = Policy_API([], [scatter_cide])
@@ -343,12 +352,12 @@ class Policy_helper:
         """
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
+        fi, idx, loc = field, index, location
         # Check if amount is specified in rules :
-        possible_amounts = self.interventions["water_discrete"].get("amount#L", [1])
+        possible_amounts = self.interventions[(f"Soil-{idx}","water_discrete")].get("amount#L", [1])
         if amount not in possible_amounts:
             amount = possible_amounts[-1]
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
-        fi, idx, loc = field, index, location
         water_conditions = [[
             ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
         ]]
@@ -378,14 +387,15 @@ class Policy_helper:
         """
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
+        fi, idx, loc = field, index, location
         # Check if amount is specified in ru.les :
-        possible_range = self.interventions["water_continuous"].get("amount#L", [1])
+        possible_range = self.interventions[(f"Soil-{idx}","water_continuous")].get("amount#L", [1])
         possible_range = ast.literal_eval(possible_range)
         min_amount, max_amount = possible_range[0], possible_range[1]  
         if not  min_amount <= amount <= max_amount:
             amount = max_amount
             print(f"Specified amount not defined in farm rules, setting default amount ({max_amount})")
-        fi, idx, loc = field, index, location
+        
         water_conditions = [[
             ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
         ]]
@@ -409,36 +419,49 @@ class Policy_helper:
         policy_water_soil = Policy("water_soil", policy_water_soil, delay=delay, amount=amount)
         return policy_water_soil
 
-    def create_scatter_fert(self, field=0, index=0, location=(0, 0), delay=0, amount=5, frequency=1, day=-1):
+    def create_scatter_fert(self, field=0, index=0, location=(0, 0), delay=0, amount=5, frequency=1, day=-1, bag=True):
         """
         Define policy to scatter Fertilizer-0
         """
         assert isinstance(field, int) and isinstance(index, int), "Field, index must be integers."
         assert isinstance(location, tuple), "Location must be a tuple, i.e : (0, 0)."
+        fi, idx, loc = field, index, location
         # Check if amount is specified in rules :
-        possible_amounts = self.interventions["scatter_bag"].get("amount#bag", [1])
+        possible_amounts = self.interventions[(f"Fertilizer-{idx}","scatter_bag")].get("amount#bag", [1])
         if amount not in possible_amounts:
             amount = possible_amounts[-1]
             print(f"Specified amount not defined in farm rules, setting default amount ({amount})")
-        fi, idx, loc = field, index, location
         scatter_conditions = [[
             ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
         ]]
         if day >= 0:
             scatter_conditions = [[(((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x, "==", day))]]
-
-        scatter_actions = [
-            {
-                "action": (
-                    "BasicFarmer-0",
-                    f"Field-{fi}",
-                    f"Fertilizer-{idx}",
-                    "scatter_bag",
-                    {"plot": loc, "amount#bag": amount},
-                ),
-                "delay": delay,
-            }
-        ]
+        if bag:
+            scatter_actions = [
+                {
+                    "action": (
+                        "BasicFarmer-0",
+                        f"Field-{fi}",
+                        f"Fertilizer-{idx}",
+                        "scatter_bag",
+                        {"plot": loc, "amount#bag": amount},
+                    ),
+                    "delay": delay,
+                }
+            ]
+        else:
+            scatter_actions = [
+                {
+                    "action": (
+                        "BasicFarmer-0",
+                        f"Field-{fi}",
+                        f"Fertilizer-{idx}",
+                        "scatter",
+                        {"plot": loc, "amount#kg": amount},
+                    ),
+                    "delay": delay,
+                }
+            ]
         scatter_fert = (scatter_conditions, scatter_actions)
         policy_scatter_fert = Policy_API([], [scatter_fert])
         policy_scatter_fert = Policy("scatter_fert", policy_scatter_fert, delay=delay, amount=amount)
@@ -464,54 +487,78 @@ class Policy_helper:
         return policy_put_scarecrow
 
     # Entity policies
-    def get_plant_policies(self, frequency):
+    def get_plant_policies(self, frequency=1, amount=None, delay=1):
         policies = []
         # Define policy to observe the stage of Plant-0 in Field-0
         policy_plant_observe = self.create_plant_observe()
         policies.append(policy_plant_observe)
         # Define policy to harvest Plant-0 if its stage is 'ripe'
-        if "harvest" in self.interventions.keys():
-            policy_harvest_ripe = self.create_harvest_ripe(frequency=frequency)
+        if ('Plant-0', 'harvest') in self.interventions.keys():
+            policy_harvest_ripe = self.create_harvest_ripe(frequency=frequency, delay=delay)
             policies.append(policy_harvest_ripe)
         # Define policy to harvest Plant-0 if its stage is 'fruit'
-        if "harvest" in self.interventions.keys():
-            policy_harvest_fruit = self.create_harvest_fruit(frequency=frequency)
+        if ('Plant-0', 'harvest') in self.interventions.keys():
+            policy_harvest_fruit = self.create_harvest_fruit(frequency=frequency, delay=delay)
             policies.append(policy_harvest_fruit)
         return policies
 
-    def get_weeds_policies(self, frequency):
+    def get_weeds_policies(self, frequency=1, amount=1, delay=1):
         policies = []
         # Define policy to observe Weeds growth in Field-0
         if "Weeds-0" in self.entities:
             policy_observe_weeds = self.create_observe_weeds()
             policies.append(policy_observe_weeds)
         # Define policy to scatter herbicide every few days if number of weeds is greater than a threshold
-        if "scatter_bag" in self.interventions.keys() and "Cide-0" in self.entities:
-            policy_scatter_cide = self.create_scatter_cide(amount=5,frequency=frequency)
+        if ("Cide-0","scatter_bag") in self.interventions.keys():
+            policy_scatter_cide = self.create_scatter_cide(amount=amount, frequency=frequency, delay=delay, bag=True)
+            policies.append(policy_scatter_cide)
+        if ("Cide-0","scatter") in self.interventions.keys():
+            policy_scatter_cide = self.create_scatter_cide(amount=amount,frequency=frequency, delay=delay, bag=False)
             policies.append(policy_scatter_cide)
         # Define policy to remove herbs every few days if number of weeds is greater than a threshold
-        if "remove" in self.interventions.keys():
-            policy_remove_weeds = self.create_remove_weeds(frequency=frequency)
+        if ("Weeds-0","remove") in self.interventions.keys():
+            policy_remove_weeds = self.create_remove_weeds(frequency=frequency, delay=delay)
             policies.append(policy_remove_weeds)
         return policies
+    
+    def get_weeds_params(self):
+        if ("Cide-0","scatter") in self.interventions.keys():
+            return self.interventions[("Cide-0","scatter")]["amount#kg"]
+        if ("Cide-0","scatter_bag") in self.interventions.keys():
+            return self.interventions[("Cide-0","scatter_bag")]["amount#bag"]
 
-    def get_soil_policies(self, frequency):
+    def get_soil_policies(self, frequency=1, amount=5.0, delay=1):
         policies = []
         # Define policy to water Soil-0
-        if "water_discrete" in self.interventions.keys():
-            policy_water_soil = self.create_water_soil(amount=5, frequency=frequency)
+        if ("Soil-0","water_discrete") in self.interventions.keys():
+            policy_water_soil = self.create_water_soil(amount=amount, frequency=frequency, delay=delay)
+            policies.append(policy_water_soil)
+        if ("Soil-0","water_continuous") in self.interventions.keys():
+            policy_water_soil = self.create_water_soil_continious(amount=amount, frequency=frequency, delay=delay)
             policies.append(policy_water_soil)
         return policies
+    
+    def get_soil_params(self):
+        return self.interventions[("Soil-0","water_discrete")]["amount#L"]
 
-    def get_fertilizer_policies(self, frequency):
+    def get_fertilizer_policies(self, frequency=1, amount=1, delay=1):
         policies = []
         # Define policy to scatter Fertilizer-0*
-        if "scatter_bag" in self.interventions.keys() and "Fertilizer-0" in self.entities:
-            policy_scatter_fert = self.create_scatter_fert(amount=5, frequency=frequency)
+        if ("Fertilizer-0","scatter_bag") in self.interventions.keys() and "Fertilizer-0" in self.entities:
+            policy_scatter_fert = self.create_scatter_fert(amount=amount, frequency=frequency, delay=delay, bag=True)
+            policies.append(policy_scatter_fert)
+        if ("Fertilizer-0","scatter") in self.interventions.keys() and "Fertilizer-0" in self.entities:
+            policy_scatter_fert = self.create_scatter_fert(amount=amount, frequency=frequency, delay=delay, bag=False)
             policies.append(policy_scatter_fert)
         return policies
-
-    def get_facility_policies(self, frequency):
+    
+    def get_fertilizer_params(self):
+        if ("Fertilizer-0","scatter_bag") in self.interventions.keys():
+            return self.interventions[("Fertilizer-0","scatter_bag")]["amount#bag"]
+        if ("Fertilizer-0","scatter") in self.interventions.keys():
+            return self.interventions[("Fertilizer-0","scatter")]["amount#kg"]
+            
+    def get_facility_policies(self, frequency=1):
         policies = []
         # Define policy to put scarecrow
         policy_put_scarecrow = self.create_put_scarecrow(frequency=frequency)
@@ -519,18 +566,73 @@ class Policy_helper:
         return policies
 
     def get_policies(self, frequency=1):
+        """
+        Possible frequencies = {1,3,5,10}
+        Possible delay = {1,3,5,10}
+        Possible params = {., ., ., .}
+        """
         policies = []
         entities = self.entities
         if "Plant-0" in entities:
             policies += self.get_plant_policies(frequency=frequency)
         if "Soil-0" in entities:
+            params = self.get_soil_params()
             policies += self.get_soil_policies(frequency=frequency)
         if "Weeds-0" in entities:
+            params = self.get_weeds_params()
             policies += self.get_weeds_policies(frequency=frequency)
         if "Fertilizer-0" in entities:
-            policies += self.get_facility_policies(frequency=frequency)
+            policies += self.get_fertilizer_policies(frequency=frequency)
         if "Facility-0" in entities:
             policies += self.get_facility_policies(frequency=frequency)
+        return policies
+    
+    def get_random_policies(self, n):
+        """
+        Possible frequencies = {1,3,5,10}
+        Possible delay = {1,3,5,10}
+        Possible params = {., ., ., .}
+        """
+        freqs = [1,3,5,7]
+        delays = [0,2,5,10]
+
+        soil_params = self.get_soil_params()
+        weeds_params = self.get_weeds_params()
+        fertilizer_params = self.get_fertilizer_params()
+        
+        policies = []
+        # n policies
+        for i in range(n):
+            name = ""
+            # Soil
+            param = random.choice(soil_params)
+            freq = random.choice(freqs)
+            delay = random.choice(delays)
+            soil_policies = self.get_soil_policies(freq, param, delay)
+            name += f"f{freq}a{int(param)}d{delay}_"
+            # Weeds
+            param = random.choice(weeds_params)
+            freq = random.choice(freqs)
+            delay = random.choice(delays)
+            weeds_policies = self.get_weeds_policies(freq, param, delay)
+            name += f"f{freq}a{param}d{delay}_"
+            # Fertilizer
+            param = random.choice(fertilizer_params)
+            freq = random.choice(freqs)
+            delay = random.choice(delays)
+            fertilizer_policies = self.get_fertilizer_policies(freq, param, delay)
+            name += f"f{freq}a{param}d{delay}_"
+            # Plant
+            freq = random.choice(freqs)
+            delay = random.choice(delays)
+            plant_policies = self.get_plant_policies(freq, None, delay)
+            name += f"f{freq}a0d{delay}"
+
+            apis = soil_policies + weeds_policies + fertilizer_policies + plant_policies
+            apis = [i.api for i in apis]
+            combined = Policy_API.combine_policies(apis)
+            policies.append((name,combined))
+        
         return policies
 
 def run_policy_xp(farm, policy, max_steps=10000):
