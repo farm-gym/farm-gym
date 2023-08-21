@@ -152,3 +152,17 @@ plot_watering_results(farms, policy_parameters, results, "Watering policy (daily
 
 farms, policy_parameters, results = xp_coupling(0.0015, 6)
 plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)")
+
+
+# from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored
+# v=make_variables_to_be_monitored(["f0.soil.available_Water#L", "f0.soil.microlife_health_index#%",
+# 								  "f0.soil.available_N#g", "f0.soil.available_P#g", "f0.soil.available_K#g",  "f0.soil.available_C#g",
+# 								  "f0.plant0.size#cm", "f0.plant0.flowers_per_plant#nb", "f0.plant0.fruits_per_plant#nb", "f0.plant0.fruit_weight#g", "f0.plant0.cumulated_water#L", "f0.plant0.cumulated_stress_water#L"
+# 								  ]) + [("Field-0","Weather-0", "air_temperature", lambda x: x["mean#°C"].value, "Weather Temperature", "range_auto")]
+
+
+# farm=f2
+# farm.add_monitoring(v,tensorboard=True)
+# farm.understand_the_farm()
+#policy = make_policy_water_harvest(farm=farm, amount_water=7.)
+#cr, _ = run_policy_xp(farm, copy.deepcopy(policy), max_steps=150)

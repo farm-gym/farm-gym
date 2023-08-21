@@ -32,7 +32,7 @@ class Union(Space):
         [space.seed(seed) for space in self.spaces]
 
     def sample(self):
-        n = self.np_random.randint(len(self.spaces))
+        n = self.np_random.integers(len(self.spaces))
         return n, self.spaces[n].sample()
 
     def contains(self, x):
@@ -79,7 +79,8 @@ class MultiUnion(Space):
         [space.seed(seed) for space in self.spaces]
 
     def sample(self):  # Sampling without replacement (not twice in the same space).
-        m = self.np_random.randint(min(self.maxnonzero + 1, len(self.spaces) + 1))
+        m = self.np_random.integers(min(self.maxnonzero + 1, len(self.spaces) + 1))
+        #np.random.Generator.integers()
         indexes = list(range(len(self.spaces)))
         sampled_indexes = []
         for j in range(m):

@@ -448,7 +448,8 @@ class Farm(gym.Env):
                 path,
             )
             # cost = 0
-            obs_vec = self.farmers[fa_key].perform_observation(fi_key, entity, variable_key, path)
+            day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
+            obs_vec = self.farmers[fa_key].perform_observation(fi_key, entity, variable_key, path, day)
             [observations.append(o) for o in obs_vec]
             # print("OV",obs_vec)
             # print("O",observations)
@@ -469,7 +470,8 @@ class Farm(gym.Env):
             # We can change this to policies using:
             # fa_key,fi_key,pos,action = policy_item.action(observations)
             cost = self.scoring.intervention_cost(fa_key, fi_key, entity_key, action_name, params)
-            obs_vec = self.farmers[fa_key].perform_intervention(fi_key, entity_key, action_name, params)
+            day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
+            obs_vec = self.farmers[fa_key].perform_intervention(fi_key, entity_key, action_name, params, day)
             # print("OBSVEC", obs_vec)
             [observations.append(o) for o in obs_vec]
             intervention_schedule_cost += cost
