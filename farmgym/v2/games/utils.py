@@ -1,4 +1,46 @@
 import matplotlib.pyplot as plt
+from farmgym.v2.farm import Farm
+from farmgym.v2.farmers.BasicFarmer import BasicFarmer
+from farmgym.v2.field import Field
+from farmgym.v2.rules.BasicRule import BasicRule
+from farmgym.v2.scorings.BasicScore import BasicScore
+
+
+# Daily interventios is set to 2 otherwise farmer
+# does not harvest on days where it has another action
+def make_basicfarm(name, field, entities, farmers=[{"max_daily_interventions": 2}]):
+    name = "casestudy/" + name
+    name_score = name + "_score.yaml"
+    name_init = name + "_init.yaml"
+    name_actions = name + "_actions.yaml"
+    entities1 = []
+    for e, i in entities:
+        entities1.append((e, i))
+
+    field1 = Field(
+        localization=field["localization"],
+        shape=field["shape"],
+        entities_specifications=entities1,
+    )
+
+    ffarmers = [BasicFarmer(max_daily_interventions=f["max_daily_interventions"]) for f in farmers]
+    scoring = BasicScore(score_configuration=name_score)
+
+    rules = BasicRule(
+        init_configuration=name_init,
+        actions_configuration=name_actions,
+    )
+
+    farm = Farm(
+        fields=[field1],
+        farmers=ffarmers,
+        scoring=scoring,
+        rules=rules,
+        policies=[],
+    )
+    farm.name = name
+    return farm
+
 
 def box_plot(ax, data, labels, edge_color, fill_color, hatch):
     bp = ax.boxplot(data, patch_artist=True, labels=labels, notch=True)
@@ -13,20 +55,10 @@ def box_plot(ax, data, labels, edge_color, fill_color, hatch):
     return bp
 
 
-def plot_results2(farms, policy_parameters, results, title):
+def plot_watering_results(farms, policy_parameters, results, title):
     nb_pol = len(policy_parameters)
-    nb_f = len(farms)
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    for r in results:
-        print(r)
-
     all_data = [res["r"] for res in results]
     labels = [str(policy_parameters[i % nb_pol]) for i in range(len(results))]
-    # names = ["soil:clay, plant:bean", "soil:sand, plant:bean", "soil:clay, plant:corn", "soil:sand, plant:corn",  "soil:clay, plant:tomato",  "soil:sand, plant:tomato"]
-    names = [f.name for f in farms]
 
     nc = 3
     nr = 1
@@ -34,7 +66,7 @@ def plot_results2(farms, policy_parameters, results, title):
 
     axes = mat_axes.flatten()
 
-    i = 4 * nb_pol
+    i = 2 * nb_pol
     bp1 = box_plot(
         axes[0],
         all_data[i : i + nb_pol],
@@ -58,10 +90,9 @@ def plot_results2(farms, policy_parameters, results, title):
     axes[0].set_ylabel("Rewards")
     axes[0].set_xlabel(title)
     axes[0].yaxis.grid(True)
-    #axes[0].set_ylim([0, 150])
-    axes[0].set_ylim([0, 30])
+    axes[0].set_ylim([0, 100])
 
-    i = 1 * nb_pol
+    i = 0 * nb_pol
     bp1 = box_plot(
         axes[1],
         all_data[i : i + nb_pol],
@@ -70,7 +101,7 @@ def plot_results2(farms, policy_parameters, results, title):
         (1.0, 0, 0, 0.8),
         "/",
     )
-    i = 2 * nb_pol
+    i = 6 * nb_pol
     bp2 = box_plot(
         axes[1],
         all_data[i : i + nb_pol],
@@ -85,10 +116,9 @@ def plot_results2(farms, policy_parameters, results, title):
     axes[1].set_ylabel("Rewards")
     axes[1].set_xlabel(title)
     axes[1].yaxis.grid(True)
-    #axes[1].set_ylim([0, 150])
-    axes[1].set_ylim([0, 30])
+    axes[1].set_ylim([0, 100])
 
-    i = 4 * nb_pol
+    i = 2 * nb_pol
     bp1 = box_plot(
         axes[2],
         all_data[i : i + nb_pol],
@@ -97,7 +127,7 @@ def plot_results2(farms, policy_parameters, results, title):
         (1.0, 0, 0, 0.8),
         "/",
     )
-    i = 5 * nb_pol
+    i = 7 * nb_pol
     bp2 = box_plot(
         axes[2],
         all_data[i : i + nb_pol],
@@ -112,34 +142,17 @@ def plot_results2(farms, policy_parameters, results, title):
     axes[2].set_ylabel("Rewards")
     axes[2].set_xlabel(title)
     axes[2].yaxis.grid(True)
-    #axes[2].set_ylim([0, 150])
-    axes[2].set_ylim([0, 30])
+    axes[2].set_ylim([0, 100])
 
-    # fill with colors
-    # colors = ['pink', 'lightblue', 'lightgreen']
-    # for bplot in bplots:
-    #    for patch, color in zip(bplot['boxes'], colors):
-    #        patch.set_facecolor(color)
-
+    plt.savefig("watering_results.pdf")
+    plt.savefig("watering_results.png")
     plt.show()
-    plt.savefig("fig_adjusted.pdf")
-    plt.savefig("fig_adjusted.png")
 
 
-def plot_results3(farms, policy_parameters, results, title):
+def plot_coupling_results(farms, policy_parameters, results, title, fname=None):
     nb_pol = len(policy_parameters)
-    nb_f = len(farms)
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    for r in results:
-        print(r)
-
     all_data = [res["r"] for res in results]
     labels = [str(policy_parameters[i % nb_pol]) for i in range(len(results))]
-    # names = ["soil:clay, plant:bean", "soil:sand, plant:bean", "soil:clay, plant:corn", "soil:sand, plant:corn",  "soil:clay, plant:tomato",  "soil:sand, plant:tomato"]
-    names = [f.name for f in farms]
 
     nc = 2
     nr = 1
@@ -171,14 +184,8 @@ def plot_results3(farms, policy_parameters, results, title):
     axes[0].set_ylabel("Rewards")
     axes[0].set_xlabel(title)
     axes[0].yaxis.grid(True)
-    axes[0].set_ylim([0, 150])
+    axes[0].set_ylim([0, 100])
 
-    # fill with colors
-    # colors = ['pink', 'lightblue', 'lightgreen']
-    # for bplot in bplots:
-    #    for patch, color in zip(bplot['boxes'], colors):
-    #        patch.set_facecolor(color)
-
+    plt.savefig("coupling_results.pdf")
+    plt.savefig("coupling_results.png")
     plt.show()
-    plt.savefig("fig.pdf")
-    plt.savefig("fig.png")

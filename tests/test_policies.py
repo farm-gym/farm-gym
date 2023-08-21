@@ -1,5 +1,4 @@
 import pytest
-
 from farmgym.v2.policy_api import Policy_API
 
 
@@ -18,6 +17,7 @@ def and_conditions_policy():
     policy = Policy_API([], [scatter_cide])
     return policy
 
+
 @pytest.fixture
 def policy_with_missing_observation():
     fi, idx, loc = 0, 0, (0, 0)
@@ -28,6 +28,7 @@ def policy_with_missing_observation():
     policy = Policy_API([], [harvest_fruit])
     return policy
 
+
 @pytest.fixture
 def policy_without_conditions():
     fi, idx = 0, 0
@@ -37,6 +38,7 @@ def policy_without_conditions():
     harvest_fruit = (harvest_conditions, harvest_actions)
     policy = Policy_API([], [harvest_fruit])
     return policy
+
 
 def test_missing_observation(policy_with_missing_observation):
     policy = policy_with_missing_observation
@@ -50,6 +52,7 @@ def test_missing_observation(policy_with_missing_observation):
 
     assert not trigger_on, "The condition can not be verified because it's missing form the observation "
 
+
 def test_no_conditions(policy_without_conditions):
     policy = policy_without_conditions
     obs = [
@@ -58,9 +61,10 @@ def test_no_conditions(policy_without_conditions):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 718),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
 
     assert trigger_on, "The condition can not be verified because it's missing form the observation "
+
 
 def test_and_condition_true(and_conditions_policy):
     policy = and_conditions_policy
@@ -70,7 +74,7 @@ def test_and_condition_true(and_conditions_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 718),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
 
     assert trigger_on, "Both conditions are satisified in current obs, should trigger"
 
@@ -83,7 +87,7 @@ def test_and_condition_false(and_conditions_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 718),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
     assert not trigger_on, "At least one condition is not satisfied in obs, should not trigger"
 
 
@@ -105,7 +109,7 @@ def test_single_condition_true(single_condition_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 718),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
     assert trigger_on, "Observation does not match condition, should not trigger"
 
 
@@ -117,7 +121,7 @@ def test_single_condition_false(single_condition_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 1),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
     assert not trigger_on, "Observation does not match condition, should not trigger"
 
 
@@ -143,7 +147,7 @@ def test_or_condition_one_true(or_conditions_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 1),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
     assert trigger_on, "One condition is verified at least, should trigger"
 
 
@@ -155,7 +159,7 @@ def test_or_condition_false(or_conditions_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 1),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
     assert not trigger_on, "No condition is verified, should not trigger"
 
 
@@ -167,5 +171,5 @@ def test_or_condition_all_true(or_conditions_policy):
         ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 3),
     ]
     for trigger, actions in policy.triggered_interventions:
-        trigger_on = policy.is_trigger_on(trigger, obs) 
+        trigger_on = policy.is_trigger_on(trigger, obs)
     assert trigger_on, "Both conditions are verified, should trigger"
