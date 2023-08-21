@@ -7,3 +7,5 @@ pandas
 matplotlib
 mpld3
 opencv-python
+tensorboard
+tensorflow

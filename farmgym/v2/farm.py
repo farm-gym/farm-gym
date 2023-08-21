@@ -255,7 +255,7 @@ class Farm(gym.Env):
 
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
 
-    def add_monitoring(self, list_of_variables, tensorboard=True, matview=True):
+    def add_monitoring(self, list_of_variables, tensorboard=True, matview=True, launch=True):
         """
         Adds a Monitor to the farm, allowing to observe evolution of some state variables with time.
         list_of_variables: the list of variables to be monitored.
@@ -264,7 +264,7 @@ class Farm(gym.Env):
         ("Field-0","Plant-0","fruits_per_plant#nb",lambda x: sum_value(x),"Fruits (nb)","range_auto")
         """
         if tensorboard:
-            self.monitor = MonitorTensorBoard(self, list_of_variables, matview=matview)
+            self.monitor = MonitorTensorBoard(self, list_of_variables, matview=matview, launch=launch)
         else:
             self.monitor = MonitorPlt(self, list_of_variables)
 
@@ -383,6 +383,7 @@ class Farm(gym.Env):
             # gym_observations[str(fa_key)+"."+str(fi_key)+"."+str(e_key)+"."+str(variable_key)+"."+str(path)]=gym_value
             gym_observations.append(g)
         return gym_observations
+    
 
     def gym_step_AOMDP(self, gym_action):
         """

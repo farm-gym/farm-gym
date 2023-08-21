@@ -61,7 +61,7 @@ def sname_to_name(text):
 
 
 class MonitorTensorBoard:
-    def __init__(self, farm, list_of_variables_to_monitor, logdir="logs", run_name=None, matview=True):
+    def __init__(self, farm, list_of_variables_to_monitor, logdir="logs", run_name=None, matview=True, wait_for_exit=True, launch=True):
         """
         :param farm:
         :param list_of_variables_to_monitor: list of fi_key,entity_key,var_key,function,name_to_display
@@ -84,6 +84,8 @@ class MonitorTensorBoard:
         self.images = {}
         self.matview = matview
         self.tf = tf
+        self.tb_url = None
+        self.wait_for_exit = wait_for_exit
 
         self.history_variables = {}
         for v in self.variables:
@@ -91,11 +93,13 @@ class MonitorTensorBoard:
         # Start Tensorboard writer
         self.writer = tf.summary.create_file_writer(f"{self.logdir}/{self.run_name}")
         self.writer_closed = False
+
         # Launch TensorBoard
-        tb = program.TensorBoard()
-        tb.configure(argv=[None, "--logdir", os.path.join(os.getcwd(), logdir)])
-        self.tb_url = tb.launch()
-        print(f"Tensorflow listening on {self.tb_url}")
+        if launch:
+            tb = program.TensorBoard()
+            tb.configure(argv=[None, "--logdir", os.path.join(os.getcwd(), logdir)])
+            self.tb_url = tb.launch()
+            print(f"Tensorflow listening on {self.tb_url}")
 
     def update_fig(self):
         with self.writer.as_default():
@@ -171,7 +175,7 @@ class MonitorTensorBoard:
                     with self.writer.as_default():
                         self.tf.summary.image(name, np.expand_dims(image, axis=0), step=i)
             check_close = ""
-            while check_close.lower() != "exit":
+            while check_close.lower() != "exit" and self.wait_for_exit is True and self.tb_url is not None:
                 check_close = input(f"Tensorflow is still listening on {self.tb_url}, type 'exit' to close : ")
             print("Closing writer ...")
             self.writer.close()
