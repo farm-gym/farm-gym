@@ -129,7 +129,7 @@ class Rules_API:
         allowed_actions = self.actions_allowed
 
         def check(dic, param):
-            if dic == None:
+            if dic is None:
                 return True
             if len(param) > 0:
                 if isinstance(dic, dict):

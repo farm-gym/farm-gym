@@ -114,7 +114,7 @@ class Farm(gym.Env):
 
         farm_call = " ".join(inspect.stack()[1].code_context[0].split("=")[0].split())
         filep = "/".join(inspect.stack()[1].filename.split("/")[0:-1])
-        if self.scoring.score_configuration == None:
+        if self.scoring.score_configuration is None:
             print("[Farmgym Warning] Missing score configuration file.")
             build_scoreyaml(filep + "/" + farm_call + "_score_vanilla.yaml", self)
             self.scoring.score_configuration = (
@@ -140,7 +140,7 @@ class Farm(gym.Env):
                 )
 
         # TODO : Double check the behavior when empty init file, or nor empty with or without init_values as parameter.
-        if self.rules.init_configuration == None:
+        if self.rules.init_configuration is None:
             print("[Farmgym Warning] Missing initial conditions configuration file.")
             build_inityaml(
                 filep + "/" + farm_call + "_init_vanilla.yaml",
@@ -178,7 +178,7 @@ class Farm(gym.Env):
                     + " and used instead. Please, open and modify as wanted. Deleting a line corresponding to a state variable makes it initialized at default value."
                 )
 
-        if self.rules.actions_configuration == None:
+        if self.rules.actions_configuration is None:
             print("[Farmgym Warning] Missing actions configuration file.")
             build_actionsyaml(filep + "/" + farm_call + "_actions_vanilla.yaml", self)
             self.rules.actions_configuration = (
@@ -558,14 +558,14 @@ class Farm(gym.Env):
         # Check if terminal
         terminated = self.rules.is_terminal(self.fields)
 
-        if self.monitor != None:
+        if self.monitor is not None:
             self.monitor.update_fig()
 
         # Compute final reward
         if terminated:
             for f in self.fields.values():
                 reward += self.scoring.final_reward(f.entities.values())
-            if self.monitor != None:
+            if self.monitor is not None:
                 self.monitor.stop()
 
         return (
@@ -791,7 +791,7 @@ class Farm(gym.Env):
                     if fi in action_yaml[fa].keys():
                         for e in self.fields[fi].entities:
                             if e in action_yaml[fa][fi].keys():
-                                if action_yaml[fa][fi][e] != None:
+                                if action_yaml[fa][fi][e] is not None:
                                     for action in action_yaml[fa][fi][e]:
                                         gym_a = make(action_yaml[fa][fi][e][action])
                                         # print(gym_a)
@@ -873,7 +873,7 @@ class Farm(gym.Env):
                     if fi in action_yaml[fa].keys():
                         for e in self.fields[fi].entities:
                             if e in action_yaml[fa][fi].keys():
-                                if action_yaml[fa][fi][e] != None:
+                                if action_yaml[fa][fi][e] is not None:
                                     for var in self.fields[fi].entities[e].variables:
                                         if var in action_yaml[fa][fi][e].keys():
                                             paths = make(
@@ -891,7 +891,7 @@ class Farm(gym.Env):
                 if fi in action_yaml["Free"].keys():
                     for e in self.fields[fi].entities:
                         if e in action_yaml["Free"][fi].keys():
-                            if action_yaml["Free"][fi][e] != None:
+                            if action_yaml["Free"][fi][e] is not None:
                                 for var in self.fields[fi].entities[e].variables:
                                     if var in action_yaml["Free"][fi][e].keys():
                                         paths = make(
