@@ -8,11 +8,12 @@ on:
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Test ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.9"]
+        os: [ubuntu-22.04, windows-2022, macos-12]
 
     steps:
       - uses: actions/checkout@v3
@@ -65,19 +66,19 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.3.1
+      # - name: Install cibuildwheel
+      #   run: python -m pip install cibuildwheel==2.3.1
   
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheels
+        run: python -m pip wheel -w wheels .
 
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheels/*.whl
 
-  ruff:
-    name: Check formatting
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: chartboost/ruff-action@v1
+  # ruff:
+  #   name: Check formatting
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: chartboost/ruff-action@v1
