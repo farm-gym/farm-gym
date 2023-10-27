@@ -27,6 +27,7 @@ setup(
         "matplotlib",
         "mpld3",
         "opencv-python",
+        "tensorboard",
     ],  # And any other dependencies foo needs
     include_package_data=True,
     author="Odalric-Ambrym Maillard",
