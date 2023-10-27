@@ -33,9 +33,9 @@ jobs:
       - name: Coverage
         uses: codecov/codecov-action@v3
 
-  # ruff:
-  #   name: Check formatting
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: chartboost/ruff-action@v1
+  ruff:
+    name: Check formatting/Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: chartboost/ruff-action@v1

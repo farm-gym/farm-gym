@@ -70,9 +70,9 @@ jobs:
         with:
           path: ./wheels/*.whl
 
-  # ruff:
-  #   name: Check formatting
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: chartboost/ruff-action@v1
+  ruff:
+    name: Check formatting/Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: chartboost/ruff-action@v1
