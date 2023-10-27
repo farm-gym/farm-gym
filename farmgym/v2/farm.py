@@ -115,13 +115,13 @@ class Farm(gym.Env):
         farm_call = " ".join(inspect.stack()[1].code_context[0].split("=")[0].split())
         filep = "/".join(inspect.stack()[1].filename.split("/")[0:-1])
         if self.scoring.score_configuration == None:
-            print(f"[Farmgym Warning] Missing score configuration file.")
+            print("[Farmgym Warning] Missing score configuration file.")
             build_scoreyaml(filep + "/" + farm_call + "_score_vanilla.yaml", self)
             self.scoring.score_configuration = (
                 filep + "/" + farm_call + "_score_vanilla.yaml"
             )
             print(
-                f"[Solution]"
+                "[Solution]"
                 + " Vanilla score configuration file automatically generated in "
                 + str(filep + "/" + farm_call + "_score_vanilla.yaml")
                 + " and used instead. Please, open and modify as wanted."
@@ -130,10 +130,10 @@ class Farm(gym.Env):
             try:
                 open(self.scoring.score_configuration, "r", encoding="utf8")
             except FileNotFoundError as err:
-                print(f"[Farmgym Warning] Missing score configuration file.")
+                print("[Farmgym Warning] Missing score configuration file.")
                 build_scoreyaml(self.scoring.score_configuration, self)
                 print(
-                    f"[Solution]"
+                    "[Solution]"
                     + " Vanilla score configuration file automatically generated in "
                     + str(self.scoring.score_configuration)
                     + " and used instead. Please, open and modify as wanted."
@@ -141,7 +141,7 @@ class Farm(gym.Env):
 
         # TODO : Double check the behavior when empty init file, or nor empty with or without init_values as parameter.
         if self.rules.init_configuration == None:
-            print(f"[Farmgym Warning] Missing initial conditions configuration file.")
+            print("[Farmgym Warning] Missing initial conditions configuration file.")
             build_inityaml(
                 filep + "/" + farm_call + "_init_vanilla.yaml",
                 self,
@@ -152,7 +152,7 @@ class Farm(gym.Env):
                 filep + "/" + farm_call + "_init_vanilla.yaml"
             )
             print(
-                f"[Solution]"
+                "[Solution]"
                 + " Vanilla initial conditions configuration file automatically generated in "
                 + str(filep + "/" + farm_call + "_init_vanilla.yaml")
                 + " and used instead. Please, open and modify as wanted. Deleting a line corresponding to a state variable makes it initialized at default value."
@@ -162,7 +162,7 @@ class Farm(gym.Env):
                 open(self.rules.init_configuration, "r", encoding="utf8")
             except FileNotFoundError as err:
                 print(
-                    f"[Farmgym Warning] Missing initial conditions configuration file."
+                    "[Farmgym Warning] Missing initial conditions configuration file."
                 )
                 build_inityaml(
                     self.rules.init_configuration,
@@ -172,20 +172,20 @@ class Farm(gym.Env):
                 )
                 # print('INIT VALUE', self.rules.initial_conditions_values)
                 print(
-                    f"[Solution]"
+                    "[Solution]"
                     + "  Vanilla initial conditions configuration file automatically generated in "
                     + str(self.rules.init_configuration)
                     + " and used instead. Please, open and modify as wanted. Deleting a line corresponding to a state variable makes it initialized at default value."
                 )
 
         if self.rules.actions_configuration == None:
-            print(f"[Farmgym Warning] Missing actions configuration file.")
+            print("[Farmgym Warning] Missing actions configuration file.")
             build_actionsyaml(filep + "/" + farm_call + "_actions_vanilla.yaml", self)
             self.rules.actions_configuration = (
                 filep + "/" + farm_call + "_actions_vanilla.yaml"
             )
             print(
-                f"[Solution]"
+                "[Solution]"
                 + " Vanilla action configuration file automatically generated in "
                 + str(filep + "/" + farm_call + "_actions_vanilla.yaml")
                 + " and used instead. Please, open and remove any line corresponding to an unwanted action."
@@ -194,10 +194,10 @@ class Farm(gym.Env):
             try:
                 open(self.rules.actions_configuration, "r", encoding="utf8")
             except FileNotFoundError as err:
-                print(f"[Farmgym Warning] Missing actions configuration file.")
+                print("[Farmgym Warning] Missing actions configuration file.")
                 build_actionsyaml(self.rules.actions_configuration, self)
                 print(
-                    f"[Solution]"
+                    "[Solution]"
                     + " Vanilla action configuration file automatically generated in "
                     + str(self.rules.actions_configuration)
                     + " and used instead. Please, open and remove any line corresponding to an unwanted action."
