@@ -1,5 +1,5 @@
 ######################################
-# ruff: noqa: F401
+# ruff: noqa: F401, F841, F821
 import inspect
 import os
 from pathlib import Path
@@ -25,7 +25,7 @@ def yml_tuple_constructor(v, f=float):
     return tup
 
 
-from farmgym.v2.specifications.specification_manager import (
+from farmgym.v2.specifications.specification_manager import (  # noqa: E402
     build_actionsyaml,
     build_inityaml,
     build_scoreyaml,
@@ -1457,7 +1457,7 @@ class Farm(gym.Env):
         # print(farm.actions_to_string())
 
 
-import cv2
+import cv2  # noqa: E402
 
 
 def generate_video(image_folder=".", video_name="farm.avi"):

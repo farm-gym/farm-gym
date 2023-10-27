@@ -299,7 +299,7 @@ class Weeds(Entity_API):
     def act_on_variables(self, action_name, action_params):
         if action_name == "remove":
             position = action_params["plot"]
-            s = (
+            s = (    # noqa: F841
                 self.variables["grow#nb"][position].value
                 + self.variables["flowers#nb"][position].value
             )

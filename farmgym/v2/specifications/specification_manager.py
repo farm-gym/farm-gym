@@ -228,7 +228,7 @@ def build_actionsyaml(filepath, farm):
                 it.iternext()
                 while not it.finished:
                     s += ", " + "'" + str(it.multi_index) + "'"
-                    is_not_finished = it.iternext()
+                    is_not_finished = it.iternext()  # noqa: F841
                 s += "]\n"
             else:
                 for i in range(len(x) - 1):

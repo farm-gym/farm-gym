@@ -367,7 +367,7 @@ def make_variables_to_be_monitored(variables):
                 # print("v",s,sname_to_name(s))
                 myv.append(sname_to_name(v[:-1]))
             # print("[Monitor]VARS", myv)
-            mee = lambda x: me(dict_select(x, myv))
+            mee = lambda x: me(dict_select(x, myv))  # noqa: E731
 
             var.append((var_fi, var_en, va0, mee, tva, "range_auto"))
         else:

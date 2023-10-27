@@ -858,10 +858,10 @@ class Policy_helper:
         if "Plant-0" in entities:
             policies += self.get_plant_policies(frequency=frequency)
         if "Soil-0" in entities:
-            params = self.get_soil_params()
+            #params = self.get_soil_params()
             policies += self.get_soil_policies(frequency=frequency)
         if "Weeds-0" in entities:
-            params = self.get_weeds_params()
+            #params = self.get_weeds_params()
             policies += self.get_weeds_policies(frequency=frequency)
         if "Fertilizer-0" in entities:
             policies += self.get_fertilizer_policies(frequency=frequency)

@@ -362,7 +362,7 @@ class Entity_API:
 
     def to_thumbnailimage(self):
         im_width, im_height = 64, 64
-        image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
+        image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))  # noqa: F841
         return None
 
     def __str__(self):

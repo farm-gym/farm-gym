@@ -1,1 +1,1 @@
-from farmgym.v2.specifications import specification_manager  # avoid circular import
+from farmgym.v2.specifications import specification_manager  # avoid circular import  # noqa: F401
