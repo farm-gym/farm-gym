@@ -47,7 +47,6 @@ class Rules_API:
         # terminal_CNF_conditions_values,
         # initial_conditions_values=None,
     ):
-
         self.init_configuration = init_configuration
         # self.initial_conditions_values = initial_conditions_values
 
@@ -119,7 +118,9 @@ class Rules_API:
 
         for fo in self.free_observations:
             fa_key, fi_key, e_key, variable_key, path = fo
-            value = farm.fields[fi_key].entities[e_key].observe_variable(variable_key, path)
+            value = (
+                farm.fields[fi_key].entities[e_key].observe_variable(variable_key, path)
+            )
             observations.append((fa_key, fi_key, e_key, variable_key, path, value))
 
         return observations

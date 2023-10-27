@@ -7,7 +7,6 @@ class Score_API:
     """
 
     def __init__(self, score_configuration=""):
-
         self.score_configuration = score_configuration
 
     def setup(self, farm):
@@ -22,7 +21,9 @@ class Score_API:
     def intervention_cost(self, farmer, field_key, entity_key, action_key, params):
         return 0
 
-    def observation_cost(self, farmer, field, field_key, entity_key, variable_key, path):
+    def observation_cost(
+        self, farmer, field, field_key, entity_key, variable_key, path
+    ):
         return 0
 
     def reward(self, entities_list: list):

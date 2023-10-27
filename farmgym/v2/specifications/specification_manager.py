@@ -260,9 +260,23 @@ def build_actionsyaml(filepath, farm):
                 s += "  " * 3 + e + ":\n"
                 for v in fields[fi].entities[e].variables:
                     if type(fields[fi].entities[e].variables[v]) == np.ndarray:
-                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
+                        s += (
+                            "  " * 4
+                            + v
+                            + ": "
+                            + make_s(
+                                fields[fi].entities[e].variables[v], indent="  " * 5
+                            )
+                        )
                     else:
-                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
+                        s += (
+                            "  " * 4
+                            + v
+                            + ": "
+                            + make_s(
+                                fields[fi].entities[e].variables[v], indent="  " * 5
+                            )
+                        )
 
     def make_a(x, indent):
         s = "\n"
@@ -278,7 +292,12 @@ def build_actionsyaml(filepath, farm):
             for e in fields[fi].entities:
                 ss = ""
                 for a in fields[fi].entities[e].actions:
-                    ss += "  " * 4 + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="  " * 5)
+                    ss += (
+                        "  " * 4
+                        + a
+                        + ": "
+                        + make_a(fields[fi].entities[e].actions[a], indent="  " * 5)
+                    )
                 if ss != "":
                     s += ("  " * 3 + e + ":\n") + ss
 

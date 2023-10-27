@@ -9,8 +9,18 @@ def and_conditions_policy():
     threshold = 2.0
     scatter_conditions = [
         [
-            ((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold)),
-            ((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0),
+            (
+                (f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]),
+                lambda x: x,
+                ">=",
+                float(threshold),
+            ),
+            (
+                (f"Field-{fi}", "Weather-0", "day#int365", []),
+                lambda x: x % frequency,
+                "==",
+                0,
+            ),
         ]
     ]
     scatter_cide = (scatter_conditions, [])
@@ -22,8 +32,22 @@ def and_conditions_policy():
 def policy_with_missing_observation():
     fi, idx, loc = 0, 0, (0, 0)
     delay = 18
-    harvest_conditions = [[((f"Field-{fi}", f"Plant-{idx}", "stage", [loc]), lambda x: x, "in", ["fruit"])]]
-    harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
+    harvest_conditions = [
+        [
+            (
+                (f"Field-{fi}", f"Plant-{idx}", "stage", [loc]),
+                lambda x: x,
+                "in",
+                ["fruit"],
+            )
+        ]
+    ]
+    harvest_actions = [
+        {
+            "action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}),
+            "delay": delay,
+        }
+    ]
     harvest_fruit = (harvest_conditions, harvest_actions)
     policy = Policy_API([], [harvest_fruit])
     return policy
@@ -34,7 +58,12 @@ def policy_without_conditions():
     fi, idx = 0, 0
     delay = 18
     harvest_conditions = [[]]
-    harvest_actions = [{"action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}), "delay": delay}]
+    harvest_actions = [
+        {
+            "action": ("BasicFarmer-0", f"Field-{fi}", f"Plant-{idx}", "harvest", {}),
+            "delay": delay,
+        }
+    ]
     harvest_fruit = (harvest_conditions, harvest_actions)
     policy = Policy_API([], [harvest_fruit])
     return policy
@@ -50,7 +79,9 @@ def test_missing_observation(policy_with_missing_observation):
     for trigger, actions in policy.triggered_interventions:
         trigger_on = policy.is_trigger_on(trigger, obs)
 
-    assert not trigger_on, "The condition can not be verified because it's missing form the observation "
+    assert (
+        not trigger_on
+    ), "The condition can not be verified because it's missing form the observation "
 
 
 def test_no_conditions(policy_without_conditions):
@@ -63,7 +94,9 @@ def test_no_conditions(policy_without_conditions):
     for trigger, actions in policy.triggered_interventions:
         trigger_on = policy.is_trigger_on(trigger, obs)
 
-    assert trigger_on, "The condition can not be verified because it's missing form the observation "
+    assert (
+        trigger_on
+    ), "The condition can not be verified because it's missing form the observation "
 
 
 def test_and_condition_true(and_conditions_policy):
@@ -88,14 +121,25 @@ def test_and_condition_false(and_conditions_policy):
     ]
     for trigger, actions in policy.triggered_interventions:
         trigger_on = policy.is_trigger_on(trigger, obs)
-    assert not trigger_on, "At least one condition is not satisfied in obs, should not trigger"
+    assert (
+        not trigger_on
+    ), "At least one condition is not satisfied in obs, should not trigger"
 
 
 @pytest.fixture
 def single_condition_policy():
     fi, idx, loc = 0, 0, (0, 0)
     threshold = 2.0
-    scatter_conditions = [[((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold))]]
+    scatter_conditions = [
+        [
+            (
+                (f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]),
+                lambda x: x,
+                ">=",
+                float(threshold),
+            )
+        ]
+    ]
     scatter_cide = (scatter_conditions, [])
     policy = Policy_API([], [scatter_cide])
     return policy
@@ -131,8 +175,22 @@ def or_conditions_policy():
     threshold = 2.0
     frequency = 5
     scatter_conditions = [
-        [((f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]), lambda x: x, ">=", float(threshold))],
-        [((f"Field-{fi}", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)],
+        [
+            (
+                (f"Field-{fi}", f"Weeds-{idx}", "grow#nb", [loc]),
+                lambda x: x,
+                ">=",
+                float(threshold),
+            )
+        ],
+        [
+            (
+                (f"Field-{fi}", "Weather-0", "day#int365", []),
+                lambda x: x % frequency,
+                "==",
+                0,
+            )
+        ],
     ]
     scatter_cide = (scatter_conditions, [])
     policy = Policy_API([], [scatter_cide])

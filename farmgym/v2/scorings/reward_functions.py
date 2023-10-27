@@ -17,6 +17,7 @@ def reward_stagetransition(entities_list: list):
 
     return r_stage
 
+
 def reward_stagecount(entities_list: list):
     plants = [e for e in entities_list if issubclass(e.__class__, Plant)]
     r_stage = 0
@@ -27,12 +28,20 @@ def reward_stagecount(entities_list: list):
                 if p.variables["stage"][x, y].value == "sprout":
                     rr += 2.0
                 elif p.variables["stage"][x, y].value == "grow":
-                    rr += p.variables["size#cm"][x, y].value / p.parameters["size_max#cm"]
+                    rr += (
+                        p.variables["size#cm"][x, y].value / p.parameters["size_max#cm"]
+                    )
 
                 elif p.variables["stage"][x, y].value == "flower":
-                    rr += p.variables["nb_pollinated_flowers"][x, y].value / p.parameters["nb_flowers"]
+                    rr += (
+                        p.variables["nb_pollinated_flowers"][x, y].value
+                        / p.parameters["nb_flowers"]
+                    )
                 elif p.variables["stage"][x, y].value == "fruit":
-                    rr += p.variables["fruit_weight#g"][x, y].value / p.parameters["fruit_weight_max#g"]
+                    rr += (
+                        p.variables["fruit_weight#g"][x, y].value
+                        / p.parameters["fruit_weight_max#g"]
+                    )
 
         r_stage += rr / (p.field.X * p.field.Y)
 
@@ -43,14 +52,15 @@ def reward_soilmicrolife(entities_list: list):
     soils = [e for e in entities_list if issubclass(e.__class__, Soil)]
     r = 0
     for s in soils:
-            #from farmgym.v2.rendering.monitoring import sum_value
-            #ml = sum_value(e.variables["microlife_health_index#%"]) / 100.
-            X,Y = s.variables["microlife_health_index#%"].shape
-            for x in range(X):
-                for y in range(Y):
-                    if (s.variables["microlife_health_index#%"][x,y].value<10):
-                        r-=2
+        # from farmgym.v2.rendering.monitoring import sum_value
+        # ml = sum_value(e.variables["microlife_health_index#%"]) / 100.
+        X, Y = s.variables["microlife_health_index#%"].shape
+        for x in range(X):
+            for y in range(Y):
+                if s.variables["microlife_health_index#%"][x, y].value < 10:
+                    r -= 2
     return r
+
 
 def reward_biodiversitycounts(entities_list: list):
     birds = [e for e in entities_list if issubclass(e.__class__, Birds)]
@@ -79,11 +89,14 @@ def reward_resourceadded(entities_list: list):
         r_resource -= f.variables["total_cumulated_scattered_amount#kg"].value
     for s in soil:
         r_resource -= s.variables["total_cumulated_added_water#L"].value
-        r_resource -= s.variables["total_cumulated_added_cide#g"]["pollinators"].value * 0.001
+        r_resource -= (
+            s.variables["total_cumulated_added_cide#g"]["pollinators"].value * 0.001
+        )
         r_resource -= s.variables["total_cumulated_added_cide#g"]["pests"].value * 0.001
         r_resource -= s.variables["total_cumulated_added_cide#g"]["soil"].value * 0.001
         r_resource -= s.variables["total_cumulated_added_cide#g"]["weeds"].value * 0.001
     return r_resource
+
 
 def reward_harvest(entities_list: list):
     plants = [e for e in entities_list if issubclass(e.__class__, Plant)]

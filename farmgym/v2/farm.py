@@ -1,4 +1,5 @@
 ######################################
+# ruff: noqa: F401
 import inspect
 import os
 from pathlib import Path
@@ -24,9 +25,11 @@ def yml_tuple_constructor(v, f=float):
     return tup
 
 
-from farmgym.v2.specifications.specification_manager import (build_actionsyaml,
-                                                             build_inityaml,
-                                                             build_scoreyaml)
+from farmgym.v2.specifications.specification_manager import (
+    build_actionsyaml,
+    build_inityaml,
+    build_scoreyaml,
+)
 
 
 class Farm(gym.Env):
@@ -61,7 +64,16 @@ class Farm(gym.Env):
 
     """
 
-    def __init__(self, fields, farmers, scoring, rules, policies=None, interaction_mode="AOMDP", seed=None):
+    def __init__(
+        self,
+        fields,
+        farmers,
+        scoring,
+        rules,
+        policies=None,
+        interaction_mode="AOMDP",
+        seed=None,
+    ):
         self.interaction_mode = interaction_mode
         # Name fields uniquely:
         cpt = {}
@@ -105,7 +117,9 @@ class Farm(gym.Env):
         if self.scoring.score_configuration == None:
             print(f"[Farmgym Warning] Missing score configuration file.")
             build_scoreyaml(filep + "/" + farm_call + "_score_vanilla.yaml", self)
-            self.scoring.score_configuration = filep + "/" + farm_call + "_score_vanilla.yaml"
+            self.scoring.score_configuration = (
+                filep + "/" + farm_call + "_score_vanilla.yaml"
+            )
             print(
                 f"[Solution]"
                 + " Vanilla score configuration file automatically generated in "
@@ -134,7 +148,9 @@ class Farm(gym.Env):
                 mode="default",
                 init_values=self.rules.initial_conditions_values,
             )
-            self.rules.init_configuration = filep + "/" + farm_call + "_init_vanilla.yaml"
+            self.rules.init_configuration = (
+                filep + "/" + farm_call + "_init_vanilla.yaml"
+            )
             print(
                 f"[Solution]"
                 + " Vanilla initial conditions configuration file automatically generated in "
@@ -145,7 +161,9 @@ class Farm(gym.Env):
             try:
                 open(self.rules.init_configuration, "r", encoding="utf8")
             except FileNotFoundError as err:
-                print(f"[Farmgym Warning] Missing initial conditions configuration file.")
+                print(
+                    f"[Farmgym Warning] Missing initial conditions configuration file."
+                )
                 build_inityaml(
                     self.rules.init_configuration,
                     self,
@@ -163,7 +181,9 @@ class Farm(gym.Env):
         if self.rules.actions_configuration == None:
             print(f"[Farmgym Warning] Missing actions configuration file.")
             build_actionsyaml(filep + "/" + farm_call + "_actions_vanilla.yaml", self)
-            self.rules.actions_configuration = filep + "/" + farm_call + "_actions_vanilla.yaml"
+            self.rules.actions_configuration = (
+                filep + "/" + farm_call + "_actions_vanilla.yaml"
+            )
             print(
                 f"[Solution]"
                 + " Vanilla action configuration file automatically generated in "
@@ -212,7 +232,9 @@ class Farm(gym.Env):
 
         for fi in self.rules.initial_conditions:
             for e in self.rules.initial_conditions[fi]:
-                self.fields[fi].entities[e].initial_conditions = self.rules.initial_conditions[fi][e]
+                self.fields[fi].entities[
+                    e
+                ].initial_conditions = self.rules.initial_conditions[fi][e]
 
         self.is_new_day = True
         self.seed(seed)
@@ -246,7 +268,12 @@ class Farm(gym.Env):
         """
         short = "farm_"
         for fi in self.fields:
-            short += str(self.fields[fi].shape["length#nb"]) + "x" + str(self.fields[fi].shape["width#nb"]) + "("
+            short += (
+                str(self.fields[fi].shape["length#nb"])
+                + "x"
+                + str(self.fields[fi].shape["width#nb"])
+                + "("
+            )
             for e in self.fields[fi].entities:
                 short += self.fields[fi].entities[e].shortname + "_"
             short = short[:-1]
@@ -255,7 +282,9 @@ class Farm(gym.Env):
 
     # QUESTION:  Do we add shared entities outside fields ?? (but need to be updated only once /day ). Or do let an entity in a field to be used by a farmer in other field (e.g. water tank).
 
-    def add_monitoring(self, list_of_variables, tensorboard=True, matview=True, launch=True):
+    def add_monitoring(
+        self, list_of_variables, tensorboard=True, matview=True, launch=True
+    ):
         """
         Adds a Monitor to the farm, allowing to observe evolution of some state variables with time.
         list_of_variables: the list of variables to be monitored.
@@ -264,7 +293,9 @@ class Farm(gym.Env):
         ("Field-0","Plant-0","fruits_per_plant#nb",lambda x: sum_value(x),"Fruits (nb)","range_auto")
         """
         if tensorboard:
-            self.monitor = MonitorTensorBoard(self, list_of_variables, matview=matview, launch=launch)
+            self.monitor = MonitorTensorBoard(
+                self, list_of_variables, matview=matview, launch=launch
+            )
         else:
             self.monitor = MonitorPlt(self, list_of_variables)
 
@@ -356,19 +387,27 @@ class Farm(gym.Env):
     def gym_step_POMDP(self, action):
         # info = {}
         observations, _, _, _, _ = self.farmgym_step([])
-        obs, reward, terminated, truncated, info = self.farmgym_step(self.gymaction_to_discretized_farmgymaction(action))
+        obs, reward, terminated, truncated, info = self.farmgym_step(
+            self.gymaction_to_discretized_farmgymaction(action)
+        )
         # info["intervention cost"] = info2["intervention cost"]
         # free_observations = self.get_free_observations()
         # print("O1",observations)
         # print("O2",obs)
         # print("O3", self.farmgym_to_gym_observations(observations + obs))
-        return self.farmgym_to_gym_observations(observations + obs), reward, terminated, truncated, info
+        return self.farmgym_to_gym_observations(
+            observations + obs
+        ), reward, terminated, truncated, info
 
     def farmgym_to_gym_observations(self, farmgym_observations):
         gym_observations = []
         for fo in farmgym_observations:
             fa_key, fi_key, e_key, variable_key, path, value = fo
-            gym_value = self.fields[fi_key].entities[e_key].gym_observe_variable(variable_key, path)
+            gym_value = (
+                self.fields[fi_key]
+                .entities[e_key]
+                .gym_observe_variable(variable_key, path)
+            )
             g = {}
             g[fa_key] = {}
             g[fa_key][fi_key] = {}
@@ -383,7 +422,6 @@ class Farm(gym.Env):
             # gym_observations[str(fa_key)+"."+str(fi_key)+"."+str(e_key)+"."+str(variable_key)+"."+str(path)]=gym_value
             gym_observations.append(g)
         return gym_observations
-    
 
     def gym_step_AOMDP(self, gym_action):
         """
@@ -391,7 +429,13 @@ class Farm(gym.Env):
         It follows the gym signature, and outputs observations, reward, is_done, information.
         Farmgym observations are added in information["farmgym observations"].
         """
-        farmgym_observations, reward, terminated, truncated, farmgym_information = self.farmgym_step(
+        (
+            farmgym_observations,
+            reward,
+            terminated,
+            truncated,
+            farmgym_information,
+        ) = self.farmgym_step(
             # self.gymaction_to_farmgymaction(gym_action)
             self.gymaction_to_discretized_farmgymaction(gym_action)
         )
@@ -408,7 +452,9 @@ class Farm(gym.Env):
         A farm gym step alternates between observation step and action step before moving to next day.
         """
         # print("AS",action_schedule)
-        filtered_action_schedule = self.rules.filter_actions(self, action_schedule, self.is_new_day)
+        filtered_action_schedule = self.rules.filter_actions(
+            self, action_schedule, self.is_new_day
+        )
         self.rules.assert_actions(filtered_action_schedule)
         if self.is_new_day:
             self.last_farmgym_action = (filtered_action_schedule, None)
@@ -416,7 +462,10 @@ class Farm(gym.Env):
             self.is_new_day = False
             return output
         else:
-            self.last_farmgym_action = (self.last_farmgym_action[0], filtered_action_schedule)
+            self.last_farmgym_action = (
+                self.last_farmgym_action[0],
+                filtered_action_schedule,
+            )
             output = self.intervention_step(filtered_action_schedule)
             self.is_new_day = True
             return output
@@ -448,13 +497,22 @@ class Farm(gym.Env):
                 path,
             )
             # cost = 0
-            day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
-            obs_vec = self.farmers[fa_key].perform_observation(fi_key, entity, variable_key, path, day)
+            day = (int)(
+                self.fields["Field-0"]
+                .entities["Weather-0"]
+                .variables["day#int365"]
+                .value
+            )
+            obs_vec = self.farmers[fa_key].perform_observation(
+                fi_key, entity, variable_key, path, day
+            )
             [observations.append(o) for o in obs_vec]
             # print("OV",obs_vec)
             # print("O",observations)
 
-        return observations, 0, False, False, {"observation cost": observation_schedule_cost}
+        return observations, 0, False, False, {
+            "observation cost": observation_schedule_cost
+        }
         # return (observation, reward, terminated, truncated, info) or  (observation, reward, done, info)
 
     def intervention_step(self, action_schedule):
@@ -469,9 +527,18 @@ class Farm(gym.Env):
             fa_key, fi_key, entity_key, action_name, params = intervention_item
             # We can change this to policies using:
             # fa_key,fi_key,pos,action = policy_item.action(observations)
-            cost = self.scoring.intervention_cost(fa_key, fi_key, entity_key, action_name, params)
-            day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
-            obs_vec = self.farmers[fa_key].perform_intervention(fi_key, entity_key, action_name, params, day)
+            cost = self.scoring.intervention_cost(
+                fa_key, fi_key, entity_key, action_name, params
+            )
+            day = (int)(
+                self.fields["Field-0"]
+                .entities["Weather-0"]
+                .variables["day#int365"]
+                .value
+            )
+            obs_vec = self.farmers[fa_key].perform_intervention(
+                fi_key, entity_key, action_name, params, day
+            )
             # print("OBSVEC", obs_vec)
             [observations.append(o) for o in obs_vec]
             intervention_schedule_cost += cost
@@ -634,7 +701,15 @@ class Farm(gym.Env):
         """
         n = self.np_random.integers(len(self.farmgym_intervention_actions))
         # intervention = self.np_random.choice(list(self.farmgym_intervention_actions))
-        fa, fi, e, inter, params, gym_space, len_gym_space = self.farmgym_intervention_actions[n]
+        (
+            fa,
+            fi,
+            e,
+            inter,
+            params,
+            gym_space,
+            len_gym_space,
+        ) = self.farmgym_intervention_actions[n]
         o = gym_space.sample()
 
         def convert(value, ranges):
@@ -728,7 +803,10 @@ class Farm(gym.Env):
                                                 action,
                                                 action_yaml[fa][fi][e][action],
                                                 gym_a,
-                                                len_discretized_gym_space(gym_a, nbins=self.discretization_nbins),
+                                                len_discretized_gym_space(
+                                                    gym_a,
+                                                    nbins=self.discretization_nbins,
+                                                ),
                                             )
                                         )
         return actions
@@ -800,7 +878,9 @@ class Farm(gym.Env):
                                         if var in action_yaml[fa][fi][e].keys():
                                             paths = make(
                                                 action_yaml[fa][fi][e][var],
-                                                self.fields[fi].entities[e].variables[var],
+                                                self.fields[fi]
+                                                .entities[e]
+                                                .variables[var],
                                             )
                                             acts = unpile((fa, fi, e, var), paths, [])
                                             [actions.append(o) for o in acts]
@@ -977,7 +1057,10 @@ class Farm(gym.Env):
         for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
             naction += ng
         # print("BUILD DISCRETIZED A", naction)
-        sequence = Sequence(Discrete(naction), maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
+        sequence = Sequence(
+            Discrete(naction),
+            maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"],
+        )
         sequence.seed(seed)
         return sequence
         # return MultiUnion([Discrete(naction)],maxnonzero=self.rules.actions_allowed["params"]["max_action_schedule_size"])
@@ -1052,7 +1135,12 @@ class Farm(gym.Env):
 
         if mode == "human":
             image = self.make_rendering_image()
-            day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
+            day = (int)(
+                self.fields["Field-0"]
+                .entities["Weather-0"]
+                .variables["day#int365"]
+                .value
+            )
             if self.interaction_mode == "AOMDP":
                 if self.is_new_day:  # Assumes it just switch from False to True
                     image.save("farm-day-" + "{:03d}".format(day) + "-2.png")
@@ -1062,7 +1150,9 @@ class Farm(gym.Env):
                 image.save("farm-day-" + "{:03d}".format(day) + ".png")
 
     def make_rendering_image(self):
-        max_display_actions = self.rules.actions_allowed["params"]["max_action_schedule_size"]
+        max_display_actions = self.rules.actions_allowed["params"][
+            "max_action_schedule_size"
+        ]
 
         from PIL import Image, ImageDraw, ImageFont
 
@@ -1076,7 +1166,12 @@ class Farm(gym.Env):
                 + (int)(
                     np.ceil(
                         len(
-                            [1 for e in self.fields[fi].entities if self.fields[fi].entities[e].to_thumbnailimage() != None]
+                            [
+                                1
+                                for e in self.fields[fi].entities
+                                if self.fields[fi].entities[e].to_thumbnailimage()
+                                != None
+                            ]
                         )
                         / self.fields[fi].X
                     )
@@ -1091,7 +1186,9 @@ class Farm(gym.Env):
         offset_sep = font_size // 2
         offset_foot = font_size * 2
 
-        font = ImageFont.truetype(str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf", size=font_size)
+        font = ImageFont.truetype(
+            str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf", size=font_size
+        )
         font_action = ImageFont.truetype(
             str(CURRENT_DIR) + "/rendering/Gidole-Regular.ttf",
             size=im_width * XX // (18 * len(self.fields)),
@@ -1106,19 +1203,29 @@ class Farm(gym.Env):
             "RGBA",
             (
                 im_width * XX,
-                im_height * YY + offset_header + offset_sep + offset_foot + offset_actions,
+                im_height * YY
+                + offset_header
+                + offset_sep
+                + offset_foot
+                + offset_actions,
             ),
             (255, 255, 255, 255),
         )
         d = ImageDraw.Draw(dashboard_picture)
 
-        day = (int)(self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value)
+        day = (int)(
+            self.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
+        )
         day_string = "Day {:03d}".format(day)
 
         d.text(
             (
                 dashboard_picture.width // 2 - len(day_string) * font_size // 4,
-                im_height * YY + offset_header + offset_sep + offset_foot // 4 + offset_actions,
+                im_height * YY
+                + offset_header
+                + offset_sep
+                + offset_foot // 4
+                + offset_actions,
             ),
             day_string,
             font=font,
@@ -1152,7 +1259,9 @@ class Farm(gym.Env):
             index = 0
             for e in self.fields[fi].entities:
                 image = self.fields[fi].entities[e].to_fieldimage()
-                image = image.resize((image.width * scale_factor, image.height * scale_factor))
+                image = image.resize(
+                    (image.width * scale_factor, image.height * scale_factor)
+                )
                 # image = image.resize((im_width, im_height))
                 dashboard_picture.paste(image, (offsetx, offset_header), image)
 
@@ -1160,11 +1269,18 @@ class Farm(gym.Env):
                 i = index - j * self.fields[fi].X
                 image_t = self.fields[fi].entities[e].to_thumbnailimage()
                 if image_t != None:
-                    image_t = image_t.resize((image_t.width * scale_factor, image_t.height * scale_factor))
+                    image_t = image_t.resize(
+                        (image_t.width * scale_factor, image_t.height * scale_factor)
+                    )
                     dd = ImageDraw.Draw(image_t)
                     # dd.rectangle(((2,2),(im_width-2,im_height-2)), fill="#ff000000", outline="red")
                     xx = offsetx + i * im_width
-                    yy = offset_header + self.fields[fi].Y * im_height + offset_sep + j * im_height
+                    yy = (
+                        offset_header
+                        + self.fields[fi].Y * im_height
+                        + offset_sep
+                        + j * im_height
+                    )
                     dashboard_picture.paste(image_t, (xx, yy), image_t)
                     # d.rectangle(((xx,yy),(xx+im_width,yy+im_height)), fill="#ffffff00", outline="red")
                     index += 1
@@ -1178,7 +1294,10 @@ class Farm(gym.Env):
             d.rectangle(
                 (
                     (offsetx, offset_field_y),
-                    (offsetx + self.fields[fi].X * im_width, offset_field_y + offset_actions + im_width // 100),
+                    (
+                        offsetx + self.fields[fi].X * im_width,
+                        offset_field_y + offset_actions + im_width // 100,
+                    ),
                 ),
                 fill=(255, 255, 255, 255),
                 outline=(0, 0, 0, 255),
@@ -1275,7 +1394,10 @@ class Farm(gym.Env):
             fa, fi, e, a, f_a, g, ng = i
             s += "\t" + str((fa, fi, e, a, f_a)) + "\n"
 
-        s += "Available gym actions: (as list [n1 n2 n3] where ni is one of the following)" + "\n"
+        s += (
+            "Available gym actions: (as list [n1 n2 n3] where ni is one of the following)"
+            + "\n"
+        )
         s += self.actions_to_string()
         return s
 
@@ -1305,14 +1427,22 @@ class Farm(gym.Env):
         # print("?", farm.farmgym_state_space.contains(s), farm.observation_space.contains(o))
 
         print("############RANDOM ACTIONS################")
-        print("Random intervention allowed by rules:\t", farm.random_allowed_intervention())
-        print("Random observation allowed by rules:\t", farm.random_allowed_observation())
+        print(
+            "Random intervention allowed by rules:\t",
+            farm.random_allowed_intervention(),
+        )
+        print(
+            "Random observation allowed by rules:\t", farm.random_allowed_observation()
+        )
         print("############RANDOM GYM ACTIONS################")
         print("Gym (discretized) actions:", farm.action_space)
         # disc_space= farm.build_gym_discretized_action_space()
         # print("Gym discretized  actions:", disc_space)
         print("Do nothing gym action schedule:", "[]")
-        print(" corresponding farmgym action schedule:", farm.gymaction_to_farmgymaction([]))
+        print(
+            " corresponding farmgym action schedule:",
+            farm.gymaction_to_farmgymaction([]),
+        )
         for i in range(25):
             a = farm.action_space.sample()
             if len(a) > 0:
@@ -1338,7 +1468,8 @@ def generate_video(image_folder=".", video_name="farm.avi"):
     images = [
         img
         for img in os.listdir(image_folder)
-        if ("day-" in img) and (img.endswith(".jpg") or img.endswith(".jpeg") or img.endswith("png"))
+        if ("day-" in img)
+        and (img.endswith(".jpg") or img.endswith(".jpeg") or img.endswith("png"))
     ]
 
     fourcc = cv2.VideoWriter_fourcc(*"DIVX")
@@ -1394,7 +1525,8 @@ def generate_gif(image_folder=".", video_name="farm.gif"):
     images = [
         imageio.imread(img)
         for img in os.listdir(image_folder)
-        if ("day-" in img) and (img.endswith(".jpg") or img.endswith(".jpeg") or img.endswith("png"))
+        if ("day-" in img)
+        and (img.endswith(".jpg") or img.endswith(".jpeg") or img.endswith("png"))
     ]
 
     imageio.mimsave(video_name, images)

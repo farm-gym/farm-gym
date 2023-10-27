@@ -60,7 +60,9 @@ if __name__ == "__main__":
     manager.save()
     print("training time in s is ", time.time() - init_time)
     fig, ax = plt.subplots(figsize=(8, 4))
-    data = plot_writer_data(manager, tag="episode_rewards", smooth_weight=0.8, ax=ax)  # smoothing tensorboard-style
+    data = plot_writer_data(
+        manager, tag="episode_rewards", smooth_weight=0.8, ax=ax
+    )  # smoothing tensorboard-style
 
     fig.savefig("dqn_regret.pdf")
 
@@ -76,7 +78,11 @@ if __name__ == "__main__":
             action = agent.policy(obs)
             obs, reward, is_done, _ = env.step(action)
             episode = pd.concat(
-                [episode, pd.DataFrame({"action": [actions_txt[action]], "reward": [reward]})], ignore_index=True
+                [
+                    episode,
+                    pd.DataFrame({"action": [actions_txt[action]], "reward": [reward]}),
+                ],
+                ignore_index=True,
             )
             rew = rew + reward
             if is_done:
@@ -86,5 +92,7 @@ if __name__ == "__main__":
         print(rew)
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    sns.countplot(data=episode, x="action", order=episode["action"].value_counts().index, ax=ax)
+    sns.countplot(
+        data=episode, x="action", order=episode["action"].value_counts().index, ax=ax
+    )
     fig.savefig("dqn_barplot.pdf")

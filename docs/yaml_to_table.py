@@ -53,7 +53,6 @@ def printDic(inDictionary, inPTable, indent):
                 inPTable.add_row([indent + item, SPACE_CHAR + SPACE_CHAR])
                 printDic(moreStuff, inPTable, SPACE_CHAR + SPACE_CHAR + indent)
             elif isinstance(moreStuff, list):
-
                 # If we are not in nested call (as indent is empty string) we add one extra row in table (for clarity)
                 if indent == "":
                     inPTable.add_row([SPACE_CHAR, SPACE_CHAR])
@@ -120,7 +119,6 @@ def parse_yaml(in_file):
 
 
 if __name__ == "__main__":
-
     in_file = Path(sys.argv[1])
     final_str = parse_yaml(in_file)
     print(final_str)

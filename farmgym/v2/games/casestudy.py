@@ -16,7 +16,9 @@ field0 = {
     "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
 }
 
-f1 = make_basicfarm("dry_clay_bean", field0, [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")])
+f1 = make_basicfarm(
+    "dry_clay_bean", field0, [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")]
+)
 f2 = make_basicfarm(
     "dry_sand_bean",
     field0,
@@ -43,7 +45,9 @@ f6 = make_basicfarm(
     [(Weather, "dry"), (Soil, "sand"), (Plant, "tomato")],
 )
 f7 = make_basicfarm(
-    "dry_clay_bean_pollinator", field0, [(Weather, "dry"), (Soil, "clay"), (Plant, "bean"), (Pollinators, "bee")]
+    "dry_clay_bean_pollinator",
+    field0,
+    [(Weather, "dry"), (Soil, "clay"), (Plant, "bean"), (Pollinators, "bee")],
 )
 f8 = make_basicfarm(
     "dry_clay_corn_pollinator",
@@ -87,7 +91,9 @@ ff2 = make_basicfarm(
 def make_policy_water_harvest(farm, amount_water):
     helper = Policy_helper(farm)
     observe_plant = helper.create_plant_observe()
-    water_soil_day1_5l = helper.create_water_soil_continious(amount=amount_water, delay=0)
+    water_soil_day1_5l = helper.create_water_soil_continious(
+        amount=amount_water, delay=0
+    )
     harvest_ripe = helper.create_harvest_ripe(delay=1)
     harvest_fruit = helper.create_harvest_fruit(delay=18)
     policies = [observe_plant, water_soil_day1_5l, harvest_ripe, harvest_fruit]
@@ -100,10 +106,19 @@ def make_policy_herbicide(farm, amount_herbicide, frequency, amount_water):
     observe_plant = helper.create_plant_observe()
     weed_observe = helper.create_weed_observe()
     water_soil = helper.create_water_soil_continious(amount=amount_water, delay=0)
-    scatter_cide = helper.create_scatter_cide(amount=amount_herbicide, frequency=frequency, threshold=0)
+    scatter_cide = helper.create_scatter_cide(
+        amount=amount_herbicide, frequency=frequency, threshold=0
+    )
     harvest_ripe = helper.create_harvest_ripe(delay=1)
     harvest_fruit = helper.create_harvest_fruit(delay=18)
-    policies = [observe_plant, weed_observe, water_soil, scatter_cide, harvest_ripe, harvest_fruit]
+    policies = [
+        observe_plant,
+        weed_observe,
+        water_soil,
+        scatter_cide,
+        harvest_ripe,
+        harvest_fruit,
+    ]
     combined_policy = Policy_API.combine_policies([policy.api for policy in policies])
     return combined_policy
 
@@ -118,7 +133,9 @@ def xp_coupling(cide_amount, water_amount):
     results = []
     for f in farms:
         for p in range(len(policy_parameters)):
-            policy = make_policy_herbicide(f, cide_amount, policy_parameters[p], water_amount)
+            policy = make_policy_herbicide(
+                f, cide_amount, policy_parameters[p], water_amount
+            )
             cumrewards = []
             for n in range(nb_replicate):
                 cr, _ = run_policy_xp(f, copy.deepcopy(policy), max_steps=150)
@@ -137,7 +154,9 @@ def xp_watering():
     results = []
     for idx, f in enumerate(farms):
         for p in range(len(policy_parameters)):
-            policy = make_policy_water_harvest(farm=f, amount_water=policy_parameters[p])
+            policy = make_policy_water_harvest(
+                farm=f, amount_water=policy_parameters[p]
+            )
             cumrewards = []
             for n in range(nb_replicate):
                 cr, _ = run_policy_xp(f, copy.deepcopy(policy), max_steps=150)
@@ -148,10 +167,14 @@ def xp_watering():
 
 
 farms, policy_parameters, results = xp_watering()
-plot_watering_results(farms, policy_parameters, results, "Watering policy (daily input in L)")
+plot_watering_results(
+    farms, policy_parameters, results, "Watering policy (daily input in L)"
+)
 
 farms, policy_parameters, results = xp_coupling(0.0015, 6)
-plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (every x day)")
+plot_coupling_results(
+    farms, policy_parameters, results, "Herbicide policy (every x day)"
+)
 
 
 # from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored
@@ -164,5 +187,5 @@ plot_coupling_results(farms, policy_parameters, results, "Herbicide policy (ever
 # farm=f2
 # farm.add_monitoring(v,tensorboard=True)
 # farm.understand_the_farm()
-#policy = make_policy_water_harvest(farm=farm, amount_water=7.)
-#cr, _ = run_policy_xp(farm, copy.deepcopy(policy), max_steps=150)
+# policy = make_policy_water_harvest(farm=farm, amount_water=7.)
+# cr, _ = run_policy_xp(farm, copy.deepcopy(policy), max_steps=150)

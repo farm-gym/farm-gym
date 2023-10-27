@@ -2,7 +2,12 @@ import os
 import re
 
 import yaml
-from farmgym.v2.specifications.specification_manager import build_actionsyaml, build_inityaml, build_scoreyaml, load_yaml
+from farmgym.v2.specifications.specification_manager import (
+    build_actionsyaml,
+    build_inityaml,
+    build_scoreyaml,
+    load_yaml,
+)
 
 
 # Create a sample farm with fields and entities
@@ -53,7 +58,10 @@ def test_build_scoreyaml(tmp_path):
     fields = {
         "field1": Field(
             "field1",
-            {"entity1": Entity("entity1", ["var1"], ["action1", "action2"]), "entity2": Entity("entity2", [], ["action3"])},
+            {
+                "entity1": Entity("entity1", ["var1"], ["action1", "action2"]),
+                "entity2": Entity("entity2", [], ["action3"]),
+            },
         ),
         "field2": Field("field2", {"entity3": Entity("entity3", ["var1", "var2"], [])}),
     }
@@ -117,11 +125,20 @@ def test_build_inityaml(tmp_path):
         "field1": Field(
             "field1",
             {
-                "entity1": Entity("entity1", {"variable1": Variable("variable1"), "variable2": Variable("variable2")}),
+                "entity1": Entity(
+                    "entity1",
+                    {
+                        "variable1": Variable("variable1"),
+                        "variable2": Variable("variable2"),
+                    },
+                ),
                 "entity2": Entity("entity2", {"variable3": Variable("variable3")}),
             },
         ),
-        "field2": Field("field2", {"entity3": Entity("entity3", {"variable4": Variable("variable4")})}),
+        "field2": Field(
+            "field2",
+            {"entity3": Entity("entity3", {"variable4": Variable("variable4")})},
+        ),
     }
 
     farm = Farm("test", fields)
@@ -172,13 +189,19 @@ def test_build_actionsyaml(tmp_path):
             {
                 "entity1": Entity(
                     "entity1",
-                    {"variable1": Variable("variable1"), "variable2": Variable("variable2")},
+                    {
+                        "variable1": Variable("variable1"),
+                        "variable2": Variable("variable2"),
+                    },
                     {"action1": {"remove": {"plot": [(0, 0)]}}},
                 ),
                 "entity2": Entity("entity2", {"variable3": Variable("variable3")}, {}),
             },
         ),
-        "field2": Field("field2", {"entity3": Entity("entity3", {"variable4": Variable("variable4")}, {})}),
+        "field2": Field(
+            "field2",
+            {"entity3": Entity("entity3", {"variable4": Variable("variable4")}, {})},
+        ),
     }
 
     farm = Farm("test", fields, ["farmer1", "farmer2"])

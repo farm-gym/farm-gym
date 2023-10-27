@@ -51,7 +51,9 @@ class Weather(Entity_API):
         }
 
         # self.year_weather = sm.load_weather_table(self.parameters["one_year_data_filename"])
-        self.year_weathers, self.weather_alphas = sm.load_weather_table(self.parameters["one_year_data_filename"])
+        self.year_weathers, self.weather_alphas = sm.load_weather_table(
+            self.parameters["one_year_data_filename"]
+        )
         # Local weather
 
         # Actions
@@ -81,7 +83,9 @@ class Weather(Entity_API):
         if "day#int365" not in self.initial_conditions:
             self.variables["day#int365"].set_value(((-1) % 365))
         else:
-            self.variables["day#int365"].set_value(((self.initial_conditions["day#int365"] - 1) % 365))
+            self.variables["day#int365"].set_value(
+                ((self.initial_conditions["day#int365"] - 1) % 365)
+            )
         if "consecutive_frost#day" not in self.initial_conditions:
             self.variables["consecutive_frost#day"].set_value(0.0)
         if "cconsecutive_dry#day" not in self.initial_conditions:
@@ -99,31 +103,48 @@ class Weather(Entity_API):
     def update_variables(self, field, entities):
         day = (self.variables["day#int365"].value + 1) % 365
         if day == 0:
-            self.variables["year#int100"].set_value(self.variables["year#int100"].value + 1)
+            self.variables["year#int100"].set_value(
+                self.variables["year#int100"].value + 1
+            )
         self.variables["day#int365"].set_value(((day) % 365))
 
         eps = self.np_random.normal(0, self.parameters["air_temperature_noise"], 1)[0]
-        self.variables["air_temperature"]["mean#°C"].set_value(self.read_weathercsv("T", day % 365) + eps)
-        self.variables["air_temperature"]["min#°C"].set_value(self.read_weathercsv("Tmin", day % 365) + eps)
-        self.variables["air_temperature"]["max#°C"].set_value(self.read_weathercsv("Tmax", day % 365) + eps)
+        self.variables["air_temperature"]["mean#°C"].set_value(
+            self.read_weathercsv("T", day % 365) + eps
+        )
+        self.variables["air_temperature"]["min#°C"].set_value(
+            self.read_weathercsv("Tmin", day % 365) + eps
+        )
+        self.variables["air_temperature"]["max#°C"].set_value(
+            self.read_weathercsv("Tmax", day % 365) + eps
+        )
 
         if self.variables["air_temperature"]["min#°C"].value < 0:
-            self.variables["consecutive_frost#day"].set_value(self.variables["consecutive_frost#day"].value + 1)
+            self.variables["consecutive_frost#day"].set_value(
+                self.variables["consecutive_frost#day"].value + 1
+            )
         else:
             self.variables["consecutive_frost#day"].set_value(0)
 
         self.variables["humidity_index#%"].set_value(
-            self.read_weathercsv("RH", day % 365) + self.np_random.normal(0, self.parameters["humidity_index_noise"], 1)[0]
+            self.read_weathercsv("RH", day % 365)
+            + self.np_random.normal(0, self.parameters["humidity_index_noise"], 1)[0]
         )
-        self.variables["wind"]["speed#km.h-1"].set_value(self.read_weathercsv("U", day % 365) + self.np_random.random())
-        self.variables["wind"]["direction"].set_value(self.np_random.choice(Weather.wind_directions, 1)[0])
+        self.variables["wind"]["speed#km.h-1"].set_value(
+            self.read_weathercsv("U", day % 365) + self.np_random.random()
+        )
+        self.variables["wind"]["direction"].set_value(
+            self.np_random.choice(Weather.wind_directions, 1)[0]
+        )
         self.variables["sun_exposure#int5"].set_value(self.np_random.integers(5))
         is_rain = self.read_weathercsv("Rain", day % 365)
         if is_rain > 0:
             self.variables["consecutive_dry#day"].set_value(0)
             self.variables["sun_exposure#int5"].set_value(0)
             self.variables["rain_amount"].set_value(
-                "Light" if self.np_random.random() <= self.parameters["rain_lightheavy_proba"] else "Heavy"
+                "Light"
+                if self.np_random.random() <= self.parameters["rain_lightheavy_proba"]
+                else "Heavy"
             )
             self.variables["rain_intensity"].set_value(
                 self.parameters["rain_leakageintensity_light#%"]
@@ -131,7 +152,9 @@ class Weather(Entity_API):
                 else self.parameters["rain_leakageintensity_heavy#%"]
             )
         else:
-            self.variables["consecutive_dry#day"].set_value(self.variables["consecutive_dry#day"].value + 1)
+            self.variables["consecutive_dry#day"].set_value(
+                self.variables["consecutive_dry#day"].value + 1
+            )
             self.variables["rain_amount"].set_value("None")
             self.variables["rain_intensity"].set_value(0.0)
 
@@ -147,7 +170,8 @@ class Weather(Entity_API):
         for i in range(self.parameters["forecast_lookahead"]):
             eps = self.np_random.normal(
                 0,
-                self.parameters["air_temperature_noise"] + self.parameters["forecast_noise"] * i,
+                self.parameters["air_temperature_noise"]
+                + self.parameters["forecast_noise"] * i,
                 1,
             )[0]
             self.variables["air_temperature.forecast"]["mean#°C"][i].set_value(
@@ -184,7 +208,10 @@ class Weather(Entity_API):
             ((24 * 60) / np.pi)
             * Gsc
             * dr
-            * (ws * np.sin(np.pi / 180 * phi) * np.sin(delta) + np.cos(ws) * np.cos(np.pi / 180 * phi) * np.cos(delta))
+            * (
+                ws * np.sin(np.pi / 180 * phi) * np.sin(delta)
+                + np.cos(ws) * np.cos(np.pi / 180 * phi) * np.cos(delta)
+            )
         )
 
         rh = self.variables["humidity_index#%"].value

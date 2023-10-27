@@ -28,6 +28,7 @@ def test_farmgym():
     print("\nSTART")
     import gymnasium as gym
     from farmgym.v2.games.make_farm import make_farm
+
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_bean.yaml")
     farm.farmgym_reset()
 
@@ -40,9 +41,8 @@ def test_farmgym():
         a = farm.random_allowed_observation()
         if (a != []) and (a != None):
             observation_schedule.append(a)
-        obs1, _, _,_, info = farm.farmgym_step(observation_schedule)
+        obs1, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
-
 
         print("\tObservation actions:", observation_schedule)
         [print("\tObservations:", o) for o in obs1]
@@ -50,10 +50,11 @@ def test_farmgym():
 
         intervention_schedule = []
         intervention_schedule.append(farm.random_allowed_intervention())
-        obs2, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        obs2, reward, terminated, truncated, info = farm.farmgym_step(
+            intervention_schedule
+        )
         int_cost = info["intervention cost"]
         nb_steps += 1
-
 
         print("\tIntervention actions:", intervention_schedule)
         [print("\tObservations:", o) for o in obs2]
@@ -68,16 +69,16 @@ def test_check():
     print("\nSTART")
     from gymnasium.utils.env_checker import check_env
     from farmgym.v2.games.make_farm import make_farm
+
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
-    #farm.understand_the_farm()
+    # farm.understand_the_farm()
 
-
-    #from gymnasium.spaces import Dict, Box
-    #space = Dict({"a": Dict({"b": Box(low=0,high=10), "c": Box(low=0,high=10)})})
-    #o = space.sample()
-    #print("?",o,  o in space)
-    #oo = {"a": {"b": [0.22], "c": [0.35]}}
-    #print("?",oo, oo in space)
+    # from gymnasium.spaces import Dict, Box
+    # space = Dict({"a": Dict({"b": Box(low=0,high=10), "c": Box(low=0,high=10)})})
+    # o = space.sample()
+    # print("?",o,  o in space)
+    # oo = {"a": {"b": [0.22], "c": [0.35]}}
+    # print("?",oo, oo in space)
 
     check_env(farm)
 
@@ -94,8 +95,8 @@ def test_check():
 
 def test_gym():
     print("\nSTART")
-    import gymnasium as gym
     from farmgym.v2.games.make_farm import make_farm
+
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
 
     farm.reset()
@@ -113,7 +114,7 @@ def test_gym():
         [print("\tObservation:", o) for o in obs]
         print("\tReward:", reward)
         print("\tIs terminated:", terminated)
-        print("\tIs truncated:",  truncated)
+        print("\tIs truncated:", truncated)
         print("\tInformation:", info)
 
         nb_steps += 1
@@ -122,20 +123,24 @@ def test_gym():
 
 
 def test_simple_gym():
-    from farmgym.v2.games.rungame  import Farmgym_RandomAgent, run_gym_xp
+    from farmgym.v2.games.rungame import Farmgym_RandomAgent, run_gym_xp
     from farmgym.v2.games.make_farm import make_farm
 
-    farm2 = make_farm("../farmgym/v2/games/farms_3x4/farm_montpellier_clay_corn_birds_fertilizer_pests_pollinators_weeds.yaml")
+    farm2 = make_farm(
+        "../farmgym/v2/games/farms_3x4/farm_montpellier_clay_corn_birds_fertilizer_pests_pollinators_weeds.yaml"
+    )
     agent = Farmgym_RandomAgent()
     run_gym_xp(farm2, agent, max_steps=15, render="text")
+
+
 #####
 
 
 def test_render():
     print("\nSTART")
-    import gymnasium as gym
 
     from farmgym.v2.games.make_farm import make_farm
+
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_corn.yaml")
     from farmgym.v2.farm import generate_video
 
@@ -178,7 +183,6 @@ def test_register():
 
 
 def test_farmgym_render_register():
-
     print("\nSTART")
     import gymnasium as gym
     from farmgym.v2.games.register_all import register_farms
@@ -211,7 +215,7 @@ def test_farmgym_render_register():
         observation_schedule = []
         if np.random.rand() > 0.3:
             a = farm.random_allowed_observation()
-            if (a!= None):
+            if a != None:
                 observation_schedule.append(a)
         obs1, obs_cost, _, _, _ = farm.farmgym_step(observation_schedule)
         # obs1, obs_cost, _, _ = farm.step(farm.action_space.sample())
@@ -219,7 +223,9 @@ def test_farmgym_render_register():
         intervention_schedule = []
         if np.random.rand() > 0.3:
             intervention_schedule.append(farm.random_allowed_intervention())
-        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(
+            intervention_schedule
+        )
         # obs, reward, is_done, info = farm.step(farm.action_space.sample())
 
         cumreward += reward
@@ -262,17 +268,18 @@ def test_makefarm():
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
             "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
         },
-        [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")]
+        [(Weather, "dry"), (Soil, "clay"), (Plant, "bean")],
     )
 
     from farmgym.v2.games.make_farm import make_farm
-    #import os
-    #from pathlib import Path
-    #file_path = Path(os.path.realpath(__file__))
-    #CURRENT_DIR = file_path.parent
-    #os.chdir("../farmgym/v2/games/farms_1x1/")
-    #farm2 = make_farm("farm_montpellier_clay_bean.yaml")
-    #os.chdir(CURRENT_DIR)
+
+    # import os
+    # from pathlib import Path
+    # file_path = Path(os.path.realpath(__file__))
+    # CURRENT_DIR = file_path.parent
+    # os.chdir("../farmgym/v2/games/farms_1x1/")
+    # farm2 = make_farm("farm_montpellier_clay_bean.yaml")
+    # os.chdir(CURRENT_DIR)
     farm2 = make_farm("../farmgym/v2/games/farms_1x1/farm_montpellier_clay_bean.yaml")
 
 
@@ -280,6 +287,7 @@ def test_farmgym_policy():
     print("\nSTART")
     import gymnasium as gym
     from farmgym.v2.games.make_farm import make_farm
+
     farm = make_farm("../farmgym/v2/games/farms_1x1/farm_lille_clay_bean.yaml")
 
     if farm.monitor != None:
@@ -287,7 +295,7 @@ def test_farmgym_policy():
     farm.farmgym_reset()
 
     policies = farm.policies
-    if (policies != []):
+    if policies != []:
         policy = farm.np_random.choice(policies)
 
         is_done = False
@@ -295,7 +303,7 @@ def test_farmgym_policy():
         while (not is_done) and (nb_steps < 10):
             observations = farm.get_free_observations()
             observation_schedule = policy.observation_schedule(observations)
-            observation, _, _,_,  info = farm.farmgym_step(observation_schedule)
+            observation, _, _, _, info = farm.farmgym_step(observation_schedule)
 
             print("Observation step:")
             [print("\tScheduled:\t", o) for o in observation_schedule]
@@ -303,14 +311,16 @@ def test_farmgym_policy():
             print("\tInformation:\t", info)
 
             intervention_schedule = policy.intervention_schedule(observation)
-            obs2, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+            obs2, reward, terminated, truncated, info = farm.farmgym_step(
+                intervention_schedule
+            )
 
             print("Intervention step:")
             [print("\tScheduled:\t", o) for o in intervention_schedule]
             [print("\tObserved:\t", o) for o in obs2]
             print("\tReward:\t", reward)
             print("\tIs terminated:\t", terminated)
-            print("\tIs truncated:\t",  truncated)
+            print("\tIs truncated:\t", truncated)
             print("\tInformation:\t", info)
 
             nb_steps += 1
@@ -434,7 +444,7 @@ def test_build_config():
             "localization": {"latitude#°": 43, "longitude#°": 4, "altitude#m": 150},
             "shape": {"length#nb": 1, "width#nb": 1, "scale#m": 1.0},
         },
-        FULL_ENTITY
+        FULL_ENTITY,
     )
 
 

@@ -15,7 +15,10 @@ from farmgym.v2.farm import Farm
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer
 from farmgym.v2.field import Field
 from farmgym.v2.policy_api import Policy_helper
-from farmgym.v2.rendering.monitoring import MonitorTensorBoard, make_variables_to_be_monitored
+from farmgym.v2.rendering.monitoring import (
+    MonitorTensorBoard,
+    make_variables_to_be_monitored,
+)
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.scorings.BasicScore import BasicScore
 
@@ -50,7 +53,10 @@ def sample_fields():
 def sample_farmers():
     # Define sample farmers for testing
     farmers = [{"max_daily_interventions": 1}]
-    farmers = [BasicFarmer(max_daily_interventions=f["max_daily_interventions"]) for f in farmers]
+    farmers = [
+        BasicFarmer(max_daily_interventions=f["max_daily_interventions"])
+        for f in farmers
+    ]
     return farmers
 
 
@@ -82,15 +88,23 @@ def sample_policies():
 
 
 @pytest.fixture
-def sample_farm(sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies):
+def sample_farm(
+    sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies
+):
     # Define sample farm for testing
-    farm = Farm(sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies)
+    farm = Farm(
+        sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies
+    )
     return farm
 
 
-def test_farm_initialization(sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies):
+def test_farm_initialization(
+    sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies
+):
     # Create an instance of the Farm class
-    farm = Farm(sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies)
+    farm = Farm(
+        sample_fields, sample_farmers, sample_scoring, sample_rules, sample_policies
+    )
 
     # Verify the initialization of fields, farmers, scoring, rules, and policies
     assert farm.fields == {field.name: field for field in sample_fields}
@@ -115,7 +129,9 @@ def test_build_name(sample_farm):
 
 def test_build_shortname(sample_farm):
     farm = sample_farm
-    expected_shortname = "farm_1x1(dry_clay_bean_bee_base_weed_basic_herbicide_slow_basic_N_base_bird)"
+    expected_shortname = (
+        "farm_1x1(dry_clay_bean_bee_base_weed_basic_herbicide_slow_basic_N_base_bird)"
+    )
     assert farm.build_shortname() == expected_shortname
 
 
@@ -130,8 +146,17 @@ POLICY_ACTIONS = [
     ),
     (
         "create_scatter_cide",
-        ("BasicFarmer-0", f"Field-{fi}", "Cide-0", "scatter", {"plot": loc, "amount#kg": 5}),
-        [("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 4), ("Free", "Field-0", "Weather-0", "day#int365", [], 360)],
+        (
+            "BasicFarmer-0",
+            f"Field-{fi}",
+            "Cide-0",
+            "scatter",
+            {"plot": loc, "amount#kg": 5},
+        ),
+        [
+            ("Free", "Field-0", "Weeds-0", "grow#nb", [(0, 0)], 4),
+            ("Free", "Field-0", "Weather-0", "day#int365", [], 360),
+        ],
     ),
     (
         "create_remove_weeds",
@@ -140,20 +165,42 @@ POLICY_ACTIONS = [
     ),
     (
         "create_water_soil",
-        ("BasicFarmer-0", "Field-0", "Soil-0", "water_discrete", {"amount#L": 5, "duration#min": 60, "plot": (0, 0)}),
+        (
+            "BasicFarmer-0",
+            "Field-0",
+            "Soil-0",
+            "water_discrete",
+            {"amount#L": 5, "duration#min": 60, "plot": (0, 0)},
+        ),
         [],
     ),
     (
         "create_water_soil_continious",
-        ("BasicFarmer-0", "Field-0", "Soil-0", "water_continuous", {"amount#L": 5, "duration#min": 60, "plot": (0, 0)}),
+        (
+            "BasicFarmer-0",
+            "Field-0",
+            "Soil-0",
+            "water_continuous",
+            {"amount#L": 5, "duration#min": 60, "plot": (0, 0)},
+        ),
         [],
     ),
     (
         "create_scatter_fert",
-        ("BasicFarmer-0", f"Field-{fi}", f"Fertilizer-{idx}", "scatter_bag", {"plot": loc, "amount#bag": 4}),
+        (
+            "BasicFarmer-0",
+            f"Field-{fi}",
+            f"Fertilizer-{idx}",
+            "scatter_bag",
+            {"plot": loc, "amount#bag": 4},
+        ),
         [],
     ),
-    ("create_put_scarecrow", ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}", "put_scarecrow", {}), []),
+    (
+        "create_put_scarecrow",
+        ("BasicFarmer-0", f"Field-{fi}", f"Facility-{idx}", "put_scarecrow", {}),
+        [],
+    ),
 ]
 
 
@@ -176,7 +223,9 @@ def test_policy_delay(sample_farm, delay, policy_tuple):
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         observation += condition
         intervention_schedule = policy.intervention_schedule(observation)
-        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(
+            intervention_schedule
+        )
         if i < delay:
             assert action not in intervention_schedule
         if i == delay:
@@ -203,7 +252,9 @@ def test_policy_frequency(sample_farm, frequency, policy_tuple):
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         observation += condition
         intervention_schedule = policy.intervention_schedule(observation)
-        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(
+            intervention_schedule
+        )
         if i % frequency == 0:
             assert action in intervention_schedule
         else:
@@ -231,7 +282,12 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
 
     # Create an instance of MonitorTensorBoard
     monitor = MonitorTensorBoard(
-        farm, list_of_variables_to_monitor, logdir="logs", run_name="test_run", matview=True, wait_for_exit=False
+        farm,
+        list_of_variables_to_monitor,
+        logdir="logs",
+        run_name="test_run",
+        matview=True,
+        wait_for_exit=False,
     )
 
     # Call the update_fig method
@@ -239,7 +295,9 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
 
     # Assert that the expected TensorFlow summary functions were called
     tf_summary = mock_tf_summary
-    tf_summary.scalar.assert_called_once_with("Soil-0/Available Water (L) (Field-0, Soil-0)", mock.ANY, step=0)
+    tf_summary.scalar.assert_called_once_with(
+        "Soil-0/Available Water (L) (Field-0, Soil-0)", mock.ANY, step=0
+    )
 
     # Stop monitoring
     monitor.stop()
