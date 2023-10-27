@@ -15,7 +15,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="farmgym",
-    version=__version__,
+    version=__version__,  # noqa: F821
     packages=packages,
     install_requires=[
         "gymnasium",

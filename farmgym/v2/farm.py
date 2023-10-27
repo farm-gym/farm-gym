@@ -584,16 +584,16 @@ class Farm(gym.Env):
         """
 
         def convert(value, ranges):
-            if ranges == None:
+            if ranges is None:
                 return {}
-            if type(ranges) == list:
-                if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
+            if isinstance(ranges, list):
+                if isinstance(ranges[value], str) and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
-            elif type(ranges) == str and "(" in ranges:  # Range of continuous values
+            elif isinstance(ranges, str) and "(" in ranges:  # Range of continuous values
                 # print("?",value, ranges)
                 return (float)(value)
-            elif type(ranges) == dict:
+            elif isinstance(ranges, dict):
                 c_v = {}
                 for k in ranges:
                     c_v[k] = convert(value[k], ranges[k])
@@ -619,19 +619,19 @@ class Farm(gym.Env):
 
     def gymaction_to_discretized_farmgymaction(self, actions):
         def convert(value, ranges):
-            if ranges == None:
+            if ranges is None:
                 return {}
-            if type(ranges) == list:
-                if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
+            if isinstance(ranges, list):
+                if isinstance(ranges[value], str) and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
-            elif type(ranges) == str and "(" in ranges:  # Range of continuous values
+            elif isinstance(ranges, str) and "(" in ranges:  # Range of continuous values
                 # r = ranges.split(",")
                 # m=float(r[0][1:])
                 # M=float(r[1][:-1])
                 # print("?",value, ranges,m,M)
                 return (float)(value)
-            elif type(ranges) == dict:
+            elif isinstance(ranges, dict):
                 c_v = {}
                 for k in ranges:
                     c_v[k] = convert(value[k], ranges[k])
@@ -713,21 +713,21 @@ class Farm(gym.Env):
         o = gym_space.sample()
 
         def convert(value, ranges):
-            if type(ranges) == list:
-                if type(ranges[value]) == str and "(" in ranges[value]:  # Plots.
+            if isinstance(ranges, list):
+                if isinstance(ranges[value], str) and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
-            elif type(ranges) == str and "(" in ranges:  # Range of continuous values
+            elif isinstance(ranges, str) and "(" in ranges:  # Range of continuous values
                 # print("?",value, ranges)
                 return (float)(value)
-            elif type(ranges) == dict:
+            elif isinstance(ranges, dict):
                 c_v = {}
                 for k in ranges:
                     c_v[k] = convert(value[k], ranges[k])
                 return c_v
 
         farmgym_act = {}
-        if type(params) == dict:
+        if isinstance(params, dict):
             # print("DICT:",f_a,act)
             farmgym_act = {}
             for k in params:
@@ -751,17 +751,17 @@ class Farm(gym.Env):
 
         def make(action):
             #            print("ACTION",action, type(action))
-            if type(action) == str:
+            if isinstance(action, str):
                 tuple = yml_tuple_constructor(action)
                 m, M = tuple
                 return Box(low=m, high=M, shape=())
-            elif type(action) == list:
+            elif isinstance(action, list):
                 ## Need to handle tuples differently.
                 # print("KEYY",dictio[key])
                 return Discrete(len(action))
-            elif action == None:
+            elif action is None:
                 return Discrete(1)
-            elif type(action) == dict:
+            elif isinstance(action, dict):
                 actions = {}
                 for key in action:
                     actions[key] = make(action[key])
@@ -823,12 +823,12 @@ class Farm(gym.Env):
         """
 
         def make(dictio, variables):
-            if type(dictio) == list:
+            if isinstance(dictio, list):
                 actions = {}
                 for key in dictio:
                     if key == "*":
                         actions["*"] = ["'"]
-                    elif type(key) == str and "(" in key:
+                    elif isinstance(key, str) and "(" in key:
                         id = yml_tuple_constructor(key, int)
                         actions[id] = [id]
                     #    print("KEY2-")
@@ -836,9 +836,9 @@ class Farm(gym.Env):
                     else:
                         actions[key] = [key]
                 return actions
-            elif dictio == None:
+            elif dictio is None:
                 return ["'"]
-            elif type(dictio) == dict:
+            elif isinstance(dictio, dict):
                 actions = {}
                 for key in dictio:
                     if key == "*":
@@ -854,7 +854,7 @@ class Farm(gym.Env):
 
         def unpile(var, paths, prefix):
             actions = []
-            if type(paths) == dict:
+            if isinstance(paths, dict):
                 for key in paths:
                     if key == "*":
                         acts = unpile(var, paths[key], prefix)
@@ -920,7 +920,7 @@ class Farm(gym.Env):
                 return Discrete(len(range))
 
         def make_s(x, indent=""):
-            if type(x) == dict:
+            if isinstance(x, dict):
                 state = {}
                 for k in x:
                     state[k] = make_s(x[k], indent=indent + "  ")
@@ -969,7 +969,7 @@ class Farm(gym.Env):
         # Number all discrete actions, then discretize continuous ones with param N (nb of elements for each dim). number mutiactions etc.
 
         def make_space(x):
-            if type(x) == dict:
+            if isinstance(x, dict):
                 xspace = {}
                 for k in x.keys():
                     xspace[k] = make_space(x[k])
@@ -1170,7 +1170,7 @@ class Farm(gym.Env):
                                 1
                                 for e in self.fields[fi].entities
                                 if self.fields[fi].entities[e].to_thumbnailimage()
-                                != None
+                                is not None
                             ]
                         )
                         / self.fields[fi].X
@@ -1268,7 +1268,7 @@ class Farm(gym.Env):
                 j = index // self.fields[fi].X
                 i = index - j * self.fields[fi].X
                 image_t = self.fields[fi].entities[e].to_thumbnailimage()
-                if image_t != None:
+                if image_t is not None:
                     image_t = image_t.resize(
                         (image_t.width * scale_factor, image_t.height * scale_factor)
                     )
@@ -1319,7 +1319,7 @@ class Farm(gym.Env):
                         if a[1] == fi and nb_a <= max_display_actions:
                             text = action_name
                             # print("DISPLAY ACTION",action_name, params)
-                            if type(params) == dict:
+                            if isinstance(params, dict):
                                 for p in params:
                                     text += " " + str(params[p])
                             # if (type(params) == dict) and ("plot" in params.keys()):

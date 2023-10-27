@@ -132,7 +132,7 @@ class Rules_API:
             if dic == None:
                 return True
             if len(param) > 0:
-                if type(dic) == dict:
+                if isinstance(dic, dict):
                     if str(param[0]) not in dic.keys():
                         return False
                     return check(dic[param[0]], param[1:])
@@ -147,7 +147,7 @@ class Rules_API:
                 return dic == {}
 
         fa, fi, e, a, p = action
-        if type(p) != list:  # Intervention
+        if not isinstance(p, list): # Intervention
             if is_observation_time:
                 return False
             env_space = allowed_actions["interventions"]

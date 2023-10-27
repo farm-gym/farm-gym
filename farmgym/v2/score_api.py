@@ -10,7 +10,7 @@ class Score_API:
         self.score_configuration = score_configuration
 
     def setup(self, farm):
-        if type(self.score_configuration) is dict:
+        if isinstance(self.score_configuration, dict):
             self.score_parameters = self.score_configuration
         else:
             string = self.score_configuration

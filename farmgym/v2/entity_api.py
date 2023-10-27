@@ -1,8 +1,11 @@
-from farmgym.v2.specifications.specification_manager import load_yaml
-from gymnasium.spaces import Discrete, Box
-import numpy as np
+import itertools
 
+import gymnasium as gym
+import numpy as np
+from gymnasium.spaces import Box, Discrete
 from PIL import Image
+
+from farmgym.v2.specifications.specification_manager import load_yaml
 
 
 def checkissubclass(class_object, class_name):
@@ -148,7 +151,7 @@ class Entity_API:
         self.name = "Entity"
         self.field = field
 
-        if type(parameters) is str:
+        if isinstance(parameters, str):
             self.parameters = load_yaml(
                 (self.__class__.__name__).lower() + "_specifications.yaml", parameters
             )
@@ -174,7 +177,7 @@ class Entity_API:
 
     def initialize_variables(self, values):
         def set_var(var, value):
-            if type(var) == dict:
+            if isinstance(var, dict):
                 for k in var:
                     if (type(var[k]) in [dict, np.ndarray]) and k in value.keys():
                         set_var(var[k], value[k])
@@ -183,7 +186,7 @@ class Entity_API:
                             if type(value[k]) == tuple:
                                 m, M = value[k]
                                 var[k].set_value(m + self.np_random.random() * (M - m))
-                            elif type(value[k]) == list:
+                            elif isinstance(value[k], list):
                                 var[k].set_value(self.np_random.choice(list(value[k])))
                             else:
                                 var[k].set_value(value[k])
@@ -195,7 +198,7 @@ class Entity_API:
                         var[it.multi_index].set_value(
                             m + self.np_random.random() * (M - m)
                         )
-                elif type(value) == list:
+                elif isinstance(value, list):
                     it = np.nditer(var, flags=["multi_index", "refs_ok"])
                     for x in it:
                         var[it.multi_index].set_value(
@@ -283,7 +286,7 @@ class Entity_API:
         def make_obs(x):
             if type(x) == Range:
                 return x.value  # x.gym_value()
-            elif type(x) == dict:
+            elif isinstance(x, dict):
                 ob = {}
                 for k in x.keys():
                     ob[k] = make_obs(x[k])
@@ -308,7 +311,7 @@ class Entity_API:
             if type(x) == Range:
                 # TODO : change to [...] ?
                 return x.gym_value()
-            elif type(x) == dict:
+            elif isinstance(x, dict):
                 ob = {}
                 for k in x.keys():
                     ob[k] = make_obs(x[k])
@@ -365,7 +368,7 @@ class Entity_API:
     def __str__(self):
         def make(x, indent=""):
             s = ""
-            if type(x) == dict:
+            if isinstance(x, dict):
                 s += "\n"
                 for k in x:
                     s += indent + ("  " + k + ": ")
@@ -387,10 +390,6 @@ class Entity_API:
         s += make(self.variables, "")
         return s
 
-
-############ Possibly useful
-import gymnasium as gym
-import itertools
 
 
 def get_space_list(space):
