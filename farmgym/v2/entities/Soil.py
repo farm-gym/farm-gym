@@ -214,6 +214,7 @@ class Soil(Entity_API):
                     * self.field.plotsurface
                     * (self.parameters["depth#m"] - self.parameters["total_evaporable_water#mm"] / 1000)
                 )
+                #print("SOIL", soil_evaporated_water)
                 soil_evaporated_water = min(
                     soil_evaporated_water,
                     max(
@@ -221,6 +222,7 @@ class Soil(Entity_API):
                         0,
                     ),
                 )
+                #print("SOIL", soil_evaporated_water, water_evaporation_threshold)
                 # if (self.variables['available_Water#L'][x,y].value  - soil_evaporated_water<water_evaporation_threshold):
 
                 self.variables["available_Water#L"][x, y].set_value(
@@ -229,6 +231,7 @@ class Soil(Entity_API):
                         self.variables["available_Water#L"][x, y].value - soil_evaporated_water,
                     )
                 )
+                #print("WET",self.variables["wet_surface#m2.day-1"][x, y].value)
                 self.variables["wet_surface#m2.day-1"][x, y].set_value(
                     max(
                         self.variables["wet_surface#m2.day-1"][x, y].value
@@ -236,6 +239,7 @@ class Soil(Entity_API):
                         0,
                     )
                 )
+                #print("WET update", self.variables["wet_surface#m2.day-1"][x, y].value)
 
                 # Microlife health index:
                 q = []
@@ -296,6 +300,7 @@ class Soil(Entity_API):
         wet_proportion = self.variables["wet_surface#m2.day-1"][position].value / self.field.plotsurface
         evapo_prop = min(1.0 - shadow_proportion, wet_proportion)
 
+        #print("EVAPO_prop",evapo_prop,  shadow_proportion, wet_proportion)
         drop_proportion = (
             (1.1 - self.variables["microlife_health_index#%"][position].value / 100)
             * self.field.plotsurface
