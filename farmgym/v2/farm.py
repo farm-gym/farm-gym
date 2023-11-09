@@ -510,7 +510,7 @@ class Farm(gym.Env):
         )
 
     def gymaction_to_farmgymaction(self, actions):
-        # TODO: Check it on all cases.
+        # TODO: Check it on all cases. Is it still working?
         """
         Converts actions given in gym format to actions in farmgym format.
         By construction, this only generates actions in the subset of available actions specified by the configuration file.
@@ -551,6 +551,12 @@ class Farm(gym.Env):
         return fg_actions
 
     def gymaction_to_discretized_farmgymaction(self, actions):
+        '''
+        Input:
+            actions = [4, 8 ...]
+        Output:
+            fg_actions = [('BasicFarmer-0', 'Field-0', 'Plant-0', 'stage', [(0, 0)]), ...]
+        '''
         def convert(value, ranges):
             if ranges == None:
                 return {}
@@ -627,6 +633,25 @@ class Farm(gym.Env):
                 farmgym_act = convert(act, f_a)
                 fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
+
+    def discretized_farmgymaction_to_gymaction(self,actions):
+        '''
+        Input:
+            actions = [('BasicFarmer-0', 'Field-0', 'Plant-0', 'stage', [(0, 0)]), ...]
+        Output:
+            ii = [4,5, etc]
+        '''
+        ii = []
+        nb_tot_actions = self.action_space.space.n + len(self.farmgym_observation_actions)
+        for action in actions:
+            for i in range(nb_tot_actions):
+                a = self.farm.gymaction_to_discretized_farmgymaction([i])
+                fa, fi, e, a, p = a[0]
+                if action == a[0]:
+                    ii.append(i)
+        return ii
+
+
 
     def random_allowed_intervention(self):
         """

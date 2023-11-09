@@ -11,6 +11,7 @@ class Policy_API:
     def __init__(self, triggered_observations, triggered_interventions):
         self.triggered_observations = triggered_observations
         self.triggered_interventions = triggered_interventions
+        #TODO: Perhaps use discretized_farmgymaction_to_gymaction to be able to output gymactions (integers)  and not just farmgymactions?
 
         self.delayed_actions = []
 
@@ -188,6 +189,17 @@ class Policy_helper:
         ## TODO check if value from create policy is permitted in farm actions
 
     # Single policies
+
+
+    def create_policyfromaction(self,action,frequency,delay):
+        policy_condition = [
+            [
+                ((f"Field-0", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
+            ]
+        ]
+        policy_action = [{"action": action, "delay": delay}]
+        policy = Policy_API(policy_condition, policy_action)
+        return policy
 
     def create_plant_observe(self, field=0, index=0, location=(0, 0)):
         """
