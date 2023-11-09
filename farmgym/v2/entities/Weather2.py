@@ -176,7 +176,7 @@ class Weather(Entity_API):
     def act_on_variables(self, action_name, action_params):
         pass
 
-    def evaporation(self, field):  # in mm.m-2.day-1
+    def evaporation(self, field):  # in mm.m-2.day-1 for a surface in plain sunlight for the whole day.
         RA = irradiance_perday(field.localization["longitude#°"],self.variables["day#int365"].value) #in kWh/m2 per day
 
         rh = self.variables["humidity#%"].value/100
