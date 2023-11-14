@@ -203,7 +203,7 @@ class Policy_helper:
     def create_policyfromaction(self,action,frequency,delay):
         policy_condition = [
             [
-                ((f"Field-0", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
+                (("Field-0", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
             ]
         ]
         policy_action = [{"action": action, "delay": delay}]
