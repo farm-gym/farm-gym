@@ -30,42 +30,75 @@ class BasicFarmer(Farmer_API):
 
     def perform_intervention(self, fi_key, entity_key, action, params, day):
         observations = []
-        if (self.nb_interventions_in_day < self.max_daily_interventions) and self.can_intervene[fi_key]:
-            obs = self.fields[fi_key].entities[entity_key].act_on_variables(action, params)
+        if (
+            self.nb_interventions_in_day < self.max_daily_interventions
+        ) and self.can_intervene[fi_key]:
+            obs = (
+                self.fields[fi_key]
+                .entities[entity_key]
+                .act_on_variables(action, params)
+            )
             self.nb_interventions_in_day += 1
             # TODO: only works if obs is a single value. Not an array: pb with forecast?
             if obs is not None:
-                observations.append((self.name, fi_key, entity_key, action, params, obs))
+                observations.append(
+                    (self.name, fi_key, entity_key, action, params, obs)
+                )
         else:
             print(
                 f"[Farmgym:Farmer, Day:{day}] Intervention",
                 str((fi_key, entity_key, action, params)),
                 "aborted by",
-                self.name+ ". Too many interventions today."
+                self.name + ". Too many interventions today.",
             )
 
         return observations
 
     def perform_observation(self, fi_key, entity_key, variable_key, path, day):
         observations = []
-        if (self.nb_observations_in_day < self.max_daily_observations) and self.can_observe[fi_key]:
-            obs = self.fields[fi_key].entities[entity_key].observe_variable(variable_key, path)
+        if (
+            self.nb_observations_in_day < self.max_daily_observations
+        ) and self.can_observe[fi_key]:
+            obs = (
+                self.fields[fi_key]
+                .entities[entity_key]
+                .observe_variable(variable_key, path)
+            )
             self.nb_observations_in_day += 1
             # TODO: !! Some actions return no observations, some return a single value, some return a vector (e.g. Forecast).
             if obs is not None:
-                observations.append((self.name, fi_key, entity_key, variable_key, path, obs))
+                observations.append(
+                    (self.name, fi_key, entity_key, variable_key, path, obs)
+                )
         else:
             print(
                 f"[Farmgym:Farmer, Day:{day}] Observation",
                 str((fi_key, entity_key, variable_key, path)),
                 "aborted by",
-                self.name+ ". Too many observations today."
+                self.name + ". Too many observations today.",
             )
         return observations
 
     def __str__(self):
         s = self.name + ":"
         for f in self.fields:
-            s += "\n\t" + f + " Observation authorization: " + ("Y" if self.can_observe[f] else "N") + ". Maximum observations per day: " + str(self.max_daily_observations)+"."
-            s += "\n\t" + f + " Intervention authorization: " + ("Y" if self.can_intervene[f] else "N") + ". Maximum interventions per day: " + str(self.max_daily_interventions)+"." + "\n"
+            s += (
+                "\n\t"
+                + f
+                + " Observation authorization: "
+                + ("Y" if self.can_observe[f] else "N")
+                + ". Maximum observations per day: "
+                + str(self.max_daily_observations)
+                + "."
+            )
+            s += (
+                "\n\t"
+                + f
+                + " Intervention authorization: "
+                + ("Y" if self.can_intervene[f] else "N")
+                + ". Maximum interventions per day: "
+                + str(self.max_daily_interventions)
+                + "."
+                + "\n"
+            )
         return s

@@ -1,3 +1,4 @@
+# ruff: noqa: F841
 from farmgym.v2.entity_api import Entity_API, Range
 from PIL import Image
 
@@ -44,5 +45,7 @@ class Facility(Entity_API):
         im_width, im_height = 64, 64
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
         if self.variables["scarecrow"].value != "none":
-            image.paste(self.images["scarecrow-" + self.variables["scarecrow"].value], (0, 0))
+            image.paste(
+                self.images["scarecrow-" + self.variables["scarecrow"].value], (0, 0)
+            )
         return image

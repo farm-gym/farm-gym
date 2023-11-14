@@ -13,15 +13,25 @@ class Pests(Entity_API):
         self.variables["plot_population#nb"] = fillarray(X, Y, (0, 1000), 0.0)
 
         # TODO: This is bad, as plants are perhaps added later on. + What about weeds?
-        plants = [field.entities[e] for e in field.entities if checkissubclass(field.entities[e].__class__, "Plant")]
+        plants = [
+            field.entities[e]
+            for e in field.entities
+            if checkissubclass(field.entities[e].__class__, "Plant")
+        ]
         weeds = [
-            self.field.entities[e] for e in self.field.entities if checkissubclass(self.field.entities[e].__class__, "Weeds")
+            self.field.entities[e]
+            for e in self.field.entities
+            if checkissubclass(self.field.entities[e].__class__, "Weeds")
         ]
         self.variables["onplant_population#nb"] = {}
         for i in range(len(plants)):
-            self.variables["onplant_population#nb"][plants[i].name] = fillarray(X, Y, (0, 1000), 0.0)
+            self.variables["onplant_population#nb"][plants[i].name] = fillarray(
+                X, Y, (0, 1000), 0.0
+            )
         for i in range(len(weeds)):
-            self.variables["onplant_population#nb"][weeds[i].name] = fillarray(X, Y, (0, 1000), 0.0)
+            self.variables["onplant_population#nb"][weeds[i].name] = fillarray(
+                X, Y, (0, 1000), 0.0
+            )
 
         # Actions
         self.actions = {}
@@ -44,13 +54,19 @@ class Pests(Entity_API):
         X = self.field.X
         Y = self.field.Y
 
-        self.variables["plot_population#nb"] = fillarray(X, Y, (0, 1000), 0.0)  # np.full((X,Y),fill_value=Range((0,1000),0.))
+        self.variables["plot_population#nb"] = fillarray(
+            X, Y, (0, 1000), 0.0
+        )  # np.full((X,Y),fill_value=Range((0,1000),0.))
 
         plants = [
-            self.field.entities[e] for e in self.field.entities if checkissubclass(self.field.entities[e].__class__, "Plant")
+            self.field.entities[e]
+            for e in self.field.entities
+            if checkissubclass(self.field.entities[e].__class__, "Plant")
         ]
         weeds = [
-            self.field.entities[e] for e in self.field.entities if checkissubclass(self.field.entities[e].__class__, "Weeds")
+            self.field.entities[e]
+            for e in self.field.entities
+            if checkissubclass(self.field.entities[e].__class__, "Weeds")
         ]
         self.variables["onplant_population#nb"] = {}
         for i in range(len(plants)):
@@ -64,14 +80,39 @@ class Pests(Entity_API):
         self.initialize_variables(self.initial_conditions)
 
     def update_variables(self, field, entities):
+        weather = [
+            entities[e]
+            for e in entities
+            if checkissubclass(entities[e].__class__, "Weather")
+        ][0]
+        soil = [
+            entities[e]
+            for e in entities
+            if checkissubclass(entities[e].__class__, "Soil")
+        ][0]
+        plants = [
+            entities[e]
+            for e in entities
+            if checkissubclass(entities[e].__class__, "Plant")
+        ]
+        weeds = [
+            entities[e]
+            for e in entities
+            if checkissubclass(entities[e].__class__, "Weeds")
+        ]
+        birds = [
+            entities[e]
+            for e in entities
+            if checkissubclass(entities[e].__class__, "Birds")
+        ]
 
-        weather = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Weather")][0]
-        soil = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Soil")][0]
-        plants = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Plant")]
-        weeds = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Weeds")]
-        birds = [entities[e] for e in entities if checkissubclass(entities[e].__class__, "Birds")]
-
-        nb_birds_eating_pests = np.sum([b.variables["population#nb"].value for b in birds if b.parameters["pest_eater"]])
+        nb_birds_eating_pests = np.sum(
+            [
+                b.variables["population#nb"].value
+                for b in birds
+                if b.parameters["pest_eater"]
+            ]
+        )
         # print("BIRDS_EAT_PESTS",nb_birds_eating_pests)
         for x in range(self.field.X):
             for y in range(self.field.Y):
@@ -100,7 +141,12 @@ class Pests(Entity_API):
                 # Add random pests on field border:
                 # if (field.plots[x][y].type=='edge'):
                 # nb_edge_arrival =self.parameters['min_population#nb']+ np.ceil( (self.parameters['max_population#nb']-self.parameters['min_population#nb'])*max(np.sin(self.parameters['arrival_frequency#day-1']* weather.variables['day#int365'].value),0))
-                is_arrival = self.np_random.binomial(1, self.parameters["arrival_frequency#day-1"], 1)[0] == 1
+                is_arrival = (
+                    self.np_random.binomial(
+                        1, self.parameters["arrival_frequency#day-1"], 1
+                    )[0]
+                    == 1
+                )
                 if is_arrival:
                     nb_edge_arrival = self.np_random.integers(
                         self.parameters["min_population#nb"],
@@ -209,23 +255,40 @@ class Pests(Entity_API):
                             * plants[i].variables["population#nb"][x, y].value
                         )
                 for i in range(len(weeds)):
-                    if weeds[i].variables["grow#nb"][x, y].value + weeds[i].variables["flowers#nb"][x, y].value > 0:
-                        weights[i + len(plants)] = np.exp(-weeds[i].parameters["pest_repulsive_effect#float"]) * (
-                            weeds[i].variables["grow#nb"][x, y].value + weeds[i].variables["flowers#nb"][x, y].value
+                    if (
+                        weeds[i].variables["grow#nb"][x, y].value
+                        + weeds[i].variables["flowers#nb"][x, y].value
+                        > 0
+                    ):
+                        weights[i + len(plants)] = np.exp(
+                            -weeds[i].parameters["pest_repulsive_effect#float"]
+                        ) * (
+                            weeds[i].variables["grow#nb"][x, y].value
+                            + weeds[i].variables["flowers#nb"][x, y].value
                         )
                 if np.sum(weights) > 0:
                     weights = weights / np.sum(weights)
                     # print("WW",weights,len(plants))
-                    ns = self.np_random.multinomial((int)(self.variables["plot_population#nb"][x, y].value), weights)
+                    ns = self.np_random.multinomial(
+                        (int)(self.variables["plot_population#nb"][x, y].value), weights
+                    )
                     for i in range(len(plants)):
-                        self.variables["onplant_population#nb"][plants[i].name][x, y].set_value(ns[i])
+                        self.variables["onplant_population#nb"][plants[i].name][
+                            x, y
+                        ].set_value(ns[i])
                     for i in range(len(weeds)):
-                        self.variables["onplant_population#nb"][weeds[i].name][x, y].set_value(ns[i + len(plants)])
+                        self.variables["onplant_population#nb"][weeds[i].name][
+                            x, y
+                        ].set_value(ns[i + len(plants)])
                 else:
                     for i in range(len(plants)):
-                        self.variables["onplant_population#nb"][plants[i].name][x, y].set_value(0)
+                        self.variables["onplant_population#nb"][plants[i].name][
+                            x, y
+                        ].set_value(0)
                     for i in range(len(weeds)):
-                        self.variables["onplant_population#nb"][weeds[i].name][x, y].set_value(0)
+                        self.variables["onplant_population#nb"][weeds[i].name][
+                            x, y
+                        ].set_value(0)
 
     def act_on_variables(self, action_name, action_params):
         pass

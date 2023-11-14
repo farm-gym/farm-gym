@@ -126,7 +126,14 @@ class Field:
             e.update_variables(self, self.entities)
 
     def __str__(self):
-        s = self.name + ": " + str(self.localization) + " scale: " + str(self.shape["scale#m"]) + "m\n"
+        s = (
+            self.name
+            + ": "
+            + str(self.localization)
+            + " scale: "
+            + str(self.shape["scale#m"])
+            + "m\n"
+        )
         s += "\tShape:\n\t\t"
         for x in range(self.X):
             for y in range(self.Y):

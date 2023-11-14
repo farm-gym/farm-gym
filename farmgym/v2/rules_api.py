@@ -47,7 +47,6 @@ class Rules_API:
         # terminal_CNF_conditions_values,
         # initial_conditions_values=None,
     ):
-
         self.init_configuration = init_configuration
         # self.initial_conditions_values = initial_conditions_values
 
@@ -119,7 +118,9 @@ class Rules_API:
 
         for fo in self.free_observations:
             fa_key, fi_key, e_key, variable_key, path = fo
-            value = farm.fields[fi_key].entities[e_key].observe_variable(variable_key, path)
+            value = (
+                farm.fields[fi_key].entities[e_key].observe_variable(variable_key, path)
+            )
             observations.append((fa_key, fi_key, e_key, variable_key, path, value))
 
         return observations
@@ -128,10 +129,10 @@ class Rules_API:
         allowed_actions = self.actions_allowed
 
         def check(dic, param):
-            if dic == None:
+            if dic is None:
                 return True
             if len(param) > 0:
-                if type(dic) == dict:
+                if isinstance(dic, dict):
                     if str(param[0]) not in dic.keys():
                         return False
                     return check(dic[param[0]], param[1:])
@@ -146,7 +147,7 @@ class Rules_API:
                 return dic == {}
 
         fa, fi, e, a, p = action
-        if type(p) != list:  # Intervention
+        if not isinstance(p, list): # Intervention
             if is_observation_time:
                 return False
             env_space = allowed_actions["interventions"]

@@ -23,7 +23,10 @@ def make_basicfarm(name, field, entities, farmers=[{"max_daily_interventions": 2
         entities_specifications=entities1,
     )
 
-    ffarmers = [BasicFarmer(max_daily_interventions=f["max_daily_interventions"]) for f in farmers]
+    ffarmers = [
+        BasicFarmer(max_daily_interventions=f["max_daily_interventions"])
+        for f in farmers
+    ]
     scoring = BasicScore(score_configuration=name_score)
 
     rules = BasicRule(
@@ -62,7 +65,9 @@ def plot_watering_results(farms, policy_parameters, results, title):
 
     nc = 3
     nr = 1
-    fig, mat_axes = plt.subplots(nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1))
+    fig, mat_axes = plt.subplots(
+        nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1)
+    )
 
     axes = mat_axes.flatten()
 
@@ -111,7 +116,9 @@ def plot_watering_results(farms, policy_parameters, results, title):
         ".",
     )
 
-    axes[1].legend([bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"])
+    axes[1].legend(
+        [bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"]
+    )
     axes[1].set_title("Pollinators in beans")
     axes[1].set_ylabel("Rewards")
     axes[1].set_xlabel(title)
@@ -137,7 +144,9 @@ def plot_watering_results(farms, policy_parameters, results, title):
         ".",
     )
 
-    axes[2].legend([bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"])
+    axes[2].legend(
+        [bp1["boxes"][0], bp2["boxes"][0]], ["no pollinators", "pollinators"]
+    )
     axes[2].set_title("Pollinators in corn")
     axes[2].set_ylabel("Rewards")
     axes[2].set_xlabel(title)
@@ -156,7 +165,9 @@ def plot_coupling_results(farms, policy_parameters, results, title, fname=None):
 
     nc = 2
     nr = 1
-    fig, mat_axes = plt.subplots(nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1))
+    fig, mat_axes = plt.subplots(
+        nrows=nr, ncols=nc, figsize=(4 * nc + 1, 4 * nr + (nr - 1) + 1)
+    )
 
     axes = mat_axes.flatten()
 

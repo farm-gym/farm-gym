@@ -1,3 +1,5 @@
+# ruff: noqa: F401
+
 import inspect
 import sys
 
@@ -41,14 +43,22 @@ def make_farm(yamlfile):
                 # print("E",e, list(e.keys()), k,c)
                 ent.append((c, str(e[k])))
             fields.append(
-                Field(localization=farm[fi]["localization"], shape=farm[fi]["shape"], entities_specifications=ent)
+                Field(
+                    localization=farm[fi]["localization"],
+                    shape=farm[fi]["shape"],
+                    entities_specifications=ent,
+                )
             )
         if "Farmer" in fi:
             if farm[fi]["type"] == "basic":
                 farmers.append(
                     BasicFarmer(
-                        max_daily_interventions=farm[fi]["parameters"]["max_daily_interventions"],
-                        max_daily_observations=farm[fi]["parameters"]["max_daily_observations"],
+                        max_daily_interventions=farm[fi]["parameters"][
+                            "max_daily_interventions"
+                        ],
+                        max_daily_observations=farm[fi]["parameters"][
+                            "max_daily_observations"
+                        ],
                     )
                 )
 
@@ -65,6 +75,11 @@ def make_farm(yamlfile):
     rules = BasicRule(init_configuration=name_init, actions_configuration=name_actions)
 
     farm = Farm(
-        fields=fields, farmers=farmers, scoring=scoring, rules=rules, policies=[], interaction_mode=interaction_mode
+        fields=fields,
+        farmers=farmers,
+        scoring=scoring,
+        rules=rules,
+        policies=[],
+        interaction_mode=interaction_mode,
     )
     return farm

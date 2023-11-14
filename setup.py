@@ -15,7 +15,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="farmgym",
-    version=__version__,
+    version=__version__,  # noqa: F821
     packages=packages,
     install_requires=[
         "gymnasium",
@@ -27,6 +27,7 @@ setup(
         "matplotlib",
         "mpld3",
         "opencv-python",
+        "tensorboard",
     ],  # And any other dependencies foo needs
     include_package_data=True,
     author="Odalric-Ambrym Maillard",

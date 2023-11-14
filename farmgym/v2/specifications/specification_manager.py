@@ -20,7 +20,7 @@ def load_yaml(spec_file, parameter_string):
 
 
 def load_weather_table(filename):
-    if type(filename) == dict:
+    if isinstance(filename, dict):
         tables = []
         alphas = []
         for k in filename.keys():
@@ -75,8 +75,8 @@ def build_scoreyaml(filepath, farm):
         print(s, file=file)
 
 
-import numpy as np
-from farmgym.v2.entity_api import Range
+import numpy as np  # noqa: E402
+from farmgym.v2.entity_api import Range# noqa: E402
 
 
 def build_inityaml(filepath, farm, mode="default", init_values=None):
@@ -84,7 +84,7 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
 
     def make(x, indent="", mode="default", value=None):
         s = ""
-        if type(x) == dict:
+        if isinstance(x, dict):
             s += "\n"
             for k in x:
                 s += indent + ("  " + k + ": ")
@@ -210,7 +210,7 @@ def build_actionsyaml(filepath, farm):
 
     def make_s(x, indent=""):
         s = ""
-        if type(x) == dict:
+        if isinstance(x, dict):
             s += "\n"
             s += indent + ("  '*': \n")
             for k in x:
@@ -228,7 +228,7 @@ def build_actionsyaml(filepath, farm):
                 it.iternext()
                 while not it.finished:
                     s += ", " + "'" + str(it.multi_index) + "'"
-                    is_not_finished = it.iternext()
+                    is_not_finished = it.iternext()  # noqa: F841
                 s += "]\n"
             else:
                 for i in range(len(x) - 1):
@@ -260,9 +260,23 @@ def build_actionsyaml(filepath, farm):
                 s += "  " * 3 + e + ":\n"
                 for v in fields[fi].entities[e].variables:
                     if type(fields[fi].entities[e].variables[v]) == np.ndarray:
-                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
+                        s += (
+                            "  " * 4
+                            + v
+                            + ": "
+                            + make_s(
+                                fields[fi].entities[e].variables[v], indent="  " * 5
+                            )
+                        )
                     else:
-                        s += "  " * 4 + v + ": " + make_s(fields[fi].entities[e].variables[v], indent="  " * 5)
+                        s += (
+                            "  " * 4
+                            + v
+                            + ": "
+                            + make_s(
+                                fields[fi].entities[e].variables[v], indent="  " * 5
+                            )
+                        )
 
     def make_a(x, indent):
         s = "\n"
@@ -278,7 +292,12 @@ def build_actionsyaml(filepath, farm):
             for e in fields[fi].entities:
                 ss = ""
                 for a in fields[fi].entities[e].actions:
-                    ss += "  " * 4 + a + ": " + make_a(fields[fi].entities[e].actions[a], indent="  " * 5)
+                    ss += (
+                        "  " * 4
+                        + a
+                        + ": "
+                        + make_a(fields[fi].entities[e].actions[a], indent="  " * 5)
+                    )
                 if ss != "":
                     s += ("  " * 3 + e + ":\n") + ss
 

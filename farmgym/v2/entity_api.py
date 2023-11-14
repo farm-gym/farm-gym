@@ -1,8 +1,11 @@
-from farmgym.v2.specifications.specification_manager import load_yaml
-from gymnasium.spaces import Discrete, Box
-import numpy as np
+import itertools
 
+import gymnasium as gym
+import numpy as np
+from gymnasium.spaces import Box, Discrete
 from PIL import Image
+
+from farmgym.v2.specifications.specification_manager import load_yaml
 
 
 def checkissubclass(class_object, class_name):
@@ -90,7 +93,11 @@ class Range:
     def to_gym_space(self):
         if type(self.range) == tuple:
             m, M = self.range
-            return Box(low=np.array([np.float32(m)]), high=np.array([np.float32(M)]), dtype=np.float32)
+            return Box(
+                low=np.array([np.float32(m)]),
+                high=np.array([np.float32(M)]),
+                dtype=np.float32,
+            )
         else:
             return Discrete(len(self.range))
 
@@ -144,8 +151,10 @@ class Entity_API:
         self.name = "Entity"
         self.field = field
 
-        if type(parameters) is str:
-            self.parameters = load_yaml((self.__class__.__name__).lower() + "_specifications.yaml", parameters)
+        if isinstance(parameters, str):
+            self.parameters = load_yaml(
+                (self.__class__.__name__).lower() + "_specifications.yaml", parameters
+            )
         else:
             self.parameters = parameters
             for k in self.get_parameter_keys():
@@ -153,9 +162,7 @@ class Entity_API:
 
         self.variables = {}  # key:   this  {'range': range, 'value': value } or array of this or dict of variables.
 
-        self.actions = (
-            {}
-        )  # key:  params, where params is Dict of "key: range", where range is either (m,M), or list (e.g. integer).
+        self.actions = {}  # key:  params, where params is Dict of "key: range", where range is either (m,M), or list (e.g. integer).
 
         self.dependencies = {}  # List of other entiites on which the entitiy depends.
 
@@ -170,7 +177,7 @@ class Entity_API:
 
     def initialize_variables(self, values):
         def set_var(var, value):
-            if type(var) == dict:
+            if isinstance(var, dict):
                 for k in var:
                     if (type(var[k]) in [dict, np.ndarray]) and k in value.keys():
                         set_var(var[k], value[k])
@@ -179,7 +186,7 @@ class Entity_API:
                             if type(value[k]) == tuple:
                                 m, M = value[k]
                                 var[k].set_value(m + self.np_random.random() * (M - m))
-                            elif type(value[k]) == list:
+                            elif isinstance(value[k], list):
                                 var[k].set_value(self.np_random.choice(list(value[k])))
                             else:
                                 var[k].set_value(value[k])
@@ -188,11 +195,15 @@ class Entity_API:
                     m, M = value
                     it = np.nditer(var, flags=["multi_index", "refs_ok"])
                     for x in it:
-                        var[it.multi_index].set_value(m + self.np_random.random() * (M - m))
-                elif type(value) == list:
+                        var[it.multi_index].set_value(
+                            m + self.np_random.random() * (M - m)
+                        )
+                elif isinstance(value, list):
                     it = np.nditer(var, flags=["multi_index", "refs_ok"])
                     for x in it:
-                        var[it.multi_index].set_value(self.np_random.choice(list(value)))
+                        var[it.multi_index].set_value(
+                            self.np_random.choice(list(value))
+                        )
                 else:
                     it = np.nditer(var, flags=["multi_index", "refs_ok"])
                     for x in it:
@@ -215,7 +226,11 @@ class Entity_API:
     def assert_action_(self, action_key, action_value):
         assert action_key in self.actions
         if type(self.actions[action_key]) is tuple:
-            assert self.actions[action_key][0] <= action_value <= self.actions[action_key][1], (
+            assert (
+                self.actions[action_key][0]
+                <= action_value
+                <= self.actions[action_key][1]
+            ), (
                 "Action value "
                 + action_value
                 + " for key "
@@ -235,7 +250,11 @@ class Entity_API:
             assert p in self.actions[action_name].keys()
             if type(self.actions[action_name][p]) is tuple:
                 # print("ASSERT",action_name, self.actions[action_name], self.actions[action_name][p][0])
-                assert self.actions[action_name][p][0] <= action_params[p] <= self.actions[action_name][p][1], (
+                assert (
+                    self.actions[action_name][p][0]
+                    <= action_params[p]
+                    <= self.actions[action_name][p][1]
+                ), (
                     "Action value "
                     + str(action_params[p])
                     + " for key "
@@ -250,11 +269,16 @@ class Entity_API:
                 # print("ASSERT", action_name, self.actions[action_name], action_params, action_params[p], self.actions[action_name][p])
                 if p == "plot":
                     assert str(action_params[p]) in self.actions[action_name][p], (
-                        "PLOT" + str(action_params[p]) + " not in " + str(self.actions[action_name][p])
+                        "PLOT"
+                        + str(action_params[p])
+                        + " not in "
+                        + str(self.actions[action_name][p])
                     )
                 else:
                     assert action_params[p] in self.actions[action_name][p], (
-                        str(action_params[p]) + " not in " + str(self.actions[action_name][p])
+                        str(action_params[p])
+                        + " not in "
+                        + str(self.actions[action_name][p])
                     )
 
     def observe_variable(self, variable_key, path):
@@ -262,7 +286,7 @@ class Entity_API:
         def make_obs(x):
             if type(x) == Range:
                 return x.value  # x.gym_value()
-            elif type(x) == dict:
+            elif isinstance(x, dict):
                 ob = {}
                 for k in x.keys():
                     ob[k] = make_obs(x[k])
@@ -287,7 +311,7 @@ class Entity_API:
             if type(x) == Range:
                 # TODO : change to [...] ?
                 return x.gym_value()
-            elif type(x) == dict:
+            elif isinstance(x, dict):
                 ob = {}
                 for k in x.keys():
                     ob[k] = make_obs(x[k])
@@ -319,7 +343,10 @@ class Entity_API:
         self.images = {}
         if "sprites" in self.parameters:
             for key in self.parameters["sprites"]:
-                self.images[key] = Image.open(CURRENT_DIR / ("specifications/sprites/" + self.parameters["sprites"][key]))
+                self.images[key] = Image.open(
+                    CURRENT_DIR
+                    / ("specifications/sprites/" + self.parameters["sprites"][key])
+                )
 
     def to_fieldimage(self):
         im_width, im_height = 64, 64
@@ -335,13 +362,13 @@ class Entity_API:
 
     def to_thumbnailimage(self):
         im_width, im_height = 64, 64
-        image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
+        image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))  # noqa: F841
         return None
 
     def __str__(self):
         def make(x, indent=""):
             s = ""
-            if type(x) == dict:
+            if isinstance(x, dict):
                 s += "\n"
                 for k in x:
                     s += indent + ("  " + k + ": ")
@@ -364,13 +391,8 @@ class Entity_API:
         return s
 
 
-############ Possibly useful
-import gymnasium as gym
-import itertools
-
 
 def get_space_list(space):
-
     """
     Converts gym `space`, constructed from `types`, to list `space_list`
     """
@@ -386,28 +408,47 @@ def get_space_list(space):
     ]
 
     if type(space) not in types:
-        raise ValueError(f"input space {space} is not constructed from spaces of types:" + "\n" + str(types))
+        raise ValueError(
+            f"input space {space} is not constructed from spaces of types:"
+            + "\n"
+            + str(types)
+        )
 
     # -------------------------------- #
 
     if type(space) is gym.spaces.multi_binary.MultiBinary:
-        return [np.reshape(np.array(element), space.n) for element in itertools.product(*[range(2)] * np.prod(space.n))]
+        return [
+            np.reshape(np.array(element), space.n)
+            for element in itertools.product(*[range(2)] * np.prod(space.n))
+        ]
 
     if type(space) is gym.spaces.discrete.Discrete:
         return list(range(space.n))
 
     if type(space) is gym.spaces.multi_discrete.MultiDiscrete:
-        return [np.array(element) for element in itertools.product(*[range(n) for n in space.nvec])]
+        return [
+            np.array(element)
+            for element in itertools.product(*[range(n) for n in space.nvec])
+        ]
 
     if type(space) is gym.spaces.dict.Dict:
         keys = space.spaces.keys()
 
-        values_list = itertools.product(*[get_space_list(sub_space) for sub_space in space.spaces.values()])
+        values_list = itertools.product(
+            *[get_space_list(sub_space) for sub_space in space.spaces.values()]
+        )
 
-        return [{key: value for key, value in zip(keys, values)} for values in values_list]
+        return [
+            {key: value for key, value in zip(keys, values)} for values in values_list
+        ]
 
     if type(space) is gym.spaces.tuple.Tuple:
-        return [list(element) for element in itertools.product(*[get_space_list(sub_space) for sub_space in space.spaces])]
+        return [
+            list(element)
+            for element in itertools.product(
+                *[get_space_list(sub_space) for sub_space in space.spaces]
+            )
+        ]
 
     # -------------------------------- #
 
@@ -415,14 +456,20 @@ def get_space_list(space):
 def BoundedNumber(number_class):
     def BoundedNumberClassCreator(class_name, lower_bound, upper_bound):
         if upper_bound and lower_bound and upper_bound < lower_bound:
-            raise ValueError(f"Upper bound {upper_bound} is lower than the lower bound {lower_bound}")
+            raise ValueError(
+                f"Upper bound {upper_bound} is lower than the lower bound {lower_bound}"
+            )
 
         def new(cls, number):
             if lower_bound and number < lower_bound:
-                raise ValueError(f"{number} is below the lower bound of {lower_bound} for this class")
+                raise ValueError(
+                    f"{number} is below the lower bound of {lower_bound} for this class"
+                )
 
             if upper_bound and upper_bound < number:
-                raise ValueError(f"{number} is above the upper bound of {upper_bound} for this class")
+                raise ValueError(
+                    f"{number} is above the upper bound of {upper_bound} for this class"
+                )
 
             return number_class(number)
 
@@ -449,7 +496,9 @@ if __name__ == "__main__":
     try:
         IntBetween50And150(200)
     except ValueError as e:
-        print(f"Caught the ValueError: {e}")  # Caught the value error: 200 is above the upper bound of 150 for this class
+        print(
+            f"Caught the ValueError: {e}"
+        )  # Caught the value error: 200 is above the upper bound of 150 for this class
 
     print(IntBetween50And150(50.8))  # 50
     print(

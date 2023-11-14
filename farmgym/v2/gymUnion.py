@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 import numpy as np
 from gymnasium.spaces import Box, Dict, Discrete, Tuple
 from gymnasium.spaces.space import Space
@@ -25,7 +26,9 @@ class Union(Space):
     def __init__(self, spaces):
         self.spaces = spaces
         for space in spaces:
-            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
+            assert isinstance(
+                space, Space
+            ), "Elements of the tuple must be instances of gym.Space"
         super(Union, self).__init__(None, None)
 
     def seed(self, seed=None):
@@ -72,7 +75,9 @@ class MultiUnion(Space):
         self.spaces = spaces
         self.maxnonzero = maxnonzero
         for space in spaces:
-            assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
+            assert isinstance(
+                space, Space
+            ), "Elements of the tuple must be instances of gym.Space"
         super(MultiUnion, self).__init__(None, None)
 
     def seed(self, seed=None):
@@ -80,7 +85,7 @@ class MultiUnion(Space):
 
     def sample(self):  # Sampling without replacement (not twice in the same space).
         m = self.np_random.integers(min(self.maxnonzero + 1, len(self.spaces) + 1))
-        #np.random.Generator.integers()
+        # np.random.Generator.integers()
         indexes = list(range(len(self.spaces)))
         sampled_indexes = []
         for j in range(m):
@@ -118,7 +123,9 @@ class MultiUnion(Space):
         return True
 
     def __repr__(self):
-        s = "MultiUnion" + (("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else "")
+        s = "MultiUnion" + (
+            ("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else ""
+        )
         return s + "(\n" + ",\n".join([str_pretty(s, 0) for s in self.spaces]) + ")"
 
     def to_jsonable(self, sample_n):
@@ -144,7 +151,9 @@ class Sequence(Space):
     def __init__(self, space, maxnonzero=np.infty):
         self.space = space
         self.maxnonzero = maxnonzero
-        assert isinstance(space, Space), "Elements of the tuple must be instances of gym.Space"
+        assert isinstance(
+            space, Space
+        ), "Elements of the tuple must be instances of gym.Space"
         super(Sequence, self).__init__(None, None)
 
     def seed(self, seed=None):
@@ -166,7 +175,9 @@ class Sequence(Space):
         return True
 
     def __repr__(self):
-        s = "Sequence" + (("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else "")
+        s = "Sequence" + (
+            ("[" + str(self.maxnonzero) + "]") if self.maxnonzero < np.infty else ""
+        )
         return s + "(" + str(self.space) + ")"
 
     def to_jsonable(self, sample_n):
@@ -179,7 +190,11 @@ class Sequence(Space):
         # return [sample for sample in zip(*[space.from_jsonable(sample_n[i]) for i, space in enumerate(self.spaces)])]
 
     def __len__(self):
-        return len(self.space) ** self.maxnonzero if self.maxnonzero < np.infty else np.infty
+        return (
+            len(self.space) ** self.maxnonzero
+            if self.maxnonzero < np.infty
+            else np.infty
+        )
 
     def __eq__(self, other):
         return isinstance(other, Sequence) and self.space == other.space
