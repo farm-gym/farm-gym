@@ -131,14 +131,14 @@ class Weather(Entity_API):
         self.variables["air_temperature"]["max#°C"].set_value(self.read_weathercsv("Tmax", day % 365) + eps)
         eps = self.np_random.normal(0, self.parameters["humidity_noise"], 1)[0]
         self.variables["humidity_index#%"].set_value(self.read_weathercsv("H", day % 365)+ eps)
-        eps = self.np_random.normal(0, self.parameters["winds_speed_noise"], 1)[0]
-        self.variables["wind"]["speed#km.h-1"].set_value(self.read_weathercsv("WS", day % 365) + eps)
-        eps = self.np_random.normal(0, self.parameters["winds_direction_noise"], 1)[0]
-        self.variables["wind"]["direction"].set_value( int(self.read_weathercsv("WD", day % 365) + eps) %360)
         eps = self.np_random.normal(0, self.parameters["clouds_noise"], 1)[0]
         self.variables["clouds#%"].set_value(self.read_weathercsv("C", day % 365)+ eps)
         eps = self.np_random.normal(0, self.parameters["rain_amount_noise"], 1)[0]
         self.variables["rain_amount#mm.day-1"].set_value(self.read_weathercsv("R", day % 365)+ eps)
+        eps = self.np_random.normal(0, self.parameters["winds_speed_noise"], 1)[0]
+        self.variables["wind"]["speed#km.h-1"].set_value(self.read_weathercsv("WS", day % 365) + eps)
+        eps = self.np_random.normal(0, self.parameters["winds_direction_noise"], 1)[0]
+        self.variables["wind"]["direction"].set_value( int(self.read_weathercsv("WD", day % 365) + eps) %360)
 
         if self.variables["air_temperature"]["min#°C"].value < 0:
             self.variables["consecutive_frost#day"].set_value(self.variables["consecutive_frost#day"].value + 1)
@@ -177,15 +177,19 @@ class Weather(Entity_API):
         pass
 
     def evaporation(self, field):  # in mm.m-2.day-1 for a surface in plain sunlight for the whole day.
+        '''
+        Evaporation in mm.m-2.day-1 for a water surface in plain sunlight for the whole day.
+        '''
         RA = irradiance_perday(field.localization["longitude#°"],self.variables["day#int365"].value) #in kWh/m2 per day
 
         rh = self.variables["humidity#%"].value/100
         cl = self.variables["clouds#%"].value/100
         t_av = self.variables["air_temperature"]["mean#°C"].value/100
         w = self.variables["wind"]["speed#km.h-1"].value * (24*1000*1000) #in mm.day-1
+        alt = field.localization["altitude#m"]
 
         # chaleur latente de vaporisatoin de l'eau: 0.626kWh/kg = 626kWh/m3
-        evapo= (RA/0.626) * ((1-rh)**0.8)*(1-cl)*(max(t_av,0)**1.1)*( (w/1e-7) **1.25)  # mm/m2
+        evapo= (RA/0.626) * ((1-rh)**0.8)*(1-cl)*(max(t_av,0)**1.1)*( (w*1e-7) **1.25) * (1+ alt*1e-5)**0.8  # mm/m2
 
         # Base evaporation in mm per day at any point.
         return evapo
@@ -193,12 +197,18 @@ class Weather(Entity_API):
     def to_thumbnailimage(self):
         im_width, im_height = 64, 64
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
-        if self.variables["rain_amount#mm.day-1"].value <1:
-            image.paste(self.images["sun"], (0, 0))
-        if 1 <= self.variables["rain_amount#mm.day-1"].value <5:
-            image.paste(self.images["rain-light"], (0, 0))
+        if self.variables["clouds#%"].value <= 25:
+            image.paste(self.images["sunny"], (0, 0))
         if self.variables["rain_amount#mm.day-1"].value >= 5:
-            image.paste(self.images["rain-heavy"], (0, 0))
+            image.paste(self.images["rainy"], (0, 0))
+        if self.variables["clouds#%"].value >= 25:
+            image.paste(self.images["cloudy"], (0, 0))
+        if self.variables["wind"]["speed#km.h-1"].value >= 40:
+            image.paste(self.images["windy"], (0, 0))
+        if self.variables["air_temperature"]["mean#°C"].value >= 25:
+            image.paste(self.images["hot"], (0, 0))
+        if self.variables["air_temperature"]["mean#°C"].value <= 0:
+            image.paste(self.images["freeze"], (0, 0))
         return image
 
 def puissance_solaire(latitude, jour): # en W/m^2

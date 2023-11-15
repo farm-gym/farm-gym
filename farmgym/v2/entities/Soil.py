@@ -382,7 +382,7 @@ class Soil(Entity_API):
                         )
 
     def ground_evaporation(self, position, weather, plants, weeds, field):
-        ET_0 = weather.evapo_coefficient(field)  # ml/m2
+        ET_0 = weather.evapo_coefficient(field)  # ml/m2/day
 
         # Compute % of ground covered by shadow:
         plantshadow = np.sum(

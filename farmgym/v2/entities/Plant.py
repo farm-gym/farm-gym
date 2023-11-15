@@ -1376,7 +1376,7 @@ class Plant(Entity_API):
         return max(w - self.variables["cumulated_water#L"][position].value, 0)
 
     def evapo_transpiration(self, position, weather, field):
-        ET_0 = weather.evapo_coefficient(field)  # ml/m2
+        ET_0 = weather.evapo_coefficient(field)  # ml/m2/day
         size = self.variables["size#cm"][position].value
         if size > 0:
             u = weather.variables["wind"]["speed#km.h-1"].value
