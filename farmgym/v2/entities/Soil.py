@@ -157,16 +157,9 @@ class Soil(Entity_API):
                         self.variables["available_Water#L"][x, y].value
                         + 0.5 * self.np_random.random() * max_water_plot_capacity
                     )
-                    self.variables["available_Water#L"][x, y].set_value(
-                        min(max_water_plot_capacity, water_after_input)
-                    )
-                    water_surplus = (
-                        water_after_input
-                        - self.variables["available_Water#L"][x, y].value
-                    )
-                    self.variables["wet_surface#m2.day-1"][x, y].set_value(
-                        self.field.plotsurface
-                    )
+                    self.variables["available_Water#L"][x, y].set_value(min(max_water_plot_capacity, water_after_input))
+                    water_surplus =  water_after_input - self.variables["available_Water#L"][x, y].value
+                    self.variables["wet_surface#m2.day-1"][x, y].set_value( self.field.plotsurface )
                 elif weather.variables["rain_amount"].value == "Heavy":
                     water_after_input = (
                         self.variables["available_Water#L"][x, y].value

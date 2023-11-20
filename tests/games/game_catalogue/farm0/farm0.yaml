@@ -1,0 +1,28 @@
+Farm:
+  Field-0:
+    localization:
+      latitude#°: 50.62
+      longitude#°: 3.05
+      altitude#m: 10
+    shape:
+      length#nb: 1
+      width#nb: 1
+      scale#m: 1.0
+    entities:
+      - Weather2: montpellier
+      - Soil: clay
+  Farmer-0:
+    type: basic
+    parameters:
+      max_daily_interventions: 1
+      max_daily_observations: 2
+day_path: {"field":"Field-0", "entity":"Weather2-0", "variable": "day#int365"}
+actions: actions.yaml
+score: score.yaml
+initialization: init.yaml
+interaction_mode: POMDP
+
+
+
+
+

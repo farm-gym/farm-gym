@@ -6,7 +6,7 @@ import numpy as np
 
 import math
 
-class Weather(Entity_API):
+class Weather2(Entity_API):
 
     def __init__(self, field, parameters):
         Entity_API.__init__(self, field, parameters)
@@ -72,6 +72,9 @@ class Weather(Entity_API):
             }
         }
 
+        # required fields in CSV data file:
+        self.datakeys={"T":"Temperature", "Tmin": "TemperatureMin", "Tmax": "TemperatureMax", "H": "Humidity", "R": "Rain", "C": "Clouds", "WS": "WindSpeed", "WD": "WindDirection"}
+
         # self.year_weather = sm.load_weather_table(self.parameters["one_year_data_filename"])
         self.year_weathers, self.weather_alphas = sm.load_weather_table(self.parameters["one_year_data_filename"])
         # Local weather
@@ -126,19 +129,19 @@ class Weather(Entity_API):
         self.variables["day#int365"].set_value(((day) % 365))
 
         eps = self.np_random.normal(0, self.parameters["air_temperature_noise"], 1)[0]
-        self.variables["air_temperature"]["mean#°C"].set_value(self.read_weathercsv("T", day % 365) + eps)
-        self.variables["air_temperature"]["min#°C"].set_value(self.read_weathercsv("Tmin", day % 365) + eps)
-        self.variables["air_temperature"]["max#°C"].set_value(self.read_weathercsv("Tmax", day % 365) + eps)
+        self.variables["air_temperature"]["mean#°C"].set_value(self.read_weathercsv(self.datakeys["T"], day % 365) + eps)
+        self.variables["air_temperature"]["min#°C"].set_value(self.read_weathercsv(self.datakeys["Tmin"], day % 365) + eps)
+        self.variables["air_temperature"]["max#°C"].set_value(self.read_weathercsv(self.datakeys["Tmax"], day % 365) + eps)
         eps = self.np_random.normal(0, self.parameters["humidity_noise"], 1)[0]
-        self.variables["humidity_index#%"].set_value(self.read_weathercsv("H", day % 365)+ eps)
+        self.variables["humidity#%"].set_value(self.read_weathercsv(self.datakeys["H"], day % 365)+ eps)
         eps = self.np_random.normal(0, self.parameters["clouds_noise"], 1)[0]
-        self.variables["clouds#%"].set_value(self.read_weathercsv("C", day % 365)+ eps)
+        self.variables["clouds#%"].set_value(self.read_weathercsv(self.datakeys["C"], day % 365)+ eps)
         eps = self.np_random.normal(0, self.parameters["rain_amount_noise"], 1)[0]
-        self.variables["rain_amount#mm.day-1"].set_value(self.read_weathercsv("R", day % 365)+ eps)
-        eps = self.np_random.normal(0, self.parameters["winds_speed_noise"], 1)[0]
-        self.variables["wind"]["speed#km.h-1"].set_value(self.read_weathercsv("WS", day % 365) + eps)
-        eps = self.np_random.normal(0, self.parameters["winds_direction_noise"], 1)[0]
-        self.variables["wind"]["direction"].set_value( int(self.read_weathercsv("WD", day % 365) + eps) %360)
+        self.variables["rain_amount#mm.day-1"].set_value(self.read_weathercsv(self.datakeys["R"], day % 365)+ eps)
+        eps = self.np_random.normal(0, self.parameters["wind_speed_noise"], 1)[0]
+        self.variables["wind"]["speed#km.h-1"].set_value(self.read_weathercsv(self.datakeys["WS"], day % 365) + eps)
+        eps = self.np_random.normal(0, self.parameters["wind_direction_noise"], 1)[0]
+        self.variables["wind"]["direction"].set_value( int(self.read_weathercsv(self.datakeys["WD"], day % 365) + eps) %360)
 
         if self.variables["air_temperature"]["min#°C"].value < 0:
             self.variables["consecutive_frost#day"].set_value(self.variables["consecutive_frost#day"].value + 1)
@@ -151,19 +154,19 @@ class Weather(Entity_API):
 
         for i in range(self.parameters["forecast_lookahead"]):
             eps = self.np_random.normal(0, self.parameters["air_temperature_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
-            self.variables["forecast"]["air_temperature"]["mean#°C"][i].set_value(self.read_weathercsv("T", (day+i) % 365) + eps)
-            self.variables["forecast"]["air_temperature"]["min#°C"][i].set_value(self.read_weathercsv("Tmin", day % 365) + eps)
-            self.variables["forecast"]["air_temperature"]["max#°C"][i].set_value(self.read_weathercsv("Tmax", day % 365) + eps)
+            self.variables["forecast"]["air_temperature"]["mean#°C"][i].set_value(self.read_weathercsv(self.datakeys["T"], (day+i) % 365) + eps)
+            self.variables["forecast"]["air_temperature"]["min#°C"][i].set_value(self.read_weathercsv(self.datakeys["Tmin"], day % 365) + eps)
+            self.variables["forecast"]["air_temperature"]["max#°C"][i].set_value(self.read_weathercsv(self.datakeys["Tmax"], day % 365) + eps)
             eps = self.np_random.normal(0, self.parameters["humidity_noise"] + self.parameters["forecast_noise"] * i, 1)[0]
-            self.variables["forecast"]["humidity_index#%"][i].set_value(self.read_weathercsv("H", day % 365) + eps)
-            eps = self.np_random.normal(0, self.parameters["winds_speed_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
-            self.variables["forecast"]["wind"]["speed#km.h-1"][i].set_value(self.read_weathercsv("WS", day % 365) + eps)
-            eps = self.np_random.normal(0, self.parameters["winds_direction_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
-            self.variables["forecast"]["wind"]["direction"][i].set_value(int(self.read_weathercsv("WD", day % 365) + eps) % 360)
+            self.variables["forecast"]["humidity#%"][i].set_value(self.read_weathercsv(self.datakeys["H"], day % 365) + eps)
+            eps = self.np_random.normal(0, self.parameters["wind_speed_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
+            self.variables["forecast"]["wind"]["speed#km.h-1"][i].set_value(self.read_weathercsv(self.datakeys["WS"], day % 365) + eps)
+            eps = self.np_random.normal(0, self.parameters["wind_direction_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
+            self.variables["forecast"]["wind"]["direction"][i].set_value(int(self.read_weathercsv(self.datakeys["WD"], day % 365) + eps) % 360)
             eps = self.np_random.normal(0, self.parameters["clouds_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
-            self.variables["forecast"]["clouds#%"][i].set_value(self.read_weathercsv("C", day % 365) + eps)
+            self.variables["forecast"]["clouds#%"][i].set_value(self.read_weathercsv(self.datakeys["C"], day % 365) + eps)
             eps = self.np_random.normal(0, self.parameters["rain_amount_noise"]+ self.parameters["forecast_noise"] * i, 1)[0]
-            self.variables["forecast"]["rain_amount#mm.day-1"][i].set_value(self.read_weathercsv("R", day % 365) + eps)
+            self.variables["forecast"]["rain_amount#mm.day-1"][i].set_value(self.read_weathercsv(self.datakeys["R"], day % 365) + eps)
 
     def read_weathercsv(self, variable, day):
         value = 0
@@ -178,7 +181,7 @@ class Weather(Entity_API):
 
     def evaporation(self, field):  # in mm.m-2.day-1 for a surface in plain sunlight for the whole day.
         '''
-        Evaporation in mm.m-2.day-1 for a water surface in plain sunlight for the whole day.
+        Evaporation in mL.m-2.day-1 for a water surface in plain sunlight for the whole day.
         '''
         RA = irradiance_perday(field.localization["longitude#°"],self.variables["day#int365"].value) #in kWh/m2 per day
 
@@ -205,7 +208,7 @@ class Weather(Entity_API):
             image.paste(self.images["cloudy"], (0, 0))
         if self.variables["wind"]["speed#km.h-1"].value >= 40:
             image.paste(self.images["windy"], (0, 0))
-        if self.variables["air_temperature"]["mean#°C"].value >= 25:
+        if self.variables["air_temperature"]["mean#°C"].value >= 30:
             image.paste(self.images["hot"], (0, 0))
         if self.variables["air_temperature"]["mean#°C"].value <= 0:
             image.paste(self.images["freeze"], (0, 0))

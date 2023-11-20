@@ -1,15 +1,12 @@
 montpellier:
   sprites:
-    rain-light: 'weather-t-rain-light.png'
-    rain-heavy: 'weather-t-rain-heavy.png'
-    sun: 'weather-t-sun.png'
-    sunny: 'weather-t-sun.png'
-    rainy: 'weather-t-rain-heavy.png'
-    windy: 'weather-t-wind.png'
-    cloudy: 'weather-t-cloud.png'
-    freeze: 'weather-t-freeze.png'
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
     hot: 'weather-t-hot.png'
-  one_year_data_filename: "lille_daily.json"
+  one_year_data_filename: "weather_data/lille2_test.csv"
   forecast_lookahead: 5
   forecast_noise: 0.1
   air_temperature_noise: 0

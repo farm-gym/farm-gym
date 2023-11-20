@@ -3,7 +3,7 @@ montpellier:
     rain-light: 'weather-t-rain-light.png'
     rain-heavy: 'weather-t-rain-heavy.png'
     sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data_montpellier.csv"
+  one_year_data_filename: "weather_data/montpellier.csv"
   air_temperature_noise: 0
   humidity_index_noise: 0
   rain_lightheavy_proba: 0.5
@@ -17,7 +17,7 @@ lille:
     rain-light: 'weather-t-rain-light.png'
     rain-heavy: 'weather-t-rain-heavy.png'
     sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data_lille.csv"
+  one_year_data_filename: "weather_data/lille.csv"
   air_temperature_noise: 0.1
   humidity_index_noise: 0
   rain_lightheavy_proba: 0.5
@@ -47,7 +47,7 @@ rainy:
     rain-light: 'weather-t-rain-light.png'
     rain-heavy: 'weather-t-rain-heavy.png'
     sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data_constant_rain.csv"
+  one_year_data_filename: "weather_data/constant_rain.csv"
   air_temperature_noise: 0
   humidity_index_noise: 0
   rain_lightheavy_proba: 0.3
@@ -61,7 +61,7 @@ dry:
     rain-light: 'weather-t-rain-light.png'
     rain-heavy: 'weather-t-rain-heavy.png'
     sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data_constant_dry.csv"
+  one_year_data_filename: "weather_data/constant_dry.csv"
   air_temperature_noise: 0
   humidity_index_noise: 0
   rain_lightheavy_proba: 0.5

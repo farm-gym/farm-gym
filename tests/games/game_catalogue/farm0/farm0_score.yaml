@@ -1,0 +1,44 @@
+observation-cost:
+  Field-0:
+    Weather2-0:
+      year#int100: 1
+      day#int365: 1
+      air_temperature: 1
+      humidity#%: 1
+      wind: 1
+      clouds#%: 1
+      rain_amount#mm.day-1: 1
+      consecutive_frost#day: 1
+      consecutive_dry#day: 1
+      forecast: 1
+    Soil-0:
+      available_N#g: 1
+      available_P#g: 1
+      available_K#g: 1
+      available_C#g: 1
+      available_Water#L: 1
+      wet_surface#m2.day-1: 1
+      microlife_health_index#%: 1
+      amount_cide#g: 1
+      total_cumulated_added_water#L: 1
+      total_cumulated_added_cide#g: 1
+intervention-cost:
+  Field-0:
+    Soil-0:
+      water_discrete: 1
+      water_continuous: 1
+reward-mix:
+     weight_biodiversitycounts: 0.
+     weight_resourceadded: 0.
+     weight_soilmicrolife: 0.
+     weight_harvest: 0.
+     weight_stagecount: 0.
+     weight_stagetransition: 1.
+final-reward-mix:
+     weight_biodiversitycounts: 0.
+     weight_resourceadded: 0.
+     weight_soilmicrolife: 0.
+     weight_harvest: 1.
+     weight_stagecount: 0.
+     weight_stagetransition: 0.
+

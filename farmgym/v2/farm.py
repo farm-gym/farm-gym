@@ -236,6 +236,7 @@ class Farm(gym.Env):
                     e
                 ].initial_conditions = self.rules.initial_conditions[fi][e]
 
+        self.day_path={"field": "Field-0", "entity": "Weather2-0", "variable": "day#int365"}
         self.is_new_day = True
         self.seed(seed)
         for fi in self.fields:
@@ -470,6 +471,16 @@ class Farm(gym.Env):
             self.is_new_day = True
             return output
 
+    def _get_day(self):
+        return (int)(
+            self.fields[self.day_path["field"]]
+            .entities[self.day_path["entity"]]
+            .variables[self.day_path["variable"]]
+            .value
+        )
+    def _set_day_path(self,path):
+        self.day_path = path
+
     def observation_step(self, observation_schedule):
         """
         Performs an observation step, one of the two types of farmgym steps.
@@ -497,12 +508,7 @@ class Farm(gym.Env):
                 path,
             )
             # cost = 0
-            day = (int)(
-                self.fields["Field-0"]
-                .entities["Weather-0"]
-                .variables["day#int365"]
-                .value
-            )
+            day = self._get_day()
             obs_vec = self.farmers[fa_key].perform_observation(
                 fi_key, entity, variable_key, path, day
             )
@@ -530,12 +536,7 @@ class Farm(gym.Env):
             cost = self.scoring.intervention_cost(
                 fa_key, fi_key, entity_key, action_name, params
             )
-            day = (int)(
-                self.fields["Field-0"]
-                .entities["Weather-0"]
-                .variables["day#int365"]
-                .value
-            )
+            day = self._get_day()
             obs_vec = self.farmers[fa_key].perform_intervention(
                 fi_key, entity_key, action_name, params, day
             )
