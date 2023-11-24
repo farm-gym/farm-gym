@@ -11,8 +11,8 @@ from farmgym.v2.entities.Pollinators import Pollinators
 from farmgym.v2.entities.Soil import Soil
 
 ## The following importe lines are import for the make_farm function that uses inspection module!
-from farmgym.v2.entities.Weather import Weather
-from farmgym.v2.entities.Weather2 import Weather2
+#from farmgym.v2.entities.Weather import Weather
+from farmgym.v2.entities.Weather2 import Weather
 from farmgym.v2.entities.Weeds import Weeds
 from farmgym.v2.farm import Farm
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer

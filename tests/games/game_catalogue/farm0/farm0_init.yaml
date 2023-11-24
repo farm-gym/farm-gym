@@ -1,6 +1,6 @@
 Initial:
   Field-0:
-    Weather2-0:
+    Weather-0:
       year#int100: 0
       day#int365: 0
       air_temperature: 

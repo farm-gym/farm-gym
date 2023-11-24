@@ -1,6 +1,6 @@
 observation-cost:
   Field-0:
-    Weather2-0:
+    Weather-0:
       year#int100: 1
       day#int365: 1
       air_temperature: 1

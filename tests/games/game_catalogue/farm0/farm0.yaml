@@ -16,7 +16,7 @@ Farm:
     parameters:
       max_daily_interventions: 1
       max_daily_observations: 2
-day_path: {"field":"Field-0", "entity":"Weather2-0", "variable": "day#int365"}
+day_path: {"field":"Field-0", "entity":"Weather-0", "variable": "day#int365"}
 actions: actions.yaml
 score: score.yaml
 initialization: init.yaml
