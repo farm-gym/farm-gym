@@ -236,7 +236,7 @@ class Farm(gym.Env):
                     e
                 ].initial_conditions = self.rules.initial_conditions[fi][e]
 
-        self.day_path={"field": "Field-0", "entity": "Weather2-0", "variable": "day#int365"}
+        self.day_path={"field": "Field-0", "entity": "Weather-0", "variable": "day#int365"}
         self.is_new_day = True
         self.seed(seed)
         for fi in self.fields:

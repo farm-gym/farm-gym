@@ -151,30 +151,19 @@ class Soil(Entity_API):
         for x in range(self.field.X):
             for y in range(self.field.Y):
                 water_surplus = 0
+                # TODO : Water afte rinput = actuel + precipation
                 # Natural water input (rain)
-                if weather.variables["rain_amount"].value == "Light":
-                    water_after_input = (
+                # rain_amount#mm.day-1
+                water_after_input = (
                         self.variables["available_Water#L"][x, y].value
-                        + 0.5 * self.np_random.random() * max_water_plot_capacity
+                        + weather.variables["rain_amount#mm.day-1"].value
                     )
-                    self.variables["available_Water#L"][x, y].set_value(min(max_water_plot_capacity, water_after_input))
-                    water_surplus =  water_after_input - self.variables["available_Water#L"][x, y].value
-                    self.variables["wet_surface#m2.day-1"][x, y].set_value( self.field.plotsurface )
-                elif weather.variables["rain_amount"].value == "Heavy":
-                    water_after_input = (
-                        self.variables["available_Water#L"][x, y].value
-                        + max_water_plot_capacity
-                    )
-                    self.variables["available_Water#L"][x, y].set_value(
-                        max_water_plot_capacity
-                    )
-                    water_surplus = (
-                        water_after_input
-                        - self.variables["available_Water#L"][x, y].value
-                    )
-                    self.variables["wet_surface#m2.day-1"][x, y].set_value(
+                self.variables["available_Water#L"][x, y].set_value(min(max_water_plot_capacity, water_after_input))
+                water_surplus =  water_after_input - self.variables["available_Water#L"][x, y].value
+                self.variables["wet_surface#m2.day-1"][x, y].set_value(
                         self.field.plotsurface
                     )
+
 
                 # Natural nutrients input (earth)
                 for n in ["N", "K", "P", "C"]:
@@ -342,7 +331,9 @@ class Soil(Entity_API):
                 )
 
                 # Soil nutrients/water/pesticide/herbicide leakage due to rain.
-                rain_intensity = weather.variables["rain_intensity"].value
+                # TODO-WU : Rain intensity ?
+                #rain_intensity = weather.variables["rain_intensity"].value
+                rain_intensity = 0
                 if rain_intensity > 0 or water_surplus > 0:
                     milife = (
                         self.variables["microlife_health_index#%"][x, y].value / 100.0
@@ -375,7 +366,7 @@ class Soil(Entity_API):
                         )
 
     def ground_evaporation(self, position, weather, plants, weeds, field):
-        ET_0 = weather.evapo_coefficient(field)  # ml/m2/day
+        ET_0 = weather.evaporation(field)  # ml/m2/day
 
         # Compute % of ground covered by shadow:
         plantshadow = np.sum(

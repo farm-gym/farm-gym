@@ -615,7 +615,7 @@ class Plant(Entity_API):
                             water_needs += (
                                 g
                                 * (newsize - self.variables["size#cm"][x, y].value)
-                                * weather.evapo_coefficient(field)
+                                * weather.evaporation(field)
                                 * self.variables["population#nb"][x, y].value
                             )
 
@@ -1347,7 +1347,7 @@ class Plant(Entity_API):
             w += (
                 g
                 * (new_size - self.variables["size#cm"][position].value)
-                * weather.evapo_coefficient(field)
+                * weather.evaporation(field)
                 * self.variables["population#nb"][position].value
             )
             # print("REQUIRE MORE WATER")
@@ -1376,7 +1376,7 @@ class Plant(Entity_API):
         return max(w - self.variables["cumulated_water#L"][position].value, 0)
 
     def evapo_transpiration(self, position, weather, field):
-        ET_0 = weather.evapo_coefficient(field)  # ml/m2/day
+        ET_0 = weather.evaporation(field)  # ml/m2/day
         size = self.variables["size#cm"][position].value
         if size > 0:
             u = weather.variables["wind"]["speed#km.h-1"].value

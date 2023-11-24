@@ -159,7 +159,7 @@ class Weeds(Entity_API):
             q.append(
                 (
                     p["sensitivity_grow_RH"],
-                    weather.variables["humidity_index#%"].value,
+                    weather.variables["humidity#%"].value,
                     p["grow_RH_min"],
                     p["grow_RH_max"],
                 )

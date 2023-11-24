@@ -1,16 +1,7 @@
-import os
 from unittest import mock
 
 import pytest
-from farmgym.v2.entities.Birds import Birds
-from farmgym.v2.entities.Cide import Cide
-from farmgym.v2.entities.Fertilizer import Fertilizer
-from farmgym.v2.entities.Pests import Pests
-from farmgym.v2.entities.Plant import Plant
-from farmgym.v2.entities.Pollinators import Pollinators
-from farmgym.v2.entities.Soil import Soil
-from farmgym.v2.entities.Weather import Weather
-from farmgym.v2.entities.Weeds import Weeds
+from farmgym.v2.entities import Birds, Cide, Fertilizer, Pests, Plant, Pollinators, Soil, Weather, Weeds
 from farmgym.v2.farm import Farm
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer
 from farmgym.v2.field import Field
@@ -301,13 +292,3 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
 
     # Stop monitoring
     monitor.stop()
-
-
-def test_clean_folder():
-    """
-    Not actually a test, removes created temp farms created for tests
-    """
-    # Clean folder
-    files_to_remove = ["test_actions.yaml", "test_init.yaml", "test_score.yaml"]
-    for file in files_to_remove:
-        os.remove(file)
