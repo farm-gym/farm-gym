@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 import sys
 
 import yaml
@@ -11,7 +12,7 @@ from farmgym.v2.entities.Pollinators import Pollinators
 from farmgym.v2.entities.Soil import Soil
 
 ## The following importe lines are import for the make_farm function that uses inspection module!
-#from farmgym.v2.entities.Weather import Weather
+# from farmgym.v2.entities.Weather import Weather
 from farmgym.v2.entities.Weather2 import Weather
 from farmgym.v2.entities.Weeds import Weeds
 from farmgym.v2.farm import Farm
@@ -36,24 +37,32 @@ def make_farm(yamlfile):
             for e in entities:
                 k = (list(e.keys()))[0]
                 c = getattr(sys.modules[__name__], k)
-                #print("E",e, list(e.keys()), k,c)
+                # print("E",e, list(e.keys()), k,c)
                 ent.append((c, str(e[k])))
             fields.append(
-                Field(localization=farm[fi]["localization"], shape=farm[fi]["shape"], entities_specifications=ent)
+                Field(
+                    localization=farm[fi]["localization"],
+                    shape=farm[fi]["shape"],
+                    entities_specifications=ent,
+                )
             )
         if "Farmer" in fi:
             if farm[fi]["type"] == "basic":
                 farmers.append(
                     BasicFarmer(
-                        max_daily_interventions=farm[fi]["parameters"]["max_daily_interventions"],
-                        max_daily_observations=farm[fi]["parameters"]["max_daily_observations"],
+                        max_daily_interventions=farm[fi]["parameters"][
+                            "max_daily_interventions"
+                        ],
+                        max_daily_observations=farm[fi]["parameters"][
+                            "max_daily_observations"
+                        ],
                     )
                 )
 
     if "day_path" in farm_yaml:
-        day= farm_yaml["day_path"]
+        day = farm_yaml["day_path"]
     else:
-        day= {"field": "Field-0", "entity": "Weather-0", "variable": "day#int365"}
+        day = {"field": "Field-0", "entity": "Weather-0", "variable": "day#int365"}
     interaction_mode = farm_yaml["interaction_mode"]
     name = yamlfile[:-5]
     # TODO: Perhaps these names could be defined automatically? or actually
@@ -67,7 +76,12 @@ def make_farm(yamlfile):
     rules = BasicRule(init_configuration=name_init, actions_configuration=name_actions)
 
     farm = Farm(
-        fields=fields, farmers=farmers, scoring=scoring, rules=rules, policies=[], interaction_mode=interaction_mode
+        fields=fields,
+        farmers=farmers,
+        scoring=scoring,
+        rules=rules,
+        policies=[],
+        interaction_mode=interaction_mode,
     )
     farm._set_day_path(day)
     return farm

@@ -155,15 +155,18 @@ class Soil(Entity_API):
                 # Natural water input (rain)
                 # rain_amount#mm.day-1
                 water_after_input = (
-                        self.variables["available_Water#L"][x, y].value
-                        + weather.variables["rain_amount#mm.day-1"].value
-                    )
-                self.variables["available_Water#L"][x, y].set_value(min(max_water_plot_capacity, water_after_input))
-                water_surplus =  water_after_input - self.variables["available_Water#L"][x, y].value
+                    self.variables["available_Water#L"][x, y].value
+                    + weather.variables["rain_amount#mm.day-1"].value
+                )
+                self.variables["available_Water#L"][x, y].set_value(
+                    min(max_water_plot_capacity, water_after_input)
+                )
+                water_surplus = (
+                    water_after_input - self.variables["available_Water#L"][x, y].value
+                )
                 self.variables["wet_surface#m2.day-1"][x, y].set_value(
-                        self.field.plotsurface
-                    )
-
+                    self.field.plotsurface
+                )
 
                 # Natural nutrients input (earth)
                 for n in ["N", "K", "P", "C"]:
@@ -332,7 +335,7 @@ class Soil(Entity_API):
 
                 # Soil nutrients/water/pesticide/herbicide leakage due to rain.
                 # TODO-WU : Rain intensity ?
-                #rain_intensity = weather.variables["rain_intensity"].value
+                # rain_intensity = weather.variables["rain_intensity"].value
                 rain_intensity = 0
                 if rain_intensity > 0 or water_surplus > 0:
                     milife = (

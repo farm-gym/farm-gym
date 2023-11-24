@@ -1,9 +1,21 @@
-from farmgym.v2.entities import Birds, Cide, Fertilizer, Pests, Plant, Pollinators, Soil, Weather, Weeds
+# ruff: noqa: F401
+from farmgym.v2.entities import (
+    Birds,
+    Cide,
+    Fertilizer,
+    Pests,
+    Plant,
+    Pollinators,
+    Soil,
+    Weather,
+    Weeds,
+)
 from farmgym.v2.farm import Farm
 from farmgym.v2.farmers.BasicFarmer import BasicFarmer
 from farmgym.v2.field import Field
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.scorings.BasicScore import BasicScore
+
 
 class FarmCreator:
     @staticmethod
@@ -80,7 +92,7 @@ class FarmCreator:
         # Remove plant rules
         if remove_plant_rule:
             FarmCreator.update_rules(farm_name)
-        
+
         farm = Farm(field, farmer, scoring, rules)
 
         return farm
@@ -101,16 +113,17 @@ def test_clay_sand_soils():
 
     def get_day(farm):
         day = int(
-            farm.fields["Field-0"]
-            .entities["Weather-0"]
-            .variables["day#int365"]
-            .value
+            farm.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
         )
         return day
 
     # Create soils
-    dry_clay = FarmCreator.create_farm(weather="dry", soil="clay",remove_plant_rule=True)
-    dry_sand = FarmCreator.create_farm(weather="dry", soil="sand",remove_plant_rule=True)
+    dry_clay = FarmCreator.create_farm(
+        weather="dry", soil="clay", remove_plant_rule=True
+    )
+    dry_sand = FarmCreator.create_farm(
+        weather="dry", soil="sand", remove_plant_rule=True
+    )
     print(f"Starting day : {get_day(dry_clay)}")
     # Simulate days
     simulated_days = 80
@@ -138,16 +151,17 @@ def test_plant_farm():
 
     def get_day(farm):
         day = int(
-            farm.fields["Field-0"]
-            .entities["Weather-0"]
-            .variables["day#int365"]
-            .value
+            farm.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
         )
         return day
 
     # Create soils
-    dry_clay = FarmCreator.create_farm(weather="dry", soil="clay", plant="bean",remove_plant_rule=True)
-    dry_sand = FarmCreator.create_farm(weather="dry", soil="sand", plant="bean",remove_plant_rule=True)
+    dry_clay = FarmCreator.create_farm(
+        weather="dry", soil="clay", plant="bean", remove_plant_rule=True
+    )
+    dry_sand = FarmCreator.create_farm(
+        weather="dry", soil="sand", plant="bean", remove_plant_rule=True
+    )
     print(f"Starting day : {get_day(dry_clay)}")
     # Simulate days
     simulated_days = 80
@@ -159,5 +173,6 @@ def test_plant_farm():
     water_sand = get_available_water(n_sand)
     print(f"Clay water : {water_clay}, Sand water : {water_sand}")
 
-#test_clay_sand_soils()
-#test_plant_farm()
+
+# test_clay_sand_soils()
+# test_plant_farm()

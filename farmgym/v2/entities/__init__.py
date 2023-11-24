@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 from farmgym.v2.entities.Birds import Birds
 from farmgym.v2.entities.Cide import Cide
 from farmgym.v2.entities.Fertilizer import Fertilizer

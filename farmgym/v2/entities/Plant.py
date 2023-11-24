@@ -1383,7 +1383,7 @@ class Plant(Entity_API):
             rh = weather.variables["humidity_index#%"].value
             alpha_Kcb = self.parameters["grow_conditions"]["Water_evapo_coefficients#"]
             # m2, m2/cm, m2/cm
-            Kcb = (    # noqa: F841
+            Kcb = (  # noqa: F841
                 alpha_Kcb[0]
                 + size * alpha_Kcb[1]
                 + 4 * (0.01 * (u - 2) - 0.001 * (rh - 45)) * ((size / 300) ** 0.3)

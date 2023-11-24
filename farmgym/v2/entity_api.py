@@ -391,7 +391,6 @@ class Entity_API:
         return s
 
 
-
 def get_space_list(space):
     """
     Converts gym `space`, constructed from `types`, to list `space_list`

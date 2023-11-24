@@ -1,13 +1,10 @@
 import os
-import pytest 
+import pytest
 
-@pytest.mark.parametrize("farm", [
-                                 "test",
-                                 "dry_clay",
-                                 "dry_sand",
-                                 "dry_clay_bean",
-                                 "dry_sand_bean"
-                                ])
+
+@pytest.mark.parametrize(
+    "farm", ["test", "dry_clay", "dry_sand", "dry_clay_bean", "dry_sand_bean"]
+)
 def test_cleanup(farm):
     """
     Not actually a test, removes created temp farms created for tests

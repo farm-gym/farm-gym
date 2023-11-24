@@ -12,7 +12,7 @@ class Policy_API:
     def __init__(self, triggered_observations, triggered_interventions):
         self.triggered_observations = triggered_observations
         self.triggered_interventions = triggered_interventions
-        #TODO: Perhaps use discretized_farmgymaction_to_gymaction to be able to output gymactions (integers)  and not just farmgymactions?
+        # TODO: Perhaps use discretized_farmgymaction_to_gymaction to be able to output gymactions (integers)  and not just farmgymactions?
 
         self.delayed_actions = []
 
@@ -199,11 +199,15 @@ class Policy_helper:
 
     # Single policies
 
-
-    def create_policyfromaction(self,action,frequency,delay):
+    def create_policyfromaction(self, action, frequency, delay):
         policy_condition = [
             [
-                (("Field-0", "Weather-0", "day#int365", []), lambda x: x % frequency, "==", 0)
+                (
+                    ("Field-0", "Weather-0", "day#int365", []),
+                    lambda x: x % frequency,
+                    "==",
+                    0,
+                )
             ]
         ]
         policy_action = [{"action": action, "delay": delay}]
@@ -870,10 +874,10 @@ class Policy_helper:
         if "Plant-0" in entities:
             policies += self.get_plant_policies(frequency=frequency)
         if "Soil-0" in entities:
-            #params = self.get_soil_params()
+            # params = self.get_soil_params()
             policies += self.get_soil_policies(frequency=frequency)
         if "Weeds-0" in entities:
-            #params = self.get_weeds_params()
+            # params = self.get_weeds_params()
             policies += self.get_weeds_policies(frequency=frequency)
         if "Fertilizer-0" in entities:
             policies += self.get_fertilizer_policies(frequency=frequency)

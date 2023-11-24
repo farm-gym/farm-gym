@@ -76,7 +76,7 @@ def build_scoreyaml(filepath, farm):
 
 
 import numpy as np  # noqa: E402
-from farmgym.v2.entity_api import Range# noqa: E402
+from farmgym.v2.entity_api import Range  # noqa: E402
 
 
 def build_inityaml(filepath, farm, mode="default", init_values=None):
