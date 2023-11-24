@@ -1,5 +1,5 @@
 from farmgym.v2.score_api import Score_API
-import farmgym.v2.scorings.reward_functions as rf 
+import farmgym.v2.scorings.reward_functions as rf
 
 import numpy as np
 

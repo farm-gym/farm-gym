@@ -109,7 +109,9 @@ class Pollinators(Entity_API):
                 q.append(
                     (
                         p["theta_Rain"],
-                        0 if weather.variables["rain_amount"].value == "None" else 1.0,
+                        0
+                        if weather.variables["rain_amount#mm.day-1"].value == "None"
+                        else 1.0,
                         -np.infty,
                         0.0,
                     )

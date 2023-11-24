@@ -236,7 +236,11 @@ class Farm(gym.Env):
                     e
                 ].initial_conditions = self.rules.initial_conditions[fi][e]
 
-        self.day_path={"field": "Field-0", "entity": "Weather2-0", "variable": "day#int365"}
+        self.day_path = {
+            "field": "Field-0",
+            "entity": "Weather-0",
+            "variable": "day#int365",
+        }
         self.is_new_day = True
         self.seed(seed)
         for fi in self.fields:
@@ -478,7 +482,8 @@ class Farm(gym.Env):
             .variables[self.day_path["variable"]]
             .value
         )
-    def _set_day_path(self,path):
+
+    def _set_day_path(self, path):
         self.day_path = path
 
     def observation_step(self, observation_schedule):
@@ -591,7 +596,9 @@ class Farm(gym.Env):
                 if isinstance(ranges[value], str) and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
-            elif isinstance(ranges, str) and "(" in ranges:  # Range of continuous values
+            elif (
+                isinstance(ranges, str) and "(" in ranges
+            ):  # Range of continuous values
                 # print("?",value, ranges)
                 return (float)(value)
             elif isinstance(ranges, dict):
@@ -619,12 +626,13 @@ class Farm(gym.Env):
         return fg_actions
 
     def gymaction_to_discretized_farmgymaction(self, actions):
-        '''
+        """
         Input:
             actions = [4, 8 ...]
         Output:
             fg_actions = [('BasicFarmer-0', 'Field-0', 'Plant-0', 'stage', [(0, 0)]), ...]
-        '''
+        """
+
         def convert(value, ranges):
             if ranges is None:
                 return {}
@@ -632,7 +640,9 @@ class Farm(gym.Env):
                 if isinstance(ranges[value], str) and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
-            elif isinstance(ranges, str) and "(" in ranges:  # Range of continuous values
+            elif (
+                isinstance(ranges, str) and "(" in ranges
+            ):  # Range of continuous values
                 # r = ranges.split(",")
                 # m=float(r[0][1:])
                 # M=float(r[1][:-1])
@@ -702,15 +712,17 @@ class Farm(gym.Env):
                 fg_actions.append((fa, fi, e, a, farmgym_act))
         return fg_actions
 
-    def discretized_farmgymaction_to_gymaction(self,actions):
-        '''
+    def discretized_farmgymaction_to_gymaction(self, actions):
+        """
         Input:
             actions = [('BasicFarmer-0', 'Field-0', 'Plant-0', 'stage', [(0, 0)]), ...]
         Output:
             ii = [4,5, etc]
-        '''
+        """
         ii = []
-        nb_tot_actions = self.action_space.space.n + len(self.farmgym_observation_actions)
+        nb_tot_actions = self.action_space.space.n + len(
+            self.farmgym_observation_actions
+        )
         for action in actions:
             for i in range(nb_tot_actions):
                 a = self.farm.gymaction_to_discretized_farmgymaction([i])
@@ -718,8 +730,6 @@ class Farm(gym.Env):
                 if action == a[0]:
                     ii.append(i)
         return ii
-
-
 
     def random_allowed_intervention(self):
         """
@@ -743,7 +753,9 @@ class Farm(gym.Env):
                 if isinstance(ranges[value], str) and "(" in ranges[value]:  # Plots.
                     return yml_tuple_constructor(ranges[value], int)
                 return ranges[value]
-            elif isinstance(ranges, str) and "(" in ranges:  # Range of continuous values
+            elif (
+                isinstance(ranges, str) and "(" in ranges
+            ):  # Range of continuous values
                 # print("?",value, ranges)
                 return (float)(value)
             elif isinstance(ranges, dict):

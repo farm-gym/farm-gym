@@ -10,7 +10,7 @@ observations:
           '*':
   BasicFarmer-0:
     Field-0:
-      Weather2-0:
+      Weather-0:
         year#int100: 
         day#int365: 
         air_temperature: 

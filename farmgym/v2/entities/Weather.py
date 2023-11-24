@@ -4,11 +4,10 @@ from farmgym.v2.entity_api import Entity_API, Range
 from PIL import Image
 import numpy as np
 
+import math
+
 
 class Weather(Entity_API):
-    wind_directions = ["NW", "N", "NE", "W", "E", "SW", "S", "SE"]
-    rain_amounts = ["None", "Light", "Heavy"]
-
     def __init__(self, field, parameters):
         Entity_API.__init__(self, field, parameters)
         self.localization = self.field.localization
@@ -23,31 +22,66 @@ class Weather(Entity_API):
             "mean#°C": Range((-100, 100), 20.0),
             "min#°C": Range((-100, 100), 18.0),
         }
-        self.variables["humidity_index#%"] = Range((0.0, 100.0), 50.0)
+        self.variables["humidity#%"] = Range((0.0, 100.0), 50.0)
         self.variables["wind"] = {
             "speed#km.h-1": Range((0.0, 500), 0.0),
-            "direction": Range(self.wind_directions, "W"),
+            "direction": Range(list(range(360)), 0),
         }
-        self.variables["sun_exposure#int5"] = Range(list(range(5)), 0)
-        self.variables["rain_amount"] = Range(self.rain_amounts, "None")
-        self.variables["rain_intensity"] = Range((0.0, 1.0), 0.0)
+        self.variables["clouds#%"] = Range((0.0, 100.0), 0)
+        self.variables["rain_amount#mm.day-1"] = Range((0, 1000), 0)
 
         self.variables["consecutive_frost#day"] = Range((0, 10000), 0.0)
         self.variables["consecutive_dry#day"] = Range((0, 10000), 0.0)
 
-        self.variables["air_temperature.forecast"] = {
-            "mean#°C": np.full(
+        self.variables["forecast"] = {
+            "air_temperature": {
+                "mean#°C": np.full(
+                    self.parameters["forecast_lookahead"],
+                    fill_value=Range((-100, 100), 20.0),
+                ),
+                "min#°C": np.full(
+                    self.parameters["forecast_lookahead"],
+                    fill_value=Range((-100, 100), 18.0),
+                ),
+                "max#°C": np.full(
+                    self.parameters["forecast_lookahead"],
+                    fill_value=Range((-100, 100), 22.0),
+                ),
+            },
+            "humidity#%": np.full(
                 self.parameters["forecast_lookahead"],
-                fill_value=Range((-100, 100), 20.0),
+                fill_value=Range((0.0, 100.0), 50.0),
             ),
-            "min#°C": np.full(
+            "clouds#%": np.full(
                 self.parameters["forecast_lookahead"],
-                fill_value=Range((-100, 100), 18.0),
+                fill_value=Range((0.0, 100.0), 0.0),
             ),
-            "max#°C": np.full(
+            "rain_amount#mm.day-1": np.full(
                 self.parameters["forecast_lookahead"],
-                fill_value=Range((-100, 100), 22.0),
+                fill_value=Range((0.0, 100.00), 0.0),
             ),
+            "wind": {
+                "speed#km.h-1": np.full(
+                    self.parameters["forecast_lookahead"],
+                    fill_value=Range((0.0, 500), 0.0),
+                ),
+                "direction": np.full(
+                    self.parameters["forecast_lookahead"],
+                    fill_value=Range(list(range(360)), 0),
+                ),
+            },
+        }
+
+        # required fields in CSV data file:
+        self.datakeys = {
+            "T": "Temperature",
+            "Tmin": "TemperatureMin",
+            "Tmax": "TemperatureMax",
+            "H": "Humidity",
+            "R": "Rain",
+            "C": "Clouds",
+            "WS": "WindSpeed",
+            "WD": "WindDirection",
         }
 
         # self.year_weather = sm.load_weather_table(self.parameters["one_year_data_filename"])
@@ -65,10 +99,11 @@ class Weather(Entity_API):
         return [
             "one_year_data_filename",
             "air_temperature_noise",
-            "humidity_index_noise",
-            "rain_lightheavy_proba",
-            "rain_leakageintensity_light#%",
-            "rain_leakageintensity_heavy#%",
+            "humidity_noise",
+            "clouds_noise",
+            "rain_amount_noise",
+            "wind_speed_noise",
+            "wind_direction_noise",
             "forecast_lookahead",
             "forecast_noise",
         ]
@@ -110,13 +145,33 @@ class Weather(Entity_API):
 
         eps = self.np_random.normal(0, self.parameters["air_temperature_noise"], 1)[0]
         self.variables["air_temperature"]["mean#°C"].set_value(
-            self.read_weathercsv("T", day % 365) + eps
+            self.read_weathercsv(self.datakeys["T"], day % 365) + eps
         )
         self.variables["air_temperature"]["min#°C"].set_value(
-            self.read_weathercsv("Tmin", day % 365) + eps
+            self.read_weathercsv(self.datakeys["Tmin"], day % 365) + eps
         )
         self.variables["air_temperature"]["max#°C"].set_value(
-            self.read_weathercsv("Tmax", day % 365) + eps
+            self.read_weathercsv(self.datakeys["Tmax"], day % 365) + eps
+        )
+        eps = self.np_random.normal(0, self.parameters["humidity_noise"], 1)[0]
+        self.variables["humidity#%"].set_value(
+            self.read_weathercsv(self.datakeys["H"], day % 365) + eps
+        )
+        eps = self.np_random.normal(0, self.parameters["clouds_noise"], 1)[0]
+        self.variables["clouds#%"].set_value(
+            self.read_weathercsv(self.datakeys["C"], day % 365) + eps
+        )
+        eps = self.np_random.normal(0, self.parameters["rain_amount_noise"], 1)[0]
+        self.variables["rain_amount#mm.day-1"].set_value(
+            self.read_weathercsv(self.datakeys["R"], day % 365) + eps
+        )
+        eps = self.np_random.normal(0, self.parameters["wind_speed_noise"], 1)[0]
+        self.variables["wind"]["speed#km.h-1"].set_value(
+            self.read_weathercsv(self.datakeys["WS"], day % 365) + eps
+        )
+        eps = self.np_random.normal(0, self.parameters["wind_direction_noise"], 1)[0]
+        self.variables["wind"]["direction"].set_value(
+            int(self.read_weathercsv(self.datakeys["WD"], day % 365) + eps) % 360
         )
 
         if self.variables["air_temperature"]["min#°C"].value < 0:
@@ -125,48 +180,13 @@ class Weather(Entity_API):
             )
         else:
             self.variables["consecutive_frost#day"].set_value(0)
-
-        self.variables["humidity_index#%"].set_value(
-            self.read_weathercsv("RH", day % 365)
-            + self.np_random.normal(0, self.parameters["humidity_index_noise"], 1)[0]
-        )
-        self.variables["wind"]["speed#km.h-1"].set_value(
-            self.read_weathercsv("U", day % 365) + self.np_random.random()
-        )
-        self.variables["wind"]["direction"].set_value(
-            self.np_random.choice(Weather.wind_directions, 1)[0]
-        )
-        self.variables["sun_exposure#int5"].set_value(self.np_random.integers(5))
-        is_rain = self.read_weathercsv("Rain", day % 365)
-        if is_rain > 0:
-            self.variables["consecutive_dry#day"].set_value(0)
-            self.variables["sun_exposure#int5"].set_value(0)
-            self.variables["rain_amount"].set_value(
-                "Light"
-                if self.np_random.random() <= self.parameters["rain_lightheavy_proba"]
-                else "Heavy"
-            )
-            self.variables["rain_intensity"].set_value(
-                self.parameters["rain_leakageintensity_light#%"]
-                if self.variables["rain_amount"].value == "Light"
-                else self.parameters["rain_leakageintensity_heavy#%"]
-            )
-        else:
+        if self.variables["rain_amount#mm.day-1"].value < 1:
             self.variables["consecutive_dry#day"].set_value(
                 self.variables["consecutive_dry#day"].value + 1
             )
-            self.variables["rain_amount"].set_value("None")
-            self.variables["rain_intensity"].set_value(0.0)
+        else:
+            self.variables["consecutive_dry#day"].set_value(0)
 
-        self.variables["air_temperature.forecast"]["mean#°C"] = np.full(
-            self.parameters["forecast_lookahead"], fill_value=Range((-100, 100), 0.0)
-        )
-        self.variables["air_temperature.forecast"]["min#°C"] = np.full(
-            self.parameters["forecast_lookahead"], fill_value=Range((-100, 100), 0.0)
-        )
-        self.variables["air_temperature.forecast"]["max#°C"] = np.full(
-            self.parameters["forecast_lookahead"], fill_value=Range((-100, 100), 0.0)
-        )
         for i in range(self.parameters["forecast_lookahead"]):
             eps = self.np_random.normal(
                 0,
@@ -174,14 +194,58 @@ class Weather(Entity_API):
                 + self.parameters["forecast_noise"] * i,
                 1,
             )[0]
-            self.variables["air_temperature.forecast"]["mean#°C"][i].set_value(
-                (self.read_weathercsv("T", (day + i) % 365) + eps)
+            self.variables["forecast"]["air_temperature"]["mean#°C"][i].set_value(
+                self.read_weathercsv(self.datakeys["T"], (day + i) % 365) + eps
             )
-            self.variables["air_temperature.forecast"]["min#°C"][i].set_value(
-                (self.read_weathercsv("Tmin", (day + i) % 365) + eps)
+            self.variables["forecast"]["air_temperature"]["min#°C"][i].set_value(
+                self.read_weathercsv(self.datakeys["Tmin"], day % 365) + eps
             )
-            self.variables["air_temperature.forecast"]["max#°C"][i].set_value(
-                (self.read_weathercsv("Tmax", (day + i) % 365) + eps)
+            self.variables["forecast"]["air_temperature"]["max#°C"][i].set_value(
+                self.read_weathercsv(self.datakeys["Tmax"], day % 365) + eps
+            )
+            eps = self.np_random.normal(
+                0,
+                self.parameters["humidity_noise"]
+                + self.parameters["forecast_noise"] * i,
+                1,
+            )[0]
+            self.variables["forecast"]["humidity#%"][i].set_value(
+                self.read_weathercsv(self.datakeys["H"], day % 365) + eps
+            )
+            eps = self.np_random.normal(
+                0,
+                self.parameters["wind_speed_noise"]
+                + self.parameters["forecast_noise"] * i,
+                1,
+            )[0]
+            self.variables["forecast"]["wind"]["speed#km.h-1"][i].set_value(
+                self.read_weathercsv(self.datakeys["WS"], day % 365) + eps
+            )
+            eps = self.np_random.normal(
+                0,
+                self.parameters["wind_direction_noise"]
+                + self.parameters["forecast_noise"] * i,
+                1,
+            )[0]
+            self.variables["forecast"]["wind"]["direction"][i].set_value(
+                int(self.read_weathercsv(self.datakeys["WD"], day % 365) + eps) % 360
+            )
+            eps = self.np_random.normal(
+                0,
+                self.parameters["clouds_noise"] + self.parameters["forecast_noise"] * i,
+                1,
+            )[0]
+            self.variables["forecast"]["clouds#%"][i].set_value(
+                self.read_weathercsv(self.datakeys["C"], day % 365) + eps
+            )
+            eps = self.np_random.normal(
+                0,
+                self.parameters["rain_amount_noise"]
+                + self.parameters["forecast_noise"] * i,
+                1,
+            )[0]
+            self.variables["forecast"]["rain_amount#mm.day-1"][i].set_value(
+                self.read_weathercsv(self.datakeys["R"], day % 365) + eps
             )
 
     def read_weathercsv(self, variable, day):
@@ -195,48 +259,118 @@ class Weather(Entity_API):
     def act_on_variables(self, action_name, action_params):
         pass
 
-    def evapo_coefficient(self, field):  # in mL/m2
-        day = self.variables["day#int365"].value
-        phi = field.localization["longitude#°"]
+    def evaporation(
+        self, field
+    ):  # in mm.m-2.day-1 for a surface in plain sunlight for the whole day.
+        """
+        Evaporation in mL.m-2.day-1 for a water surface in plain sunlight for the whole day.
+        """
+        RA = irradiance_perday(
+            field.localization["longitude#°"], self.variables["day#int365"].value
+        )  # in kWh/m2 per day
 
-        dr = 1 + 0.033 * np.cos(2 * np.pi * day / 365)
-        delta = 0.409 * np.sin(2 * np.pi * day / 365 - 1.39)
-        ws = np.arccos(-np.tan(np.pi / 180 * phi) * np.tan(delta))
+        rh = self.variables["humidity#%"].value / 100
+        cl = self.variables["clouds#%"].value / 100
+        t_av = self.variables["air_temperature"]["mean#°C"].value / 100
+        w = self.variables["wind"]["speed#km.h-1"].value * (
+            24 * 1000 * 1000
+        )  # in mm.day-1
+        alt = field.localization["altitude#m"]
 
-        Gsc = 0.0820
-        RA = (
-            ((24 * 60) / np.pi)
-            * Gsc
-            * dr
-            * (
-                ws * np.sin(np.pi / 180 * phi) * np.sin(delta)
-                + np.cos(ws) * np.cos(np.pi / 180 * phi) * np.cos(delta)
-            )
-        )
+        # chaleur latente de vaporisatoin de l'eau: 0.626kWh/kg = 626kWh/m3
+        evapo = (
+            (RA / 0.626)
+            * ((1 - rh) ** 0.8)
+            * (1 - cl)
+            * (max(t_av, 0) ** 1.1)
+            * ((w * 1e-7) ** 1.25)
+            * (1 + alt * 1e-5) ** 0.8
+        )  # mm/m2
 
-        rh = self.variables["humidity_index#%"].value
-        tmin = self.variables["air_temperature"]["min#°C"].value
-        tmax = self.variables["air_temperature"]["max#°C"].value
-        t_av = self.variables["air_temperature"]["mean#°C"].value
-        u = self.variables["wind"]["speed#km.h-1"].value
-
-        # Base vaporation in mm per m2 per day
-        return np.maximum(
-            0,
-            0.018
-            * ((1 - rh / 100) ** (0.2))
-            * (np.maximum(0, (tmax - tmin)) ** (0.3))
-            * (RA * np.sqrt(np.maximum(0, t_av + 10)) - 40)
-            + 0.1 * (t_av + 20) * (1 - rh / 100) * ((u / 2) ** 0.6),
-        )
+        # Base evaporation in mm per day at any point.
+        return evapo
 
     def to_thumbnailimage(self):
         im_width, im_height = 64, 64
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
-        if self.variables["rain_amount"].value == "None":
-            image.paste(self.images["sun"], (0, 0))
-        if self.variables["rain_amount"].value == "Heavy":
-            image.paste(self.images["rain-heavy"], (0, 0))
-        if self.variables["rain_amount"].value == "Light":
-            image.paste(self.images["rain-light"], (0, 0))
+        if self.variables["clouds#%"].value <= 25:
+            image.paste(self.images["sunny"], (0, 0))
+        if self.variables["rain_amount#mm.day-1"].value >= 5:
+            image.paste(self.images["rainy"], (0, 0))
+        if self.variables["clouds#%"].value >= 25:
+            image.paste(self.images["cloudy"], (0, 0))
+        if self.variables["wind"]["speed#km.h-1"].value >= 40:
+            image.paste(self.images["windy"], (0, 0))
+        if self.variables["air_temperature"]["mean#°C"].value >= 30:
+            image.paste(self.images["hot"], (0, 0))
+        if self.variables["air_temperature"]["mean#°C"].value <= 0:
+            image.paste(self.images["freeze"], (0, 0))
         return image
+
+
+def puissance_solaire(latitude, jour):  # en W/m^2
+    H0 = 1367  # Constante solaire en W/m^2
+    L = math.radians(latitude)  # Convertir la latitude en radians
+    J = jour
+
+    # Calcul de la déclinaison solaire #0 lors des equinoxes, +0.41/-0.41 aux solstices.
+    delta = math.radians(23.45) * math.sin(math.radians(360 * (284 + J) / 365))
+
+    # TODO-WU :
+    # print(delta,L,math.sin(L) * math.sin(delta) / (math.cos(delta)*math.cos(L)))
+
+    # Calcul de l'angle horaire du coucher du soleil
+    valeur = math.tan(L) * math.tan(delta)
+    if -1 < valeur < 1:
+        h_s = math.acos(math.tan(L) * math.tan(delta))
+    else:
+        h_s = 0
+
+    # Calcul de la puissance solaire
+    H = (
+        H0
+        * (1 + 0.034 * math.cos(2 * math.pi * J / 365))
+        * math.cos(L)
+        * math.cos(delta)
+        * math.sin(h_s)
+    )
+    return H
+
+
+def irradiance_perday(latitude, jour):
+    H = puissance_solaire(latitude, jour)
+    # return 24*3600*H  # in J/m2/day
+    return 24 * H / 1000  # in kWh/m2/day
+
+
+if __name__ == "__main__":
+    # Exemple d'utilisation
+    latitude = 48.8566  # Latitude de Paris
+    jour = 200  # Jour de l'année
+    for jour in [81, 81 + 365 // 4, 81 + 365 // 2, 81 + 3 * 365 // 4]:
+        for latitude in [
+            -70,
+            -66,
+            -60,
+            -50,
+            -40,
+            -30,
+            -5,
+            5,
+            30,
+            40,
+            50,
+            60,
+            66,
+            70,
+            80,
+        ]:
+            puissance = puissance_solaire(latitude, jour)
+            print(
+                f"La puissance solaire reçue à la latitude {latitude} le jour {jour} est de {puissance} W/m²."
+            )
+
+            irradiance = irradiance_perday(latitude, jour)
+            print(
+                f"L'irradiance solaire à la latitude {latitude} le jour {jour} est de {irradiance} kWh/m2 par jour soit {irradiance/0.626} mm/m2 potentiellement evapore par jour"
+            )

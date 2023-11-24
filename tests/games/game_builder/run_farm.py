@@ -57,7 +57,9 @@ def run_policy_xp(farm, policy, max_steps=np.infty):
         observation, _, _, _, info = farm.farmgym_step(observation_schedule)
         obs_cost = info["observation cost"]
         intervention_schedule = policy.intervention_schedule(observation)
-        obs, reward, terminated, truncated, info = farm.farmgym_step(intervention_schedule)
+        obs, reward, terminated, truncated, info = farm.farmgym_step(
+            intervention_schedule
+        )
         int_cost = info["intervention cost"]
         cumreward += reward
         cumcost += obs_cost + int_cost

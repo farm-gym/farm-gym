@@ -159,7 +159,7 @@ class Weeds(Entity_API):
             q.append(
                 (
                     p["sensitivity_grow_RH"],
-                    weather.variables["humidity_index#%"].value,
+                    weather.variables["humidity#%"].value,
                     p["grow_RH_min"],
                     p["grow_RH_max"],
                 )
@@ -299,7 +299,7 @@ class Weeds(Entity_API):
     def act_on_variables(self, action_name, action_params):
         if action_name == "remove":
             position = action_params["plot"]
-            s = (    # noqa: F841
+            s = (  # noqa: F841
                 self.variables["grow#nb"][position].value
                 + self.variables["flowers#nb"][position].value
             )

@@ -39,7 +39,9 @@ class Farmgym_RandomAgent(Farmgym_Agent):
         threshold = 10 / self.x
         if np.random.rand() > threshold:
             obs_actions_len = len(self.farm.farmgym_observation_actions)
-            action = self.get_harvest_index(obs_actions_len, self.farm.action_space.space.n)
+            action = self.get_harvest_index(
+                obs_actions_len, self.farm.action_space.space.n
+            )
             return action
         return self.farm.action_space.sample()
 
@@ -52,10 +54,13 @@ class Farmgym_PolicyAgent(Farmgym_Agent):
 
     def update(self, obs, reward, terminated, truncated, info):
         self.observation = obs
+
     def choose_action(self):
-        if (self.farm.is_new_day):
-            schedule= self.policy.observation_schedule(self.observation)
+        if self.farm.is_new_day:
+            schedule = self.policy.observation_schedule(self.observation)
         else:
-            schedule= self.policy.intervention_schedule(self.observation)
-        print("AGENT:", schedule) #TODO: Convert from FarmGym [('BasicFarmer-0', 'Field-0', 'Plant-0', 'stage', [(0, 0)]),..]  to Gym [4,...]
+            schedule = self.policy.intervention_schedule(self.observation)
+        print(
+            "AGENT:", schedule
+        )  # TODO: Convert from FarmGym [('BasicFarmer-0', 'Field-0', 'Plant-0', 'stage', [(0, 0)]),..]  to Gym [4,...]
         return schedule
