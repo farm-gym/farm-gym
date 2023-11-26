@@ -6,7 +6,7 @@ montpellier:
     cloudy: 'weather-t-cloudy.png'
     freeze: 'weather-t-frost.png'
     hot: 'weather-t-hot.png'
-  one_year_data_filename: "weather_data/lille2_test.csv"
+  one_year_data_filename: "weather_data/Montpellier_21_22.csv"
   forecast_lookahead: 5
   forecast_noise: 0.1
   air_temperature_noise: 0

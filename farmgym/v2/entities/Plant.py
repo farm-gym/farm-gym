@@ -487,7 +487,7 @@ class Plant(Entity_API):
                                 q.append(
                                     (
                                         p["sensitivity_sprout_RH"],
-                                        weather.variables["humidity_index#%"].value,
+                                        weather.variables["humidity#%"].value,
                                         p["sprout_RH_min"],
                                         p["sprout_RH_max"],
                                     )
@@ -1051,7 +1051,7 @@ class Plant(Entity_API):
                         q.append(
                             (
                                 p["sensitivity_death_humidity"],
-                                weather.variables["humidity_index#%"].value,
+                                weather.variables["humidity#%"].value,
                                 p["death_humidity_min"],
                                 p["death_humidity_max"],
                             )
@@ -1129,7 +1129,7 @@ class Plant(Entity_API):
                                 p["ripe_age_max#day"],
                             )
                         )
-                        # q.append((p['sensitivity_death_humidity'], weather.variables['humidity_index#%'].value, p['death_humidity_min'], p['death_humidity_max']))
+                        # q.append((p['sensitivity_death_humidity'], weather.variables['humidity#%'].value, p['death_humidity_min'], p['death_humidity_max']))
                         rate = min(
                             max(
                                 0.0,
@@ -1380,7 +1380,7 @@ class Plant(Entity_API):
         size = self.variables["size#cm"][position].value
         if size > 0:
             u = weather.variables["wind"]["speed#km.h-1"].value
-            rh = weather.variables["humidity_index#%"].value
+            rh = weather.variables["humidity#%"].value
             alpha_Kcb = self.parameters["grow_conditions"]["Water_evapo_coefficients#"]
             # m2, m2/cm, m2/cm
             Kcb = (  # noqa: F841

@@ -18,7 +18,7 @@ from farmgym.v2.field import Field
 from farmgym.v2.policy_api import Policy_helper
 from farmgym.v2.rendering.monitoring import (
     MonitorTensorBoard,
-    make_variables_to_be_monitored,
+    make_variables_to_be_monitored_deprecated,
 )
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.scorings.BasicScore import BasicScore
@@ -274,7 +274,7 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
     farm = sample_farm
 
     # Create a list of variables to monitor
-    list_of_variables_to_monitor = make_variables_to_be_monitored(
+    list_of_variables_to_monitor = make_variables_to_be_monitored_deprecated(
         [
             "f0.soil.available_Water#L",
             "f0.weeds.flowers#nb.mat",

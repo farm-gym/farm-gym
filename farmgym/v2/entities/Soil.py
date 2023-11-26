@@ -157,7 +157,7 @@ class Soil(Entity_API):
                 # TODO: Multiplier par la surface et convertir en L
                 water_after_input = (
                     self.variables["available_Water#L"][x, y].value
-                    + weather.variables["rain_amount#mm.day-1"].value
+                    + weather.variables["rain_amount#mm.day-1"].value*self.field.plotsurface/1000
                 )
                 self.variables["available_Water#L"][x, y].set_value(
                     min(max_water_plot_capacity, water_after_input)
