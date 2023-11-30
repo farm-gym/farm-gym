@@ -9,8 +9,8 @@ Farm:
       width#nb: 1
       scale#m: 1.0
     entities:
-      - Weather: montpellier
-      - Soil: clay
+      - Weather: montpellier3
+      - Soil: sand
 #      - Plant: bean
   Farmer-0:
     type: basic

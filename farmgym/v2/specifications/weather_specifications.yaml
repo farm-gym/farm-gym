@@ -1,9 +1,14 @@
 montpellier:
   sprites:
-    rain-light: 'weather-t-rain-light.png'
-    rain-heavy: 'weather-t-rain-heavy.png'
-    sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data/montpellier.csv"
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/montpellier.csv: 1.
+    weather_data/constant_dryhot.csv: 0.
   forecast_lookahead: 5
   forecast_noise: 0.1
   air_temperature_noise: 0
@@ -12,54 +17,59 @@ montpellier:
   rain_amount_noise: 0
   wind_speed_noise: 0
   wind_direction_noise: 0
-  
+
+montpellier2:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/montpellier.csv: 0.7
+    weather_data/constant_dryhot.csv: 0.3
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+montpellier3:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/montpellier.csv: 0.4
+    weather_data/constant_dryhot.csv: 0.6
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+
 lille:
   sprites:
-    rain-light: 'weather-t-rain-light.png'
-    rain-heavy: 'weather-t-rain-heavy.png'
-    sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data/lille.csv"
-  forecast_lookahead: 5
-  forecast_noise: 0.1
-  air_temperature_noise: 0
-  humidity_noise: 0
-  clouds_noise: 0
-  rain_amount_noise: 0
-  wind_speed_noise: 0
-  wind_direction_noise: 0
-
-# TODO-WU : Check if this update is correct : 
-mixed:
-  sprites:
-    rain-light: 'weather-t-rain-light.png'
-    rain-heavy: 'weather-t-rain-heavy.png'
-    sun: 'weather-t-sun.png'
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
   one_year_data_filename:
-    weather_data_montpellier.csv : 0.3
-    weather_data_lille.csv : 0.7
-  forecast_lookahead: 5
-  forecast_noise: 0.1
-  air_temperature_noise: 0
-  humidity_noise: 0
-  clouds_noise: 0
-  rain_amount_noise: 0
-  wind_speed_noise: 0
-  wind_direction_noise: 0
-  # air_temperature_noise: 0
-  # humidity_noise: 0
-  # rain_lightheavy_proba: 0.5
-  # rain_leakageintensity_light#%: 0.01
-  # rain_leakageintensity_heavy#%: 0.1
-  # forecast_lookahead: 5
-  # forecast_noise: 0.1
-
-
-rainy:
-  sprites:
-    rain-light: 'weather-t-rain-light.png'
-    rain-heavy: 'weather-t-rain-heavy.png'
-    sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data/constant_rain.csv"
+    weather_data/lille.csv: 1.
+    weather_data/constant_rain.csv: 0.
   forecast_lookahead: 5
   forecast_noise: 0.1
   air_temperature_noise: 0
@@ -69,12 +79,39 @@ rainy:
   wind_speed_noise: 0
   wind_direction_noise: 0
 
-dry:
+
+lille2:
   sprites:
-    rain-light: 'weather-t-rain-light.png'
-    rain-heavy: 'weather-t-rain-heavy.png'
-    sun: 'weather-t-sun.png'
-  one_year_data_filename: "weather_data/constant_dry.csv"
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/lille.csv: 0.7
+    weather_data/constant_rain.csv: 0.3
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+
+lille3:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/lille.csv: 0.4
+    weather_data/constant_rain.csv: 0.6
   forecast_lookahead: 5
   forecast_noise: 0.1
   air_temperature_noise: 0

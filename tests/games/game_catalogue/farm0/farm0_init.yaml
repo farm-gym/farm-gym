@@ -1,0 +1,21 @@
+Initial:
+  Field-0:
+    Weather-0:
+      year#int100: 0
+      day#int365: 0
+    Soil-0:
+      available_N#g: 100.0
+      available_P#g: 100.0
+      available_K#g: 100.0
+      available_C#g: 100.0
+      available_Water#L: 100.0
+      microlife_health_index#%: 75
+      amount_cide#g: 
+        pollinators: 0.0
+        pests: 0.0
+        soil: 0.0
+        weeds: 0.0
+Terminal:
+  [
+    [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=", ref_value: 360}],
+  ]

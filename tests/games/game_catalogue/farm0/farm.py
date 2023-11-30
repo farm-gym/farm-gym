@@ -17,7 +17,9 @@ def env():
                 "f0>weather>rain_amount#mm.day-1",
                 "f0>weather>clouds#%",
                 "f0>weather>air_temperature>mean#°C",
+                "f0>weather>wind>speed#km.h-1",
                 "f0>soil>available_Water#L",
+                "f0>soil>microlife_health_index#%",
                 #"f0>plant>flowers_per_plant#nb@mat",
                 #"f0>plant>flowers_per_plant#nb"
             ]
@@ -28,5 +30,7 @@ def env():
 
 
 if __name__ == "__main__":
+    f = env()
+    print(f)
     agent = Farmgym_RandomAgent()
-    run_gym_xp(env(), agent, max_steps=15, render="text")
+    run_gym_xp(f, agent, max_steps=150, render="text")

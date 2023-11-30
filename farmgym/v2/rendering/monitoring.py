@@ -11,7 +11,7 @@ from farmgym.v2.entity_api import Range
 
 
 def sum_value(value_array):
-    print("SumValue",value_array)
+    #print("SumValue",value_array)
     if isinstance(value_array, Range):
         return value_array.value
     else:
@@ -168,7 +168,8 @@ class MonitorTensorBoard:
                 )
                 #print("U",v)
                 value = map_v(
-                    dict_select(self.farm.fields[fi_key].entities[entity_key].variables[var_key],pathname_to_path(var_path_name))
+                    dict_select(self.farm.fields[fi_key].entities[entity_key].variables[var_key],
+                                pathname_to_path(var_path_name))
                 )
 
                 days, values = self.history_variables[v]
