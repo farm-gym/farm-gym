@@ -119,10 +119,10 @@ def test_clay_sand_soils():
 
     # Create soils
     dry_clay = FarmCreator.create_farm(
-        weather="dry", soil="clay", remove_plant_rule=True
+        weather="montpellier", soil="clay", remove_plant_rule=True
     )
     dry_sand = FarmCreator.create_farm(
-        weather="dry", soil="sand", remove_plant_rule=True
+        weather="montpellier", soil="sand", remove_plant_rule=True
     )
     print(f"Starting day : {get_day(dry_clay)}")
     # Simulate days
@@ -157,10 +157,10 @@ def test_plant_farm():
 
     # Create soils
     dry_clay = FarmCreator.create_farm(
-        weather="dry", soil="clay", plant="bean", remove_plant_rule=True
+        weather="montpellier", soil="clay", plant="bean", remove_plant_rule=True
     )
     dry_sand = FarmCreator.create_farm(
-        weather="dry", soil="sand", plant="bean", remove_plant_rule=True
+        weather="montpellier", soil="sand", plant="bean", remove_plant_rule=True
     )
     print(f"Starting day : {get_day(dry_clay)}")
     # Simulate days

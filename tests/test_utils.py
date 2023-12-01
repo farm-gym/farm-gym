@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "farm", ["test", "dry_clay", "dry_sand", "dry_clay_bean", "dry_sand_bean"]
+    "farm", ["test", "montpellier_clay", "montpellier_sand", "montpellier_clay_bean", "montpellier_sand_bean"]
 )
 def test_cleanup(farm):
     """
