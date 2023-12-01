@@ -81,28 +81,31 @@ class Rules_API:
                 operator = condition["operator"]
                 value = condition["ref_value"]
                 field, entity, variable, path = variable_path
-                v = fields[field].entities[entity].variables[variable]
-                va = trigger[fun](v)
-                if operator == "==":
-                    bool_cond = bool_cond and va == value
-                elif operator == "!=":
-                    bool_cond = bool_cond and va != value
-                elif operator == "<=":
-                    bool_cond = bool_cond and va <= value
-                elif operator == ">=":
-                    bool_cond = bool_cond and va >= value
-                elif operator == "<":
-                    bool_cond = bool_cond and va < value
-                elif operator == ">":
-                    bool_cond = bool_cond and va > value
-                elif operator == "in":
-                    bool_cond = bool_cond and va in value
-                elif operator == "ni":
-                    bool_cond = bool_cond and va in fun(v)
-                elif operator == "not in":
-                    bool_cond = bool_cond and va not in value
-                elif operator == "not ni":
-                    bool_cond = bool_cond and value not in va
+                try: # If the corresponding variable or entity does not exist, ignore the condition:
+                    v = fields[field].entities[entity].variables[variable]
+                    va = trigger[fun](v)
+                    if operator == "==":
+                        bool_cond = bool_cond and va == value
+                    elif operator == "!=":
+                        bool_cond = bool_cond and va != value
+                    elif operator == "<=":
+                        bool_cond = bool_cond and va <= value
+                    elif operator == ">=":
+                        bool_cond = bool_cond and va >= value
+                    elif operator == "<":
+                        bool_cond = bool_cond and va < value
+                    elif operator == ">":
+                        bool_cond = bool_cond and va > value
+                    elif operator == "in":
+                        bool_cond = bool_cond and va in value
+                    elif operator == "ni":
+                        bool_cond = bool_cond and va in fun(v)
+                    elif operator == "not in":
+                        bool_cond = bool_cond and va not in value
+                    elif operator == "not ni":
+                        bool_cond = bool_cond and value not in va
+                except:
+                    pass
             if bool_cond:
                 return True
         return False

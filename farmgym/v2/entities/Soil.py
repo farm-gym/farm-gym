@@ -244,7 +244,7 @@ class Soil(Entity_API):
 
                     # Plant water requirement
                     requirement_water = p.requirement_water((x, y), weather, field)
-                    # print("PLANT WATER REQUIRES", requirement_water)
+                    print("PLANT WATER REQUIRES", requirement_water)
                     wp = (
                         self.parameters["wilting_point#L.m-3"]
                         * self.parameters["depth#m"]
@@ -260,7 +260,7 @@ class Soil(Entity_API):
                     self.variables["available_Water#L"][x, y].set_value(
                         self.variables["available_Water#L"][x, y].value - w
                     )
-                    # print("SOIL ",requirement_water, w, stress_water)
+                    print("SOIL ",requirement_water, w, stress_water)
                     p.receive_water((x, y), w, stress_water)
 
                 # Soil water evaporation (depend on shadows...)
@@ -390,7 +390,7 @@ class Soil(Entity_API):
         #Effective volume that evaporates: only first 15 cm of soil
         V =   self.field.plotsurface*min(0.15,self.parameters["depth#m"])*1000
         # *1000 conversion between m3 and L
-        print("ET_0",ET_0, "Eff ET_0",ET_0 * evapo_prop * V,"DP",drop_proportion)
+        #print("ET_0",ET_0, "Eff ET_0",ET_0 * evapo_prop * V,"DP",drop_proportion)
 
         return ET_0 * evapo_prop * V+ drop_proportion
 

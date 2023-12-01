@@ -22,7 +22,7 @@ def sum_value(value_array):
         return sum
 
 def avg_value(value_array):
-    print("SumValue",value_array)
+    #print("SumValue",value_array)
     if isinstance(value_array, Range):
         return value_array.value
     else:

@@ -20,6 +20,9 @@ def env():
                 "f0>weather>wind>speed#km.h-1",
                 "f0>soil>available_Water#L",
                 "f0>soil>microlife_health_index#%",
+                #"f0>plant>size#cm",
+                #"f0>plant>cumulated_water#L",
+                #"f0>plant>cumulated_stress_water#L",
                 #"f0>plant>flowers_per_plant#nb@mat",
                 #"f0>plant>flowers_per_plant#nb"
             ]
