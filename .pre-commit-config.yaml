@@ -1,9 +1,0 @@
-repos:
-  - repo: local
-    hooks:
-      - id: verify-environment
-        name: Verify Python Environment
-        entry: python -c "import sys; print(sys.executable, sys.version)"
-        language: system
-        pass_filenames: false
-

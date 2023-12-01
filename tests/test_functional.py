@@ -97,26 +97,25 @@ class FarmCreator:
 
         return farm
 
+def run_n_steps(farm, n=10):
+    obs = farm.reset()
+    terminated = False
+    i = 0
+    while not terminated and i < n:
+        i += 1
+        obs, reward, terminated, truncated, info = farm.step([])
+    return farm
+
+def get_available_water(farm):
+    return farm.fields["Field-0"].entities["Soil-0"].variables["available_Water#L"][(0, 0)].value
+
+def get_day(farm):
+    day = int(
+        farm.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
+    )
+    return day
 
 def test_clay_sand_soils():
-    def run_n_steps(farm, n=10):
-        obs = farm.reset()
-        terminated = False
-        i = 0
-        while not terminated and i < n:
-            i += 1
-            obs, reward, terminated, truncated, info = farm.step([])
-        return farm
-
-    def get_available_water(farm):
-        return farm.fields["Field-0"].entities["Soil-0"].variables["available_Water#L"]
-
-    def get_day(farm):
-        day = int(
-            farm.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
-        )
-        return day
-
     # Create soils
     dry_clay = FarmCreator.create_farm(
         weather="montpellier", soil="clay", remove_plant_rule=True
@@ -129,32 +128,13 @@ def test_clay_sand_soils():
     simulated_days = 80
     n_clay = run_n_steps(farm=dry_clay, n=simulated_days)
     n_sand = run_n_steps(farm=dry_sand, n=simulated_days)
-    print(f"Ending day : {get_day(n_clay)}")
     # Get available water
     water_clay = get_available_water(n_clay)
     water_sand = get_available_water(n_sand)
-    print(f"Clay water : {water_clay}, Sand water : {water_sand}")
+    assert water_clay > water_sand, f"Clay water : {water_clay:.2f} 'SHOULD BE >' Sand water : {water_sand:.2f}"
 
 
 def test_plant_farm():
-    def run_n_steps(farm, n=10):
-        obs = farm.reset()
-        terminated = False
-        i = 0
-        while not terminated and i < n:
-            i += 1
-            obs, reward, terminated, truncated, info = farm.step([])
-        return farm
-
-    def get_available_water(farm):
-        return farm.fields["Field-0"].entities["Soil-0"].variables["available_Water#L"]
-
-    def get_day(farm):
-        day = int(
-            farm.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
-        )
-        return day
-
     # Create soils
     dry_clay = FarmCreator.create_farm(
         weather="montpellier", soil="clay", plant="bean", remove_plant_rule=True
@@ -162,17 +142,11 @@ def test_plant_farm():
     dry_sand = FarmCreator.create_farm(
         weather="montpellier", soil="sand", plant="bean", remove_plant_rule=True
     )
-    print(f"Starting day : {get_day(dry_clay)}")
     # Simulate days
     simulated_days = 80
     n_clay = run_n_steps(farm=dry_clay, n=simulated_days)
     n_sand = run_n_steps(farm=dry_sand, n=simulated_days)
-    print(f"Ending day : {get_day(n_clay)}")
     # Get available water
     water_clay = get_available_water(n_clay)
     water_sand = get_available_water(n_sand)
-    print(f"Clay water : {water_clay}, Sand water : {water_sand}")
-
-
-# test_clay_sand_soils()
-# test_plant_farm()
+    assert water_clay > water_sand, f"Clay water : {water_clay:.2f} 'SHOULD BE >' Sand water : {water_sand:.2f}"
