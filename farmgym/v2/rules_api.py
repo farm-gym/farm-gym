@@ -81,7 +81,7 @@ class Rules_API:
                 operator = condition["operator"]
                 value = condition["ref_value"]
                 field, entity, variable, path = variable_path
-                try: # If the corresponding variable or entity does not exist, ignore the condition:
+                try:  # If the corresponding variable or entity does not exist, ignore the condition:
                     v = fields[field].entities[entity].variables[variable]
                     va = trigger[fun](v)
                     if operator == "==":

@@ -4,7 +4,7 @@ from tests.games.game_agents.basic_agents import Farmgym_RandomAgent
 from tests.games.game_builder.make_farm import make_farm
 from tests.games.game_builder.run_farm import run_gym_xp
 
-from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored_deprecated, make_variables_to_be_monitored
+from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored
 
 
 def env():
@@ -20,11 +20,11 @@ def env():
                 "f0>weather>wind>speed#km.h-1",
                 "f0>soil>available_Water#L",
                 "f0>soil>microlife_health_index#%",
-                #"f0>plant>size#cm",
-                #"f0>plant>cumulated_water#L",
-                #"f0>plant>cumulated_stress_water#L",
-                #"f0>plant>flowers_per_plant#nb@mat",
-                #"f0>plant>flowers_per_plant#nb"
+                # "f0>plant>size#cm",
+                # "f0>plant>cumulated_water#L",
+                # "f0>plant>cumulated_stress_water#L",
+                # "f0>plant>flowers_per_plant#nb@mat",
+                # "f0>plant>flowers_per_plant#nb"
             ]
         )
     )

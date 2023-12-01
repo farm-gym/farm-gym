@@ -564,12 +564,12 @@ class Plant(Entity_API):
                         )
                         draught = p["sensitivity_draught#%"]
                         w = (
-                                (
-                                        (1.0 - draught) * soil.parameters["wilting_point#L.m-3"]
-                                        + draught * soil.parameters["max_water_capacity#L.m-3"]
-                                )
-                                * soil.parameters["depth#m"]
-                                * self.field.plotsurface
+                            (
+                                (1.0 - draught) * soil.parameters["wilting_point#L.m-3"]
+                                + draught * soil.parameters["max_water_capacity#L.m-3"]
+                            )
+                            * soil.parameters["depth#m"]
+                            * self.field.plotsurface
                         )
                         q.append(
                             (
@@ -592,8 +592,11 @@ class Plant(Entity_API):
 
                         # in mL
                         water_needs = (
-                                weather.evaporation(field) * self.parameters["grow_conditions"][
-                            "grow_leaf_surface#m2.cm-1"] * self.variables["size#cm"][(x,y)].value
+                            weather.evaporation(field)
+                            * self.parameters["grow_conditions"][
+                                "grow_leaf_surface#m2.cm-1"
+                            ]
+                            * self.variables["size#cm"][(x, y)].value
                             * self.variables["population#nb"][(x, y)].value
                         )
                         is_growing = rate >= p["grow_rate_min#"]
@@ -605,7 +608,9 @@ class Plant(Entity_API):
                             )
 
                             water_needs += (
-                                    self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
+                                self.parameters["grow_conditions"][
+                                    "grow_leaf_surface#m2.cm-1"
+                                ]
                                 * (newsize - self.variables["size#cm"][x, y].value)
                                 * weather.evaporation(field)
                                 * self.variables["population#nb"][x, y].value
@@ -620,9 +625,10 @@ class Plant(Entity_API):
                         print("Water Needs (Grow)", water_needs)
 
                         w = min(
-                            water_needs/1000, self.variables["cumulated_water#L"][x, y].value
+                            water_needs / 1000,
+                            self.variables["cumulated_water#L"][x, y].value,
                         )
-                        stress_water = water_needs/1000 - w
+                        stress_water = water_needs / 1000 - w
                         self.variables["cumulated_water#L"][x, y].set_value(
                             max(0, self.variables["cumulated_water#L"][x, y].value - w)
                         )
@@ -715,21 +721,34 @@ class Plant(Entity_API):
                         p = self.parameters["bloom_conditions"]
 
                         r = self.requirement_nutrients((x, y))
-                        water_needs = (weather.evaporation(field) * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"] * self.variables["size#cm"][(x,y)].value
+                        water_needs = (
+                            weather.evaporation(field)
+                            * self.parameters["grow_conditions"][
+                                "grow_leaf_surface#m2.cm-1"
+                            ]
+                            * self.variables["size#cm"][(x, y)].value
                             * self.variables["population#nb"][(x, y)].value
                         )
                         water_needs += (
-                            (2 - self.parameters["bloom_conditions"]["sensitivity_draught#%"])
+                            (
+                                2
+                                - self.parameters["bloom_conditions"][
+                                    "sensitivity_draught#%"
+                                ]
+                            )
                             * self.variables["flowers_per_plant#nb"][x, y].value
-                            * self.parameters["bloom_conditions"]["Water_flower_consumption#mL"]
+                            * self.parameters["bloom_conditions"][
+                                "Water_flower_consumption#mL"
+                            ]
                             * self.variables["population#nb"][x, y].value
                         )
 
                         print("Water Needs (Bloom)", water_needs)
                         w = min(
-                            water_needs/1000, self.variables["cumulated_water#L"][x, y].value
+                            water_needs / 1000,
+                            self.variables["cumulated_water#L"][x, y].value,
                         )
-                        stress_water = water_needs/1000 - w
+                        stress_water = water_needs / 1000 - w
                         self.variables["cumulated_water#L"][x, y].set_value(
                             max(0, self.variables["cumulated_water#L"][x, y].value - w)
                         )
@@ -853,20 +872,33 @@ class Plant(Entity_API):
                     elif self.variables["stage"][x, y].value in ["fruit"]:
                         p = self.parameters["fruit_conditions"]
 
-                        water_needs = (weather.evaporation(field) * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"] * self.variables["size#cm"][(x,y)].value
+                        water_needs = (
+                            weather.evaporation(field)
+                            * self.parameters["grow_conditions"][
+                                "grow_leaf_surface#m2.cm-1"
+                            ]
+                            * self.variables["size#cm"][(x, y)].value
                             * self.variables["population#nb"][(x, y)].value
                         )
                         water_needs += (
-                            (2 - self.parameters["fruit_conditions"]["sensitivity_draught#%"])
+                            (
+                                2
+                                - self.parameters["fruit_conditions"][
+                                    "sensitivity_draught#%"
+                                ]
+                            )
                             * self.variables["fruits_per_plant#nb"][x, y].value
-                            * self.parameters["fruit_conditions"]["Water_fruit_consumption#mL.g-1"]
+                            * self.parameters["fruit_conditions"][
+                                "Water_fruit_consumption#mL.g-1"
+                            ]
                             * self.variables["fruit_weight#g"][x, y].value
                             * self.variables["population#nb"][x, y].value
                         )
 
                         print("Water Needs (Fruit)", water_needs)
                         w = min(
-                            water_needs/1000, self.variables["cumulated_water#L"][x, y].value
+                            water_needs / 1000,
+                            self.variables["cumulated_water#L"][x, y].value,
                         )
                         stress_water = water_needs - w
                         self.variables["cumulated_water#L"][x, y].set_value(
@@ -1315,10 +1347,11 @@ class Plant(Entity_API):
         return r
 
     def requirement_water(self, position, weather, field):
-        '''
+        """
         return water requirement in mL
-        '''
-        w = (weather.evaporation(field)
+        """
+        w = (
+            weather.evaporation(field)
             * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
             * self.variables["size#cm"][position].value
             * self.variables["population#nb"][position].value
@@ -1333,13 +1366,13 @@ class Plant(Entity_API):
                 rate,
                 self.parameters["size_max#cm"],
             )
-            g = (
-                self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
-                * self.variables["size#cm"][position].value
-            )
+            # g = (
+            #     self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
+            #     * self.variables["size#cm"][position].value
+            # )
             # w += self.parameters['grow_conditions']['Water_evapo_coefficients#'][2]*(new_size-self.variables['size#cm'][position].value)*weather.evapo_coefficient(field)*self.variables['population#nb'][position].value
             w += (
-                    self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
+                self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
                 * (new_size - self.variables["size#cm"][position].value)
                 * weather.evaporation(field)
                 * self.variables["population#nb"][position].value
@@ -1365,12 +1398,16 @@ class Plant(Entity_API):
                 * self.variables["population#nb"][position].value
             )
 
-        return max(w/1000 - self.variables["cumulated_water#L"][position].value, 0)
+        return max(w / 1000 - self.variables["cumulated_water#L"][position].value, 0)
 
     def evapo_transpiration(self, position, weather, field):
-        #ET_0 = weather.evaporation(field)  # ml/m2/day
-        return weather.evaporation(field) * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"] * self.variables["size#cm"][position].value
-        #size = self.variables["size#cm"][position].value
+        # ET_0 = weather.evaporation(field)  # ml/m2/day
+        return (
+            weather.evaporation(field)
+            * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
+            * self.variables["size#cm"][position].value
+        )
+        # size = self.variables["size#cm"][position].value
         # if size > 0:
         #     u = weather.variables["wind"]["speed#km.h-1"].value
         #     rh = weather.variables["humidity#%"].value

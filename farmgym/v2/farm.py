@@ -662,14 +662,14 @@ class Farm(gym.Env):
                 theindex = action - len(self.farmgym_observation_actions)
                 theaction = None
                 # print("A", action)
-                #print("gymtodiscre", theindex, self.farmgym_intervention_actions,actions)
+                # print("gymtodiscre", theindex, self.farmgym_intervention_actions,actions)
                 for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
                     if ng > theindex:
                         theaction = (fa, fi, e, a, f_a, g, ng)
                         break
                     else:
                         theindex -= ng
-                #print("gymtodiscre", theindex, theaction)
+                # print("gymtodiscre", theindex, theaction)
                 fa, fi, e, a, f_a, g, ng = theaction
 
                 # print("B1",g,type(g), theindex, ng)

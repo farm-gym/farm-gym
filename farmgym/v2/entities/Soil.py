@@ -157,8 +157,13 @@ class Soil(Entity_API):
                 # TODO: Multiplier par la surface et convertir en L
                 water_after_input = (
                     self.variables["available_Water#L"][x, y].value
-                    + (weather.variables["rain_amount#mm.day-1"].value*self.field.plotsurface/1000)*1000
-                    #*1000  for conversion from m3 to L
+                    + (
+                        weather.variables["rain_amount#mm.day-1"].value
+                        * self.field.plotsurface
+                        / 1000
+                    )
+                    * 1000
+                    # *1000  for conversion from m3 to L
                 )
                 self.variables["available_Water#L"][x, y].set_value(
                     min(max_water_plot_capacity, water_after_input)
@@ -244,7 +249,7 @@ class Soil(Entity_API):
 
                     # Plant water requirement
                     requirement_water = p.requirement_water((x, y), weather, field)
-                    #print("PLANT WATER REQUIRES", requirement_water)
+                    # print("PLANT WATER REQUIRES", requirement_water)
                     wp = (
                         self.parameters["wilting_point#L.m-3"]
                         * self.parameters["depth#m"]
@@ -260,11 +265,14 @@ class Soil(Entity_API):
                     self.variables["available_Water#L"][x, y].set_value(
                         self.variables["available_Water#L"][x, y].value - w
                     )
-                    #print("SOIL ",requirement_water, w, stress_water)
+                    # print("SOIL ",requirement_water, w, stress_water)
                     p.receive_water((x, y), w, stress_water)
 
                 # Soil water evaporation (depend on shadows...)
-                soil_evaporated_water = self.ground_evaporation((x, y), weather, plants, weeds, field)/ 1000
+                soil_evaporated_water = (
+                    self.ground_evaporation((x, y), weather, plants, weeds, field)
+                    / 1000
+                )
                 # water_evaporation_threshold = (
                 #     self.parameters["max_water_capacity#L.m-3"]
                 #     * self.field.plotsurface
@@ -335,16 +343,21 @@ class Soil(Entity_API):
                 # Soil nutrients/water/pesticide/herbicide leakage due to rain.
                 # TODO-WU : Rain intensity ?
                 # rain_intensity = weather.variables["rain_intensity"].value
-                #rain_intensity = 0
+                # rain_intensity = 0
                 if water_surplus > 0:
-                    milife = self.variables["microlife_health_index#%"][x, y].value / 100.0
+                    milife = (
+                        self.variables["microlife_health_index#%"][x, y].value / 100.0
+                    )
                     surf = self.field.plotsurface
                     for n in ["N", "K", "P", "C"]:
                         self.variables["available_" + n + "#g"][x, y].set_value(
                             max(
                                 0,
                                 self.variables["available_" + n + "#g"][x, y].value
-                                - surf*water_surplus / max_water_plot_capacity* (1 - milife),
+                                - surf
+                                * water_surplus
+                                / max_water_plot_capacity
+                                * (1 - milife),
                             )
                         )
                     for n in ["pollinators", "pests", "soil", "weeds"]:
@@ -352,14 +365,13 @@ class Soil(Entity_API):
                             max(
                                 0,
                                 self.variables["amount_cide#g"][n][x, y].value
-                                - surf*water_surplus / max_water_plot_capacity,
+                                - surf * water_surplus / max_water_plot_capacity,
                             )
                         )
 
     def ground_evaporation(self, position, weather, plants, weeds, field):
-        '''in mL'''
+        """in mL"""
         ET_0 = weather.evaporation(field)  # mL/m2/day
-
 
         # Compute % of ground covered by shadow:
         plantshadow = np.sum(
@@ -376,7 +388,9 @@ class Soil(Entity_API):
         #     self.variables["wet_surface#m2.day-1"][position].value
         #     / self.field.plotsurface
         # )
-        evapo_prop = 1.0 - shadow_proportion#min(1.0 - shadow_proportion, wet_proportion)
+        evapo_prop = (
+            1.0 - shadow_proportion
+        )  # min(1.0 - shadow_proportion, wet_proportion)
 
         # print("EVAPO_prop",evapo_prop,  shadow_proportion, wet_proportion)
         drop_proportion = (
@@ -387,12 +401,12 @@ class Soil(Entity_API):
             * 1000
         )
 
-        #Effective volume that evaporates: only first 15 cm of soil
-        V =   self.field.plotsurface*min(0.15,self.parameters["depth#m"])*1000
+        # Effective volume that evaporates: only first 15 cm of soil
+        V = self.field.plotsurface * min(0.15, self.parameters["depth#m"]) * 1000
         # *1000 conversion between m3 and L
-        #print("ET_0",ET_0, "Eff ET_0",ET_0 * evapo_prop * V,"DP",drop_proportion)
+        # print("ET_0",ET_0, "Eff ET_0",ET_0 * evapo_prop * V,"DP",drop_proportion)
 
-        return ET_0 * evapo_prop * V+ drop_proportion
+        return ET_0 * evapo_prop * V + drop_proportion
 
     def act_on_variables(self, action_name, action_params):
         self.assert_action(action_name, action_params)

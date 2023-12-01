@@ -97,6 +97,7 @@ class FarmCreator:
 
         return farm
 
+
 def run_n_steps(farm, n=10):
     obs = farm.reset()
     terminated = False
@@ -106,14 +107,22 @@ def run_n_steps(farm, n=10):
         obs, reward, terminated, truncated, info = farm.step([])
     return farm
 
+
 def get_available_water(farm):
-    return farm.fields["Field-0"].entities["Soil-0"].variables["available_Water#L"][(0, 0)].value
+    return (
+        farm.fields["Field-0"]
+        .entities["Soil-0"]
+        .variables["available_Water#L"][(0, 0)]
+        .value
+    )
+
 
 def get_day(farm):
     day = int(
         farm.fields["Field-0"].entities["Weather-0"].variables["day#int365"].value
     )
     return day
+
 
 def test_clay_sand_soils():
     # Create soils
@@ -131,7 +140,9 @@ def test_clay_sand_soils():
     # Get available water
     water_clay = get_available_water(n_clay)
     water_sand = get_available_water(n_sand)
-    assert water_clay > water_sand, f"Clay water : {water_clay:.2f} 'SHOULD BE >' Sand water : {water_sand:.2f}"
+    assert (
+        water_clay > water_sand
+    ), f"Clay water : {water_clay:.2f} 'SHOULD BE >' Sand water : {water_sand:.2f}"
 
 
 def test_plant_farm():
@@ -149,4 +160,6 @@ def test_plant_farm():
     # Get available water
     water_clay = get_available_water(n_clay)
     water_sand = get_available_water(n_sand)
-    assert water_clay > water_sand, f"Clay water : {water_clay:.2f} 'SHOULD BE >' Sand water : {water_sand:.2f}"
+    assert (
+        water_clay > water_sand
+    ), f"Clay water : {water_clay:.2f} 'SHOULD BE >' Sand water : {water_sand:.2f}"

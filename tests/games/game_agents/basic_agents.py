@@ -38,7 +38,7 @@ class Farmgym_RandomAgent(Farmgym_Agent):
         self.x += 0.25
         threshold = 10 / self.x
         if np.random.rand() > threshold:
-            #print("Looking for harvest")
+            # print("Looking for harvest")
             obs_actions_len = len(self.farm.farmgym_observation_actions)
             action = self.get_harvest_index(
                 obs_actions_len, self.farm.action_space.space.n

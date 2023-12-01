@@ -130,9 +130,7 @@ def test_build_name(sample_farm):
 
 def test_build_shortname(sample_farm):
     farm = sample_farm
-    expected_shortname = (
-        "farm_1x1(montpellier_clay_bean_bee_base_weed_basic_herbicide_slow_basic_N_base_bird)"
-    )
+    expected_shortname = "farm_1x1(montpellier_clay_bean_bee_base_weed_basic_herbicide_slow_basic_N_base_bird)"
     assert farm.build_shortname() == expected_shortname
 
 
@@ -275,10 +273,7 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
 
     # Create a list of variables to monitor
     list_of_variables_to_monitor = make_variables_to_be_monitored(
-        [
-            "f0>soil>available_Water#L",
-            "f0>weeds>flowers#nb"
-        ]
+        ["f0>soil>available_Water#L", "f0>weeds>flowers#nb"]
     )
     # Create an instance of MonitorTensorBoard
     monitor = MonitorTensorBoard(
@@ -298,7 +293,7 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
     tf_summary.scalar.assert_has_calls(
         [
             mock.call("Soil-0/Available Water (L) (Field-0, Soil-0)", mock.ANY, step=0),
-            mock.call("Weeds-0/Flowers (nb) (Field-0, Weeds-0)", mock.ANY, step=0)
+            mock.call("Weeds-0/Flowers (nb) (Field-0, Weeds-0)", mock.ANY, step=0),
         ]
     )
 
