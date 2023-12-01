@@ -1,6 +1,10 @@
 repos:
-  - repo: https://github.com/pre-commit/mirrors-pytest
-    rev: v0.11.2
+  - repo: local
     hooks:
-      - id: pytest
-        args: ['--color=yes']
+      - id: pytest-check
+        name: pytest-check
+        entry: pytest
+        language: python
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: ['numpy', 'gymnasium']
