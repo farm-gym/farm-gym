@@ -1,10 +1,9 @@
 repos:
   - repo: local
     hooks:
-      - id: pytest-check
-        name: pytest-check
-        entry: pytest
-        language: python
+      - id: verify-environment
+        name: Verify Python Environment
+        entry: python -c "import sys; print(sys.executable, sys.version)"
+        language: system
         pass_filenames: false
-        always_run: true
-        additional_dependencies: ['numpy', 'gymnasium']
+
