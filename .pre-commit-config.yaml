@@ -1,0 +1,6 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-pytest
+    rev: v0.11.2
+    hooks:
+      - id: pytest
+        args: ['--color=yes']
