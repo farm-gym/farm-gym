@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 # http://mpld3.github.io/quickstart.html
 import numpy as np
 from PIL import Image
+
 from farmgym.v2.entity_api import Range
 
 

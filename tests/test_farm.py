@@ -1,6 +1,7 @@
 from unittest import mock
 
 import pytest
+
 from farmgym.v2.entities import (
     Birds,
     Cide,

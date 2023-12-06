@@ -1,10 +1,9 @@
 import os
 
+from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored
 from tests.games.game_agents.basic_agents import Farmgym_RandomAgent
 from tests.games.game_builder.make_farm import make_farm
 from tests.games.game_builder.run_farm import run_gym_xp
-
-from farmgym.v2.rendering.monitoring import make_variables_to_be_monitored
 
 
 def env():

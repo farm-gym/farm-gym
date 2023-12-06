@@ -1,26 +1,26 @@
 import inspect
 import sys
 
-import farmgym
 import yaml
 
-from farmgym.v2.farm import Farm
-from farmgym.v2.field import Field
-from farmgym.v2.farmers.BasicFarmer import BasicFarmer
-from farmgym.v2.scorings.BasicScore import BasicScore
-from farmgym.v2.rules.BasicRule import BasicRule
+import farmgym
+from farmgym.v2.entities.Birds import Birds
+from farmgym.v2.entities.Cide import Cide
+from farmgym.v2.entities.Facilities import Facility
+from farmgym.v2.entities.Fertilizer import Fertilizer
+from farmgym.v2.entities.Pests import Pests
+from farmgym.v2.entities.Plant import Plant
+from farmgym.v2.entities.Pollinators import Pollinators
+from farmgym.v2.entities.Soil import Soil
 
 ## The following importe lines are import for the make_farm function that uses inspection module!
 from farmgym.v2.entities.Weather import Weather
-from farmgym.v2.entities.Soil import Soil
-from farmgym.v2.entities.Plant import Plant
 from farmgym.v2.entities.Weeds import Weeds
-from farmgym.v2.entities.Pests import Pests
-from farmgym.v2.entities.Cide import Cide
-from farmgym.v2.entities.Birds import Birds
-from farmgym.v2.entities.Facilities import Facility
-from farmgym.v2.entities.Fertilizer import Fertilizer
-from farmgym.v2.entities.Pollinators import Pollinators
+from farmgym.v2.farm import Farm
+from farmgym.v2.farmers.BasicFarmer import BasicFarmer
+from farmgym.v2.field import Field
+from farmgym.v2.rules.BasicRule import BasicRule
+from farmgym.v2.scorings.BasicScore import BasicScore
 
 
 def make_farm(yamlfile):

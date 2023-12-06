@@ -1,8 +1,8 @@
-import yaml
-import pandas
-
 import os
 from pathlib import Path
+
+import pandas
+import yaml
 
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
@@ -76,6 +76,7 @@ def build_scoreyaml(filepath, farm):
 
 
 import numpy as np  # noqa: E402
+
 from farmgym.v2.entity_api import Range  # noqa: E402
 
 

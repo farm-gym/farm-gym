@@ -7,11 +7,12 @@ from textwrap import indent
 
 import gymnasium as gym
 import numpy as np
+from gymnasium.spaces import Box, Dict, Discrete, Tuple
+from gymnasium.spaces.utils import flatdim, flatten, flatten_space
+from gymnasium.utils import seeding
+
 from farmgym.v2.gymUnion import MultiUnion, Sequence, Union
 from farmgym.v2.rendering.monitoring import MonitorPlt, MonitorTensorBoard
-from gymnasium.spaces.utils import flatdim, flatten, flatten_space
-from gymnasium.spaces import Box, Dict, Discrete, Tuple
-from gymnasium.utils import seeding
 
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent

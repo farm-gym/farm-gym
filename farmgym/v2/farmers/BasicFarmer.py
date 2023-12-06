@@ -1,5 +1,6 @@
-from farmgym.v2.farmer_api import Farmer_API
 import numpy as np
+
+from farmgym.v2.farmer_api import Farmer_API
 
 
 class BasicFarmer(Farmer_API):

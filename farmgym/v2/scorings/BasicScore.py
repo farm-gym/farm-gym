@@ -1,7 +1,7 @@
-from farmgym.v2.score_api import Score_API
-import farmgym.v2.scorings.reward_functions as rf
-
 import numpy as np
+
+import farmgym.v2.scorings.reward_functions as rf
+from farmgym.v2.score_api import Score_API
 
 
 def compute_sizeobservation(variable):
