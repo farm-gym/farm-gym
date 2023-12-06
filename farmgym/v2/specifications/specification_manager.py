@@ -1,8 +1,8 @@
-import yaml
-import pandas
-
 import os
 from pathlib import Path
+
+import pandas
+import yaml
 
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
@@ -76,6 +76,7 @@ def build_scoreyaml(filepath, farm):
 
 
 import numpy as np  # noqa: E402
+
 from farmgym.v2.entity_api import Range  # noqa: E402
 
 
@@ -103,7 +104,7 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
             s += str(r) + "\n"
         elif type(x) in [Range]:
             if mode == "default":
-                #print("x", x, type(x))
+                # print("x", x, type(x))
                 r = x.get_default_value()
             elif mode == "random":
                 r = x.random_value()
@@ -194,7 +195,7 @@ def build_inityaml(filepath, farm, mode="default", init_values=None):
     #    ]
     s += "  [\n"
     s += '    [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=", ref_value: 360}],\n'
-    #TODO: This should only be added if Plant-0 is in Field-0: Currently, I added in rules_api a way to ignore the case when Plant-0 does not exist.
+    # TODO: This should only be added if Plant-0 is in Field-0: Currently, I added in rules_api a way to ignore the case when Plant-0 does not exist.
     s += '    [{state_variable: ["Field-0", "Plant-0", "global_stage", []], function: "value", operator: "==", ref_value: "dead"}],\n'
     s += "  ]"
 

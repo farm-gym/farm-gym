@@ -1,5 +1,5 @@
 ######################################
-# ruff: noqa: F401, F841, F821
+# ruff: noqa: F841, F821
 import inspect
 import os
 from pathlib import Path
@@ -7,11 +7,12 @@ from textwrap import indent
 
 import gymnasium as gym
 import numpy as np
+from gymnasium.spaces import Box, Dict, Discrete, Tuple
+from gymnasium.spaces.utils import flatdim, flatten, flatten_space
+from gymnasium.utils import seeding
+
 from farmgym.v2.gymUnion import MultiUnion, Sequence, Union
 from farmgym.v2.rendering.monitoring import MonitorPlt, MonitorTensorBoard
-from gymnasium.spaces.utils import flatdim, flatten, flatten_space
-from gymnasium.spaces import Box, Dict, Discrete, Tuple
-from gymnasium.utils import seeding
 
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent
@@ -662,14 +663,14 @@ class Farm(gym.Env):
                 theindex = action - len(self.farmgym_observation_actions)
                 theaction = None
                 # print("A", action)
-                #print("gymtodiscre", theindex, self.farmgym_intervention_actions,actions)
+                # print("gymtodiscre", theindex, self.farmgym_intervention_actions,actions)
                 for fa, fi, e, a, f_a, g, ng in self.farmgym_intervention_actions:
                     if ng > theindex:
                         theaction = (fa, fi, e, a, f_a, g, ng)
                         break
                     else:
                         theindex -= ng
-                #print("gymtodiscre", theindex, theaction)
+                # print("gymtodiscre", theindex, theaction)
                 fa, fi, e, a, f_a, g, ng = theaction
 
                 # print("B1",g,type(g), theindex, ng)

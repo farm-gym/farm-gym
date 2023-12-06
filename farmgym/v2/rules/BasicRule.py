@@ -1,5 +1,6 @@
-from farmgym.v2.rules_api import Rules_API
 import numpy as np
+
+from farmgym.v2.rules_api import Rules_API
 
 
 class BasicRule(Rules_API):

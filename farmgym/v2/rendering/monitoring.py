@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 # http://mpld3.github.io/quickstart.html
 import numpy as np
 from PIL import Image
+
 from farmgym.v2.entity_api import Range
 
 
 def sum_value(value_array):
-    #print("SumValue",value_array)
+    # print("SumValue",value_array)
     if isinstance(value_array, Range):
         return value_array.value
     else:
@@ -21,21 +22,23 @@ def sum_value(value_array):
             sum += value_array[it.multi_index].value
         return sum
 
+
 def avg_value(value_array):
-    #print("SumValue",value_array)
+    # print("SumValue",value_array)
     if isinstance(value_array, Range):
         return value_array.value
     else:
         sum = 0
-        nb=0
+        nb = 0
         it = np.nditer(value_array, flags=["multi_index", "refs_ok"])
         for x in it:
             sum += value_array[it.multi_index].value
-            nb +=1
-        if nb>0:
-            return sum/nb
+            nb += 1
+        if nb > 0:
+            return sum / nb
         else:
             return 0
+
 
 def mat2d_value(value_array):
     X, Y = value_array.shape
@@ -47,7 +50,7 @@ def mat2d_value(value_array):
 
 
 def dict_select(x, vars):
-    #print("D:",x,vars)
+    # print("D:",x,vars)
     y = x
     for v in vars:
         y = y[v]
@@ -79,6 +82,7 @@ def shortname_to_name(text):
     else:
         return text[0].upper() + text[1:] + "-0"
 
+
 def varname_to_human(var):
     sva = var.split("#")
     ssva = sva[0].split("_")
@@ -91,8 +95,9 @@ def varname_to_human(var):
         tva = tva[:-1]
     return tva
 
+
 def pathname_to_path(varpathname):
-    if (varpathname==""):
+    if varpathname == "":
         return []
     else:
         vv = varpathname.split(">")
@@ -100,6 +105,7 @@ def pathname_to_path(varpathname):
         for v in vv:
             p.append(v)
         return p
+
 
 class MonitorTensorBoard:
     def __init__(
@@ -159,17 +165,30 @@ class MonitorTensorBoard:
         with self.writer.as_default():
             for i in range(len(self.variables)):
                 v = self.variables[i]
-                fi_key, entity_key, var_key, var_path_name, map_v, name_to_display, v_range = v
+                print(v)
+                (
+                    fi_key,
+                    entity_key,
+                    var_key,
+                    var_path_name,
+                    map_v,
+                    name_to_display,
+                    v_range,
+                ) = v
                 day = (
                     self.farm.fields[fi_key]
                     .entities["Weather-0"]
                     .variables["day#int365"]
                     .value
                 )
-                #print("U",v)
+                # print("U",v)
                 value = map_v(
-                    dict_select(self.farm.fields[fi_key].entities[entity_key].variables[var_key],
-                                pathname_to_path(var_path_name))
+                    dict_select(
+                        self.farm.fields[fi_key]
+                        .entities[entity_key]
+                        .variables[var_key],
+                        pathname_to_path(var_path_name),
+                    )
                 )
 
                 days, values = self.history_variables[v]
@@ -297,7 +316,15 @@ class MonitorPlt:
     def update_fig(self):
         for i in range(len(self.variables)):
             v = self.variables[i]
-            fi_key, entity_key, var_key, var_path_name, map_v, name_to_display, v_range = v
+            (
+                fi_key,
+                entity_key,
+                var_key,
+                var_path_name,
+                map_v,
+                name_to_display,
+                v_range,
+            ) = v
             day = (
                 self.farm.fields[fi_key]
                 .entities["Weather-0"]
@@ -305,8 +332,10 @@ class MonitorPlt:
                 .value
             )
             value = map_v(
-                dict_select(self.farm.fields[fi_key].entities[entity_key].variables[var_key],
-                            pathname_to_path(var_path_name))
+                dict_select(
+                    self.farm.fields[fi_key].entities[entity_key].variables[var_key],
+                    pathname_to_path(var_path_name),
+                )
             )
 
             days, values = self.history_variables[v]
@@ -417,9 +446,8 @@ def make_variables_to_be_monitored_deprecated(variables):
         else:
             var.append((var_fi, var_en, va0, me, tva, "range_auto"))
         # should become "Field-0, Pests-0, onplant_population#nb["Plant-0"]" or onplant_population#nb, lambda x: sum_value(x["Plant-0"])?
-    print("MONITORING",var)
+    print("MONITORING", var)
     return var
-
 
 
 def make_variables_to_be_monitored(variables):
@@ -443,16 +471,16 @@ def make_variables_to_be_monitored(variables):
         v_parts = v.split(">")
         field = v_parts[0]
         entity = v_parts[1]
-        va_key =  v_parts[2]
-        va_path_name= ""
+        va_key = v_parts[2]
+        va_path_name = ""
         if len(v_parts) > 2:
-            va_path =  v_parts[3:]
+            va_path = v_parts[3:]
             for vvv in v_parts[3:]:
                 va_path_name += str(vvv) + ">"
-            va_path_name= va_path_name[:-1]
+            va_path_name = va_path_name[:-1]
         else:
             va_path = []
-        #print("M",field,entity,va_key,va_path,va_path_name)
+        # print("M",field,entity,va_key,va_path,va_path_name)
 
         # Field:
         sfi = field.split("f")
@@ -462,18 +490,18 @@ def make_variables_to_be_monitored(variables):
         var_en = shortname_to_name(entity)
 
         # Function:
-        if len(vv)>1:
+        if len(vv) > 1:
             me = myfunc[vv[1]]
         else:
             me = myfunc["avg"]
-        #mee = lambda x: me(dict_select(x, va_path))  # noqa: E731 #va_path is evalluated as its last value, not the local one > so fail.
+        # mee = lambda x: me(dict_select(x, va_path))  # noqa: E731 #va_path is evalluated as its last value, not the local one > so fail.
 
         # Title:
         tva = varname_to_human(va_key)
         for vp in va_path:
-            tva += varname_to_human(vp)+" "
+            tva += varname_to_human(vp) + " "
 
         varlist.append((var_fi, var_en, va_key, va_path_name, me, tva, "range_auto"))
 
-    #print("MONITORING2",varlist)
+    # print("MONITORING2",varlist)
     return varlist

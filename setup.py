@@ -1,7 +1,7 @@
-from setuptools import find_packages
 import os
-
 from distutils.core import setup
+
+from setuptools import find_packages
 
 ver_file = os.path.join("farmgym", "_version.py")
 with open(ver_file) as f:

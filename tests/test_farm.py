@@ -1,6 +1,7 @@
 from unittest import mock
 
 import pytest
+
 from farmgym.v2.entities import (
     Birds,
     Cide,
@@ -18,7 +19,7 @@ from farmgym.v2.field import Field
 from farmgym.v2.policy_api import Policy_helper
 from farmgym.v2.rendering.monitoring import (
     MonitorTensorBoard,
-    make_variables_to_be_monitored_deprecated,
+    make_variables_to_be_monitored,
 )
 from farmgym.v2.rules.BasicRule import BasicRule
 from farmgym.v2.scorings.BasicScore import BasicScore
@@ -28,7 +29,7 @@ from farmgym.v2.scorings.BasicScore import BasicScore
 def sample_fields():
     # Define sample fields for testing
     entities = [
-        (Weather, "dry"),
+        (Weather, "montpellier"),
         (Soil, "clay"),
         (Plant, "bean"),
         (Pollinators, "bee"),
@@ -121,7 +122,7 @@ def test_farm_initialization(
 def test_build_name(sample_farm):
     farm = sample_farm
     expected_name = (
-        "Farm_Fields[Field-0[Weather-0(dry)_Soil-0(clay)_Plant-0(bean)"
+        "Farm_Fields[Field-0[Weather-0(montpellier)_Soil-0(clay)_Plant-0(bean)"
         + "_Pollinators-0(bee)_Weeds-0(base_weed)_Pests-0(basic)_Cide-0(herbicide_slow)_F"
         + "ertilizer-0(basic_N)_Birds-0(base_bird)]]_Farmers[BasicFarmer-0]"
     )
@@ -130,9 +131,7 @@ def test_build_name(sample_farm):
 
 def test_build_shortname(sample_farm):
     farm = sample_farm
-    expected_shortname = (
-        "farm_1x1(dry_clay_bean_bee_base_weed_basic_herbicide_slow_basic_N_base_bird)"
-    )
+    expected_shortname = "farm_1x1(montpellier_clay_bean_bee_base_weed_basic_herbicide_slow_basic_N_base_bird)"
     assert farm.build_shortname() == expected_shortname
 
 
@@ -274,13 +273,9 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
     farm = sample_farm
 
     # Create a list of variables to monitor
-    list_of_variables_to_monitor = make_variables_to_be_monitored_deprecated(
-        [
-            "f0.soil.available_Water#L",
-            "f0.weeds.flowers#nb.mat",
-        ]
+    list_of_variables_to_monitor = make_variables_to_be_monitored(
+        ["f0>soil>available_Water#L", "f0>weeds>flowers#nb"]
     )
-
     # Create an instance of MonitorTensorBoard
     monitor = MonitorTensorBoard(
         farm,
@@ -296,8 +291,11 @@ def test_monitor_tensorboard(mock_tf_summary, sample_farm):
 
     # Assert that the expected TensorFlow summary functions were called
     tf_summary = mock_tf_summary
-    tf_summary.scalar.assert_called_once_with(
-        "Soil-0/Available Water (L) (Field-0, Soil-0)", mock.ANY, step=0
+    tf_summary.scalar.assert_has_calls(
+        [
+            mock.call("Soil-0/Available Water (L) (Field-0, Soil-0)", mock.ANY, step=0),
+            mock.call("Weeds-0/Flowers (nb) (Field-0, Weeds-0)", mock.ANY, step=0),
+        ]
     )
 
     # Stop monitoring

@@ -1,9 +1,9 @@
+import os
+from pathlib import Path
+
 import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
-
-import os
-from pathlib import Path
 
 file_path = Path(os.path.realpath(__file__))
 CURRENT_DIR = file_path.parent

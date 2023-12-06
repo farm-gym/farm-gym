@@ -1,10 +1,10 @@
-import farmgym.v2.specifications.specification_manager as sm
-
-from farmgym.v2.entity_api import Entity_API, Range
-from PIL import Image
-import numpy as np
-
 import math
+
+import numpy as np
+from PIL import Image
+
+import farmgym.v2.specifications.specification_manager as sm
+from farmgym.v2.entity_api import Entity_API, Range
 
 
 class Weather(Entity_API):
@@ -275,7 +275,7 @@ class Weather(Entity_API):
         w = self.variables["wind"]["speed#km.h-1"].value * (
             24 * 1000 * 1000
         )  # in mm.day-1
-        w_max=9 #90 km.h-1 # #90*1000*1000*1e-7
+        w_max = 9  # 90 km.h-1 # #90*1000*1000*1e-7
         alt = field.localization["altitude#m"]
 
         # chaleur latente de vaporisatoin de l'eau: 0.626kWh/kg = 626kWh/m3
@@ -284,7 +284,7 @@ class Weather(Entity_API):
             * ((1 - rh) ** 0.8)
             * (1 - cl)
             * (max(t_av, 0) ** 1.1)
-            * ((w * 1e-7/w_max) ** 1.2)
+            * ((w * 1e-7 / w_max) ** 1.2)
             * (1 + alt * 1e-5) ** 0.8
         )  # mm/m2
 
