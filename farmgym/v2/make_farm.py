@@ -1,5 +1,3 @@
-# ruff: noqa: F401
-
 import inspect
 import sys
 

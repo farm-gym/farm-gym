@@ -1,5 +1,5 @@
 ######################################
-# ruff: noqa: F401, F841, F821
+# ruff: noqa: F841, F821
 import inspect
 import os
 from pathlib import Path
