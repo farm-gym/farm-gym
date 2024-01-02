@@ -18,16 +18,17 @@ class Soil(Entity_API):
             X, Y, (0, 10000), 100 * self.field.plotsurface
         )
         self.variables["available_K#g"] = fillarray(
-            X, Y, (0, 10000), 100 * self.field.plotsurface
+            X, Y, (0, 100000), 100 * self.field.plotsurface
         )
         self.variables["available_C#g"] = fillarray(
-            X, Y, (0, 10000), 100 * self.field.plotsurface
+            X, Y, (0, 100000), 100 * self.field.plotsurface
         )
         self.variables["available_Water#L"] = fillarray(
             X, Y, (0, 10000), 1 * self.field.plotsurface
         )  # 1 L/m3
 
-        self.variables["wet_surface#m2.day-1"] = fillarray(X, Y, (0, 1000), 0.0)
+
+        self.variables["depth#m"] = fillarray(X, Y, (0, 10), 1.0)
 
         self.variables["microlife_health_index#%"] = fillarray(X, Y, (0, 100), 75)
 
@@ -80,27 +81,22 @@ class Soil(Entity_API):
         # Generate a random soil
         for x in range(self.field.X):
             for y in range(self.field.Y):
+                self.variables["depth#m"][x,y].set_value(self.parameters["depth#m"])
                 self.variables["available_N#g"][x, y].set_value(
-                    self.np_random.random() * 100 * self.field.plotsurface
+                    self.variables["depth#m"][x,y].value *self.field.plotsurface * (5000+200)/2
                 )
                 self.variables["available_P#g"][x, y].set_value(
-                    self.np_random.random() * 100 * self.field.plotsurface
+                    self.variables["depth#m"][x,y].value *self.field.plotsurface * (5000+100)/2
                 )
                 self.variables["available_K#g"][x, y].set_value(
-                    self.np_random.random() * 100 * self.field.plotsurface
+                    self.variables["depth#m"][x,y].value *self.field.plotsurface * (50000+5000)/2
                 )
                 self.variables["available_C#g"][x, y].set_value(
-                    self.np_random.random() * 100 * self.field.plotsurface
+                    self.variables["depth#m"][x,y].value *self.field.plotsurface * (50000+10000)/2
                 )
                 self.variables["available_Water#L"][x, y].set_value(
-                    (0.5 + 0.5 * self.np_random.random())
-                    * self.parameters["max_water_capacity#L.m-3"]
-                    * self.field.plotsurface
-                    * self.parameters["depth#m"]
+                    self.variables["depth#m"][x, y].value * self.field.plotsurface * min(self.parameters["max_water_capacity#L.m-3"],(200+300)/2)
                 )
-                self.variables["wet_surface#m2.day-1"][x, y].set_value(
-                    0
-                )  # self.np_random.rand()*self.field.plotsurface
                 self.variables["microlife_health_index#%"][x, y].set_value(100)
                 self.variables["amount_cide#g"]["pollinators"][x, y].set_value(0)
                 self.variables["amount_cide#g"]["pests"][x, y].set_value(0)
@@ -152,7 +148,7 @@ class Soil(Entity_API):
         for x in range(self.field.X):
             for y in range(self.field.Y):
                 water_surplus = 0
-                # TODO : Water afte rinput = actuel + precipation
+                # TODO : Water after input = actuel + precipation
                 # Natural water input (rain)
                 # rain_amount#mm.day-1
                 # TODO: Multiplier par la surface et convertir en L
@@ -171,9 +167,6 @@ class Soil(Entity_API):
                 )
                 water_surplus = (
                     water_after_input - self.variables["available_Water#L"][x, y].value
-                )
-                self.variables["wet_surface#m2.day-1"][x, y].set_value(
-                    self.field.plotsurface
                 )
 
                 # Natural nutrients input (earth)
@@ -301,18 +294,10 @@ class Soil(Entity_API):
                         - soil_evaporated_water,
                     )
                 )
-                # print("WET",self.variables["wet_surface#m2.day-1"][x, y].value)
-                # self.variables["wet_surface#m2.day-1"][x, y].set_value(
-                #     max(
-                #         self.variables["wet_surface#m2.day-1"][x, y].value
-                #         - self.parameters["water_surface_absorption_speed#m2.m-2.day-1"]*self.field.plotsurface,
-                #         0,
-                #     )
-                # )
-                # print("WET update", self.variables["wet_surface#m2.day-1"][x, y].value)
 
                 # Microlife health index:
                 q = []
+                # TODO: add too much water in soil.
                 q.append(
                     (
                         1.0,
@@ -377,21 +362,20 @@ class Soil(Entity_API):
         # Compute % of ground covered by shadow:
         plantshadow = np.sum(
             [
-                p.compute_shadowsurface(position) * p.parameters["shadow_coeff#%"]
-                for p in plants
+                p.compute_shadowsurface(position) for p in plants
             ]
         )
         weedshadow = np.sum([w.compute_shadowsurface(position) for w in weeds])
         shadow_proportion = min(
             (plantshadow + weedshadow) / self.field.plotsurface, 1.0
         )
-        # wet_proportion = (
-        #     self.variables["wet_surface#m2.day-1"][position].value
-        #     / self.field.plotsurface
-        # )
-        evapo_prop = (
-            1.0 - shadow_proportion
-        )  # min(1.0 - shadow_proportion, wet_proportion)
+        wp = (
+                self.parameters["wilting_point#L.m-3"]
+                * self.parameters["depth#m"]
+                * self.field.plotsurface
+        )
+        wet_proportion = max(self.variables["available_Water#L"][position].value -wp,0)/ (self.field.plotsurface * self.variables["depth#m"][position].value*self.parameters["max_water_capacity#L.m-3"])
+        evapo_prop = min(1.0 - shadow_proportion, wet_proportion)
 
         # print("EVAPO_prop",evapo_prop,  shadow_proportion, wet_proportion)
         drop_proportion = (
@@ -424,10 +408,6 @@ class Soil(Entity_API):
             )
             new_value = min(max_water_plot_capacity, water_after_input)
             water_surplus = water_after_input - new_value
-            # self.variables["wet_surface#m2.day-1"][x, y].set_value(
-            #     self.variables["wet_surface#m2.day-1"][x, y].value
-            #     + self.field.plotsurface * (action_params["duration#min"] / 60.0) / 24.0
-            # )  # watering for 30minutes over 24h.
             self.variables["total_cumulated_added_water#L"].set_value(
                 self.variables["total_cumulated_added_water#L"].value
                 + (new_value - self.variables["available_Water#L"][x, y].value)
@@ -477,10 +457,9 @@ class Soil(Entity_API):
         )
         for x in range(self.field.X):
             for y in range(self.field.Y):
-                # print("XY",x,y,self.variables['wet_surface#m2.day-1'][x,y].value)
                 if (
-                    self.variables["wet_surface#m2.day-1"][x, y].value
-                    > 0.5 * self.field.plotsurface
+                    self.variables["available_Water#L"][x, y].value
+                    > self.field.plotsurface * self.variables["depth#m"][x, y].value*self.parameters["max_water_capacity#L.m-3"]*0.75
                 ):
                     image.paste(self.images["wet"], (im_width * x, im_height * y))
                 else:

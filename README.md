@@ -36,11 +36,12 @@ We thank Romain Gautron (CIRAD/CGIAR) and Timothée Mathieu (Inria) for valuable
 If you use `FarmGym` in your publications, please cite us following this Bibtex entry:
 
 ```bibtex
-@article{maillard2022farmgym,
-title={Farm-Gym: A modular reinforcement learning platform for agronomy games.},
-author={Maillard, Odalric-Ambrym},
-year={2022},
-school={Inria Lille}}
+@inproceedings{maillard2023farm,
+  title={Farm-gym: A modular reinforcement learning platform for stochastic agronomic games},
+  author={Maillard, Odalric-Ambrym and Mathieu, Timoth{\'e}e and Basu, Debabrota},
+  booktitle={Artificial Intelligence for Agriculture and Food Systems (AIAFS)},
+  year={2023}
+}
 ```
 
 #### Contributing

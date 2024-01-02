@@ -1,0 +1,20 @@
+Initial:
+  Field-0:
+    Weather-0:
+      year#int100: 0
+      day#int365: 120
+    Soil-0:
+      # For 1m3 of soil: N: 200-5000, P: 100-5000, K: 5000-50000, C: 10000-50000, W: 200-300. Below are values for depth 1m
+      #available_N#g: 2600.0
+      #available_P#g: 2550.0
+      #available_K#g: 2750.0
+      #available_C#g: 30000.0
+      #available_Water#L: 250.0
+      microlife_health_index#%: 75
+    Plant-0:
+      stage: "seed"
+      population#nb: 1
+Terminal:
+  [
+    [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=", ref_value: 360}]
+  ]

@@ -19,11 +19,21 @@ def env():
                 "f0>weather>wind>speed#km.h-1",
                 "f0>soil>available_Water#L",
                 "f0>soil>microlife_health_index#%",
-                # "f0>plant>size#cm",
-                # "f0>plant>cumulated_water#L",
-                # "f0>plant>cumulated_stress_water#L",
+                "f0>soil>available_N#g",
+                "f0>soil>available_P#g",
+                "f0>soil>available_K#g",
+                "f0>soil>available_C#g",
+                "f0>plant>size#cm",
+                "f0>plant>cumulated_stress_water#L",
+                "f0>plant>cumulated_stress_nutrients_N#g",
+                "f0>plant>cumulated_stress_nutrients_P#g",
+                "f0>plant>cumulated_stress_nutrients_K#g",
+                "f0>plant>cumulated_stress_nutrients_C#g",
                 # "f0>plant>flowers_per_plant#nb@mat",
-                # "f0>plant>flowers_per_plant#nb"
+                "f0>plant>flowers_per_plant#nb",
+                "f0>plant>fruits_per_plant#nb",
+                "f0>plant>fruit_weight#g",
+                "f0>plant>stage@name",
             ]
         )
     )
@@ -35,4 +45,5 @@ if __name__ == "__main__":
     f = env()
     print(f)
     agent = Farmgym_RandomAgent()
-    run_gym_xp(f, agent, max_steps=150, render="text")
+    run_gym_xp(f, agent, max_steps=250, render="text")
+    #run_gym_xp(f, agent, max_steps=250, render="image")

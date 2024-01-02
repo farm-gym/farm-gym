@@ -6,7 +6,7 @@ import numpy as np
 from farmgym.v2.farm import generate_video  # generate_gif
 
 
-def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
+def run_gym_xp(farm: object, agent: object, max_steps: object = np.infty, render: object = True, monitoring: object = False) -> object:
     agent.reset(farm)
     observation, information = farm.reset()
     if render == "text":
