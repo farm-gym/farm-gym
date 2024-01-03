@@ -358,7 +358,7 @@ The simulation starts with seeds at day 120. Later, the plant slowly grows, and 
 <img src="media/farm-day-146.png?raw=true" width="24%">
 <img src="media/farm-day-184.png?raw=true" width="24%">
 <img src="media/farm-day-208.png?raw=true" width="24%"><br>
-A bit later some pollinators come visit the plant, which enables to start fruits, which grow over time.
+A bit later some pollinators come visit the plant, which enables to start fruits, which grow over time. Not that the speed at which the plabt grows is not necessarily realistic, here it tends to be slower than real beans.
 <br>
 <img src="media/farm-day-211.png?raw=true" width="24%">
 <img src="media/farm-day-212.png?raw=true" width="24%">
@@ -366,7 +366,7 @@ A bit later some pollinators come visit the plant, which enables to start fruits
 <img src="media/farm-day-250.png?raw=true" width="24%">
 <br>
 Eventually, the fruits become ripe  can can be harvested. Here, no harvest is done, so after a while all the fruit rotten, and we consider at this stage that the plant dies. 
-Here we continue the simulation long later, and we see on Day 355 the first frost event.
+Here we continue the simulation long later, the dead plant has been reabsorbed by the soil and we see on Day 355 the first frost event.
 <br>
 <img src="media/farm-day-263.png?raw=true" width="24%">
 <img src="media/farm-day-268.png?raw=true" width="24%">
@@ -379,7 +379,7 @@ Here we continue the simulation long later, and we see on Day 355 the first fros
 
 We can define different weathers, for instance, a typical weather in Lille, in Montpellier, 
 a purely constant Rainy weather and a purely constant Dry weather.
-We can then interpolate between them tp create novel weathers. 
+We can then interpolate between them to create novel weathers. 
 For instance,  in the file weather_specificatoin.yaml, we can specify a 70%-30% mix between Lille and Rainy weather as follows
 ```yaml
 lille2:
@@ -396,6 +396,6 @@ or montpellier2 to be a 70%-30% mix between Montpellier and Dry weather, having 
 The following two images show respectively a comparison of the weather lille, lille2 and lille3,
 and a comparison of the weather montpellier, montpellier2 and montpellier3,
 <p align="center">
-<img src="media/Weather_Lille_Lille2_Lille3.png?raw=true" width="80%"><br>
-<img src="media/Weather_Montpellier_Montpellier2_Montpellier3.png?raw=true" width="80%">
+<img src="media/Weather_Lille_Lille2_Lille3.png?raw=true" width="95%"><br>
+<img src="media/Weather_Montpellier_Montpellier2_Montpellier3.png?raw=true" width="95%">
 </p>

@@ -65,8 +65,8 @@ class Plant(Entity_API):
 
         self.variables["cumulated_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 100000), 0.0)
+        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 100000), 0.0)
         self.variables["cumulated_stress_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_stress_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_stress_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
@@ -135,8 +135,8 @@ class Plant(Entity_API):
 
         self.variables["cumulated_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 100000), 0.0)
+        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 100000), 0.0)
         self.variables["cumulated_stress_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_stress_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_stress_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
@@ -1090,20 +1090,21 @@ class Plant(Entity_API):
 
                     elif self.variables["stage"][x, y].value in ["dead"]:
                         self.variables["fruits_per_plant#nb"][x, y].set_value(0)
+                        threshold = 0.1
                         # Dead-None
                         if (
-                            (self.variables["cumulated_nutrients_N#g"][x, y].value == 0)
+                            (self.variables["cumulated_nutrients_N#g"][x, y].value <= threshold)
                             and (
                                 self.variables["cumulated_nutrients_P#g"][x, y].value
-                                == 0
+                                <= threshold
                             )
                             and (
                                 self.variables["cumulated_nutrients_K#g"][x, y].value
-                                == 0
+                                <= threshold
                             )
                             and (
                                 self.variables["cumulated_nutrients_C#g"][x, y].value
-                                == 0
+                                <= threshold
                             )
                         ):
                             self.variables["stage"][x, y].set_value("none")
