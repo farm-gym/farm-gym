@@ -65,9 +65,9 @@ class Pollinators(Entity_API):
             for y in range(self.field.Y):
                 flowers = np.sum(
                     [
-                        1
+                        p.variables["flowers_per_plant#nb"][x,y].value*p.variables["population#nb"][x,y].value
                         if p.variables["stage"][x, y].value
-                        in ["entered_blossom", "blossom"]
+                        in ["entered_bloom", "bloom"]
                         else 0.0
                         for p in plants
                     ]
@@ -127,7 +127,8 @@ class Pollinators(Entity_API):
                 )
                 # q.append((p['theta_pesticide'], soil.variables['amount_cide#g']['pollinators'][x,y], -np.infty, p['pesticide_tol']))
                 q_appear = expglm(p["theta_0"], q)
-                # print("POLLINATOR appearance proba",q_appear)
+                #if flowers>0:
+                #    print("POLLINATOR appearance proba",q_appear, flowers)
 
                 self.variables["occurrence#bin"][x, y].set_value(
                     "True"
@@ -136,8 +137,9 @@ class Pollinators(Entity_API):
                 )
                 if self.variables["occurrence#bin"][x, y].value == "True":
                     self.variables["total_cumulated_occurrence#nb"].set_value(
-                        self.variables["total_cumulated_occurrence#nb"] + 1
+                        self.variables["total_cumulated_occurrence#nb"].value + 1
                     )
+                #    print("POLLINATOR is THERE", q_appear, self.variables["total_cumulated_occurrence#nb"].value)
 
     def act_on_variables(self, action_name, action_params):
         pass
@@ -155,3 +157,16 @@ class Pollinators(Entity_API):
                 if self.variables["occurrence#bin"][x, y].value == "True":
                     image.paste(self.images["some"], (im_width * x, im_height * y))
         return image
+
+
+    # def to_thumbnailimage(self):
+    #     im_width, im_height = 64, 64
+    #     image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
+    #     for x in range(self.field.X):
+    #         for y in range(self.field.Y):
+    #             if self.variables["occurrence#bin"][x, y].value == "True":
+    #                 image.paste(self.images["some"], (0, 0))
+    #                 #print("POLLINATOR THERE")
+    #                 return image
+    #     return image
+

@@ -719,7 +719,7 @@ class Plant(Entity_API):
 
                         # Pollinator conditions:
                         for po in pollinators:
-                            if po.variables["occurrence#bin"][x, y]:
+                            if po.variables["occurrence#bin"][x, y].value == "True":
                                 self.variables["pollinator_visits#nb"][x, y].set_value(
                                     self.variables["pollinator_visits#nb"][x, y].value + 1
                                 )

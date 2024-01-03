@@ -69,5 +69,4 @@ interventions:
         water_discrete: 
           plot: ['(0, 0)']
           amount#L: [0.0]
-          duration#min: [60]
 

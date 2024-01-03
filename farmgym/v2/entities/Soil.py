@@ -52,13 +52,11 @@ class Soil(Entity_API):
         self.actions = {
             "water_discrete": {
                 "plot": field.plots,
-                "amount#L": list(np.linspace(0, 15, 16)),
-                "duration#min": [30, 60],
+                "amount#L": list(np.linspace(0, 15, 16))
             },
             "water_continuous": {
                 "plot": field.plots,
-                "amount#L": (0.0, 20.0),
-                "duration#min": [30, 60],
+                "amount#L": (0.0, 20.0)
             },
         }
 
