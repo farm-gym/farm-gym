@@ -1,5 +1,5 @@
 params:
-  max_action_schedule_size: 3
+  max_action_schedule_size: 1
   number_of_bins_to_discretize_continuous_actions: 11
 observations:
   Free:
@@ -8,60 +8,6 @@ observations:
         day#int365: 
         air_temperature: 
           '*':
-  BasicFarmer-0:
-    Field-0:
-      Weather-0:
-        year#int100: 
-        day#int365: 
-        air_temperature: 
-            '*': 
-            max#°C: 
-            mean#°C: 
-            min#°C: 
-        humidity#%: 
-        wind: 
-            '*': 
-            speed#km.h-1: 
-            direction: 
-        clouds#%: 
-        rain_amount#mm.day-1: 
-        consecutive_frost#day: 
-        consecutive_dry#day: 
-        forecast: 
-            '*': 
-            air_temperature: 
-              '*': 
-              mean#°C: ['*',0, 1, 2, 3, 4]
-              min#°C: ['*',0, 1, 2, 3, 4]
-              max#°C: ['*',0, 1, 2, 3, 4]
-            humidity#%: ['*',0, 1, 2, 3, 4]
-            clouds#%: ['*',0, 1, 2, 3, 4]
-            rain_amount#mm.day-1: ['*',0, 1, 2, 3, 4]
-            wind: 
-              '*': 
-              speed#km.h-1: ['*',0, 1, 2, 3, 4]
-              direction: ['*',0, 1, 2, 3, 4]
-      Soil-0:
-        available_N#g: ['*','(0, 0)']
-        available_P#g: ['*','(0, 0)']
-        available_K#g: ['*','(0, 0)']
-        available_C#g: ['*','(0, 0)']
-        available_Water#L: ['*','(0, 0)']
-        depth#m: ['*','(0, 0)']
-        microlife_health_index#%: ['*','(0, 0)']
-        amount_cide#g: 
-            '*': 
-            pollinators: ['*','(0, 0)']
-            pests: ['*','(0, 0)']
-            soil: ['*','(0, 0)']
-            weeds: ['*','(0, 0)']
-        total_cumulated_added_water#L: 
-        total_cumulated_added_cide#g: 
-            '*': 
-            pollinators: 
-            pests: 
-            soil: 
-            weeds:
 interventions:
   BasicFarmer-0:
     Field-0:

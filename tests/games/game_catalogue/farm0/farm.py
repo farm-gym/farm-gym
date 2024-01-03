@@ -46,4 +46,3 @@ if __name__ == "__main__":
     print(f)
     agent = Farmgym_RandomAgent()
     run_gym_xp(f, agent, max_steps=250, render="text&image")
-    #run_gym_xp(f, agent, max_steps=250, render="image")
