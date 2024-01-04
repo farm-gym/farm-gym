@@ -623,7 +623,7 @@ class Plant(Entity_API):
                             self.variables["consecutive_nogrow#day"][x, y].set_value(
                                 self.variables["consecutive_nogrow#day"][x, y].value + 1
                             )
-                        #print("Water Needs (Grow)", water_needs)
+                        print("Water Needs (Grow)", water_needs)
 
                         w = min(
                             water_needs / 1000,
@@ -744,7 +744,7 @@ class Plant(Entity_API):
                             * self.variables["population#nb"][x, y].value
                         )
 
-                        #print("Water Needs (Bloom)", water_needs)
+                        print("Water Needs (Bloom)", water_needs)
                         w = min(
                             water_needs / 1000,
                             self.variables["cumulated_water#L"][x, y].value,
@@ -896,7 +896,7 @@ class Plant(Entity_API):
                             * self.variables["population#nb"][x, y].value
                         )
 
-                        #print("Water Needs (Fruit)", water_needs)
+                        print("Water Needs (Fruit)", water_needs)
                         w = min(
                             water_needs / 1000,
                             self.variables["cumulated_water#L"][x, y].value,
