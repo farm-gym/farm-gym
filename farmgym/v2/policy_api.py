@@ -553,7 +553,7 @@ class Policy_helper:
                     f"Field-{fi}",
                     f"Soil-{idx}",
                     "water_discrete",
-                    {"plot": loc, "amount#L": amount, "duration#min": 60},
+                    {"plot": loc, "amount#L": amount},
                 ),
                 "delay": delay,
             }
@@ -624,7 +624,7 @@ class Policy_helper:
                     f"Field-{fi}",
                     f"Soil-{idx}",
                     "water_continuous",
-                    {"plot": loc, "amount#L": amount, "duration#min": 60},
+                    {"plot": loc, "amount#L": amount},
                 ),
                 "delay": delay,
             }
