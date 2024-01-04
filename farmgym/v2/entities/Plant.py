@@ -3,6 +3,8 @@ import logging
 import numpy as np
 from PIL import Image
 
+from farmgym.v2.entities.Weather import irradiance_perday
+
 from farmgym.v2.entity_api import (
     Entity_API,
     Range,
@@ -50,9 +52,7 @@ class Plant(Entity_API):
         self.variables["size#cm"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["flowers_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["pollinator_visits#nb"] = fillarray(X, Y, (0, 1000), 0.0)
-        self.variables["flowers_pollinated_per_plant#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )
+        self.variables["flowers_pollinated_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["fruits_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["fruit_weight#g"] = fillarray(X, Y, (0, 100000), 0.0)
         self.variables["harvest_weight#kg"] = Range((0, 1000000), 0.0)
@@ -65,21 +65,12 @@ class Plant(Entity_API):
 
         self.variables["cumulated_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_stress_nutrients_N#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_stress_nutrients_P#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_stress_nutrients_K#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_stress_nutrients_C#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_water#L"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 100000), 0.0)
+        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 100000), 0.0)
+        self.variables["cumulated_stress_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_stress_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_stress_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_stress_nutrients_C#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_stress_water#L"] = fillarray(X, Y, (0, 10000), 0.0)
 
         self.variables["grow_size_threshold#cm"] = fillarray(X, Y, (0, 10000), 0.0)
@@ -131,9 +122,7 @@ class Plant(Entity_API):
         self.variables["size#cm"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["flowers_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["pollinator_visits#nb"] = fillarray(X, Y, (0, 1000), 0.0)
-        self.variables["flowers_pollinated_per_plant#nb"] = fillarray(
-            X, Y, (0, 1000), 0.0
-        )
+        self.variables["flowers_pollinated_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["fruits_per_plant#nb"] = fillarray(X, Y, (0, 1000), 0.0)
         self.variables["fruit_weight#g"] = fillarray(X, Y, (0, 100000), 0.0)
         self.variables["harvest_weight#kg"] = Range((0, 1000000), 0.0)
@@ -146,21 +135,12 @@ class Plant(Entity_API):
 
         self.variables["cumulated_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 10000), 0.0)
-        self.variables["cumulated_stress_nutrients_N#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_stress_nutrients_P#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_stress_nutrients_K#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_stress_nutrients_C#g"] = fillarray(
-            X, Y, (0, 10000), 0.0
-        )
-        self.variables["cumulated_water#L"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_nutrients_K#g"] = fillarray(X, Y, (0, 100000), 0.0)
+        self.variables["cumulated_nutrients_C#g"] = fillarray(X, Y, (0, 100000), 0.0)
+        self.variables["cumulated_stress_nutrients_N#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_stress_nutrients_P#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_stress_nutrients_K#g"] = fillarray(X, Y, (0, 10000), 0.0)
+        self.variables["cumulated_stress_nutrients_C#g"] = fillarray(X, Y, (0, 10000), 0.0)
         self.variables["cumulated_stress_water#L"] = fillarray(X, Y, (0, 10000), 0.0)
 
         self.variables["grow_size_threshold#cm"] = fillarray(X, Y, (0, 10000), 0.0)
@@ -170,13 +150,9 @@ class Plant(Entity_API):
         for x in range(X):
             for y in range(Y):
                 if self.parameters["initial_stage"] in Plant.stages:
-                    self.variables["stage"][x, y].set_value(
-                        self.parameters["initial_stage"]
-                    )
+                    self.variables["stage"][x, y].set_value(self.parameters["initial_stage"])
                 elif self.parameters["initial_stage"] == "random":
-                    self.variables["stage"][x, y].set_value(
-                        self.np_random.choice(Plant.stages)
-                    )
+                    self.variables["stage"][x, y].set_value(self.np_random.choice(Plant.stages))
                 else:
                     self.variables["stage"][x, y].set_value("none")
 
@@ -196,9 +172,7 @@ class Plant(Entity_API):
                     )
                 elif self.variables["stage"][x, y].value == "entered_bloom":
                     self.variables["population#nb"][x, y].set_value(1)
-                    self.variables["size#cm"][x, y].set_value(
-                        self.parameters["size_max#cm"]
-                    )
+                    self.variables["size#cm"][x, y].set_value(self.parameters["size_max#cm"])
                     self.variables["flowers_per_plant#nb"][x, y].set_value(
                         self.np_random.binomial(
                             self.parameters["flowers_max#nb"],
@@ -315,10 +289,6 @@ class Plant(Entity_API):
                     * self.parameters["grow_conditions"]["C_grow_consumption#g.mm-1"]
                     * 10
                 )
-                self.variables["cumulated_water#L"][x, y].set_value(
-                    self.parameters["grow_conditions"]["Water_grow_consumption#mL"]
-                    / 1000.0
-                )
 
         self.initialize_variables(self.initial_conditions)
         ## Init global stage:
@@ -389,14 +359,42 @@ class Plant(Entity_API):
                 if self.variables["population#nb"][x, y].value > 0:
                     # if (self.is_active((x,y))):
 
+                    total_stress = 0
+                    total_stress += self.variables["cumulated_stress_nutrients_N#g"][x, y].value
+                    total_stress += self.variables["cumulated_stress_nutrients_P#g"][x, y].value
+                    total_stress += self.variables["cumulated_stress_nutrients_K#g"][x, y].value
+                    total_stress += self.variables["cumulated_stress_nutrients_C#g"][x, y].value
+                    total_stress += (self.variables["cumulated_stress_water#L"][x, y].value * 1000)
+
+                    for n in ["N", "K", "P", "C"]:
+                        self.variables["cumulated_stress_nutrients_"+n+"#g"][x, y].set_value(
+                            self.variables["cumulated_stress_nutrients_"+n+"#g"][x, y].value*(1-self.parameters["stress_healing#%"])
+                        )
+                    self.variables["cumulated_stress_water#L"][x, y].set_value(
+                        self.variables["cumulated_stress_water#L"][x, y].value * (1 - self.parameters["stress_healing#%"])
+                    )
+
                     if self.variables["stage"][x, y].value == "entered_grow":
                         self.variables["size#cm"][x, y].set_value(0.1)
                         self.variables["consecutive_nogrow#day"][x, y].set_value(0.0)
                         self.variables["stage"][x, y].set_value("grow")
                     elif self.variables["stage"][x, y].value == "entered_bloom":
+
+                        p = self.parameters["bloom_conditions"]
+                        q = []
+                        q.append(
+                            (
+                                p["sensitivity_stress"],
+                                total_stress,
+                                -np.infty,
+                                0,
+                            )
+                        )
+                        p_boost = 1.-expglm(0, q)
+
                         self.variables["flowers_per_plant#nb"][x, y].set_value(
                             self.np_random.binomial(
-                                self.parameters["flowers_max#nb"],
+                                self.parameters["flowers_max#nb"]*(1+p["stress_boost#%"]*p_boost),
                                 self.variables["size#cm"][x, y].value
                                 / self.parameters["size_max#cm"],
                                 1,
@@ -408,14 +406,10 @@ class Plant(Entity_API):
                     elif self.variables["stage"][x, y].value == "entered_fruit":
                         self.variables["consecutive_noweight#day"][x, y].set_value(0.0)
                         self.variables["fruits_per_plant#nb"][x, y].set_value(
-                            self.variables["flowers_pollinated_per_plant#nb"][
-                                x, y
-                            ].value
+                            self.variables["flowers_pollinated_per_plant#nb"][x, y].value
                         )
                         self.variables["flowers_per_plant#nb"][x, y].set_value(0)
-                        self.variables["flowers_pollinated_per_plant#nb"][
-                            x, y
-                        ].set_value(0)
+                        self.variables["flowers_pollinated_per_plant#nb"][x, y].set_value(0)
                         self.variables["fruit_weight#g"][x, y].set_value(1)
                         self.variables["stage"][x, y].set_value("fruit")
                     elif self.variables["stage"][x, y].value == "entered_ripe":
@@ -424,18 +418,12 @@ class Plant(Entity_API):
 
                     elif self.variables["stage"][x, y].value in ["seed"]:
                         self.debug_death_info[x, y] = {}
+                        total_stress = 0
                         for n in ["N", "K", "P", "C"]:
-                            self.variables["cumulated_nutrients_" + n + "#g"][
-                                x, y
-                            ].set_value(0)
-                            self.variables["cumulated_stress_nutrients_" + n + "#g"][
-                                x, y
-                            ].set_value(0)
+                            self.variables["cumulated_nutrients_" + n + "#g"][x, y].set_value(0)
+                            self.variables["cumulated_stress_nutrients_" + n + "#g"][x, y].set_value(0)
 
-                            self.variables["cumulated_water#L"][x, y].set_value(0)
-                            self.variables["cumulated_stress_water#L"][x, y].set_value(
-                                0
-                            )
+                            self.variables["cumulated_stress_water#L"][x, y].set_value(0)
                             p = self.parameters["seed_conditions"]
 
                             q = []
@@ -444,7 +432,7 @@ class Plant(Entity_API):
                                     p["sensitivity_death_birds"],
                                     nb_birds_eating_seeds,
                                     0,
-                                    p["death_birds_max"],
+                                    p["death_birds_max#nb"],
                                 )
                             )
                             q.append(
@@ -452,7 +440,7 @@ class Plant(Entity_API):
                                     p["sensitivity_death_ageseed"],
                                     self.variables["age_seed#day"][x, y].value,
                                     0,
-                                    p["death_ageseed_max"],
+                                    p["death_ageseed_max#day"],
                                 )
                             )
                             p_stayalive = expglm(p["sensitivity_death_0"], q)
@@ -461,32 +449,33 @@ class Plant(Entity_API):
 
                             is_dead = self.np_random.binomial(1, p_stayalive, 1)[0] == 0
                             if is_dead:
-                                self.variables["stage"][x, y].set_value("dead")
-                                self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
+                                self.debug_death_info[x, y] = {"stage": self.variables["stage"][x, y].value, "p": p_stayalive, "q": q}
                                 logger.debug(
-                                    "[FarmGym] DEATH CAUSE, seed stage:"
+                                    "[FarmGym] DEATH CAUSE:"
                                     + str((x, y))
                                     + str(self.debug_death_info[x, y])
                                 )
+                                print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                                self.variables["stage"][x, y].set_value("dead")
 
                             else:
                                 q = []
                                 q.append(
                                     (
-                                        p["sensitivity_sprout_T"],
+                                        p["sensitivity_sprout_air_temperature"],
                                         weather.variables["air_temperature"][
                                             "mean#°C"
                                         ].value,
-                                        p["sprout_T_min"],
-                                        p["sprout_T_max"],
+                                        p["sprout_air_temperature_min#°C"],
+                                        p["sprout_air_temperature_max#°C"],
                                     )
                                 )
                                 q.append(
                                     (
-                                        p["sensitivity_sprout_RH"],
+                                        p["sensitivity_sprout_humidity"],
                                         weather.variables["humidity#%"].value,
-                                        p["sprout_RH_min"],
-                                        p["sprout_RH_max"],
+                                        p["sprout_humidity_min#%"],
+                                        p["sprout_humidity_max#%"],
                                     )
                                 )
                                 q.append(
@@ -503,64 +492,77 @@ class Plant(Entity_API):
                                 # p['sprout_RH_min'], p['sprout_RH_max'])]))  # \in [0,1] proba_sprout = w_sprout.
                                 # print("P_SPROUT", p_sprout, q)
 
-                                is_sprouting = (
-                                    self.np_random.binomial(1, p_sprout, 1)[0] == 1
-                                )
+                                is_sprouting = (self.np_random.binomial(1, p_sprout, 1)[0] == 1)
                                 if is_sprouting:
-                                    self.variables["stage"][x, y].set_value(
-                                        "entered_grow"
-                                    )
+                                    self.variables["stage"][x, y].set_value("entered_grow")
                                 else:
-                                    self.variables["age_seed#day"][x, y].set_value(
-                                        self.variables["age_seed#day"][x, y].value + 1
-                                    )
+                                    self.variables["age_seed#day"][x, y].set_value(self.variables["age_seed#day"][x, y].value + 1)
 
                     elif self.variables["stage"][x, y].value in ["grow"]:
                         # TODO: Add that plants turn atmospheric N2 into soil, injecting N in it and C in their body, hence release C when dead.
                         p = self.parameters["grow_conditions"]
 
-                        r = self.requirement_nutrients((x, y))
-                        # w = self.requirement_water_range((x, y),weather,field,day)
+                        # Sun power in kWh/m2:
+                        sun_power = irradiance_perday(field.localization["longitude#°"], weather.variables["day#int365"].value) * (1.-weather.variables["clouds#%"].value / 100)
+                        # sun power received by plant in kWh:
+                        # sun_power *= self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]* self.variables["size#cm"][(x,y)].value
 
                         q = []
                         q.append(
                             (
-                                p["sensitivity_grow_T"],
+                                p["sensitivity_grow_Energy"],
+                                sun_power,
+                                p["grow_Energy_opt#kWh.m-2"],
+                                np.infty,
+                            )
+                        )
+                        #print("SUN POWER", sun_power, p["grow_Energy_opt#kWh.m-2"])
+                        q.append(
+                            (
+                                p["sensitivity_grow_air_temperature"],
                                 weather.variables["air_temperature"]["mean#°C"].value,
-                                p["grow_T_min"],
-                                p["grow_T_max"],
+                                p["grow_air_temperature_min#°C"],
+                                p["grow_air_temperature_max#°C"],
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_grow_N"],
-                                soil.variables["available_N#g"][(x, y)].value,
-                                r["N"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_N#g"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_grow_K"],
-                                soil.variables["available_K#g"][(x, y)].value,
-                                r["K"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_K#g"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_grow_P"],
-                                soil.variables["available_P#g"][(x, y)].value,
-                                r["P"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_P#g"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_grow_C"],
-                                soil.variables["available_C#g"][(x, y)].value,
-                                r["C"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_C#g"][(x, y)].value,
+                                -np.infty,
+                                0,
+                            )
+                        )
+                        q.append(
+                            (
+                                p["sensitivity_grow_Water"],
+                                self.variables["cumulated_stress_water#L"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         draught = p["sensitivity_draught#%"]
@@ -580,6 +582,7 @@ class Plant(Entity_API):
                                 np.infty,
                             )
                         )
+                        #print("DRAUGHT", soil.variables["available_Water#L"][(x, y)].value, w)
 
                         rate = max(
                             0.0,
@@ -591,15 +594,6 @@ class Plant(Entity_API):
                             ),
                         )
 
-                        # in mL
-                        water_needs = (
-                            weather.evaporation(field)
-                            * self.parameters["grow_conditions"][
-                                "grow_leaf_surface#m2.cm-1"
-                            ]
-                            * self.variables["size#cm"][(x, y)].value
-                            * self.variables["population#nb"][(x, y)].value
-                        )
                         is_growing = rate >= p["grow_rate_min#"]
                         if is_growing:
                             newsize = increase(
@@ -608,57 +602,17 @@ class Plant(Entity_API):
                                 self.parameters["size_max#cm"],
                             )
 
-                            water_needs += (
-                                self.parameters["grow_conditions"][
-                                    "grow_leaf_surface#m2.cm-1"
-                                ]
-                                * (newsize - self.variables["size#cm"][x, y].value)
-                                * weather.evaporation(field)
-                                * self.variables["population#nb"][x, y].value
-                            )
-
                             self.variables["size#cm"][x, y].set_value(newsize)
                             self.variables["consecutive_nogrow#day"][x, y].set_value(0)
                         else:
                             self.variables["consecutive_nogrow#day"][x, y].set_value(
                                 self.variables["consecutive_nogrow#day"][x, y].value + 1
                             )
-                        print("Water Needs (Grow)", water_needs)
 
-                        w = min(
-                            water_needs / 1000,
-                            self.variables["cumulated_water#L"][x, y].value,
-                        )
-                        stress_water = water_needs / 1000 - w
-                        self.variables["cumulated_water#L"][x, y].set_value(
-                            max(0, self.variables["cumulated_water#L"][x, y].value - w)
-                        )
-                        self.variables["cumulated_stress_water#L"][x, y].set_value(
-                            self.variables["cumulated_stress_water#L"][x, y].value
-                            + stress_water
-                        )
-
-                        stress = 0
-                        stress += self.variables["cumulated_stress_nutrients_N#g"][
-                            x, y
-                        ].value
-                        stress += self.variables["cumulated_stress_nutrients_P#g"][
-                            x, y
-                        ].value
-                        stress += self.variables["cumulated_stress_nutrients_K#g"][
-                            x, y
-                        ].value
-                        stress += self.variables["cumulated_stress_nutrients_C#g"][
-                            x, y
-                        ].value
-                        stress += (
-                            self.variables["cumulated_stress_water#L"][x, y].value
-                            * 1000
-                        )
 
                         self.variables["grow_size_threshold#cm"][x, y].set_value(
                             self.parameters["size_max#cm"]
-                            * (1 + np.exp(-stress / 1000))
+                            * (1 + np.exp(-total_stress / 1000))
                             / 2.0
                         )
 
@@ -694,7 +648,7 @@ class Plant(Entity_API):
                                 p["sensitivity_death_pests"],
                                 nb_pests,
                                 0,
-                                p["death_pests_max"],
+                                p["death_pests_max#nb"],
                             )
                         )
                         q.append(
@@ -702,67 +656,36 @@ class Plant(Entity_API):
                                 p["sensitivity_death_nogrow"],
                                 self.variables["consecutive_nogrow#day"][x, y].value,
                                 0,
-                                p["death_nogrow_max"],
+                                p["death_nogrow_max#day"],
                             )
                         )
                         p_stayalive = expglm(p["sensitivity_death_0"], q)
 
                         is_dead = self.np_random.binomial(1, p_stayalive, 1)[0] == 0
                         if is_dead:
-                            self.variables["stage"][x, y].set_value("dead")
-                            self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
+                            self.debug_death_info[x, y] = {"stage": self.variables["stage"][x, y].value,
+                                                           "p": p_stayalive, "q": q}
                             logger.debug(
-                                "[FarmGym] DEATH CAUSE, grow stage:"
+                                "[FarmGym] DEATH CAUSE:"
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            # print("[FarmGym] DEATH CAUSE, grow stage:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["bloom"]:
                         p = self.parameters["bloom_conditions"]
 
-                        r = self.requirement_nutrients((x, y))
-                        water_needs = (
-                            weather.evaporation(field)
-                            * self.parameters["grow_conditions"][
-                                "grow_leaf_surface#m2.cm-1"
-                            ]
-                            * self.variables["size#cm"][(x, y)].value
-                            * self.variables["population#nb"][(x, y)].value
-                        )
-                        water_needs += (
-                            (
-                                2
-                                - self.parameters["bloom_conditions"][
-                                    "sensitivity_draught#%"
-                                ]
-                            )
-                            * self.variables["flowers_per_plant#nb"][x, y].value
-                            * self.parameters["bloom_conditions"][
-                                "Water_flower_consumption#mL"
-                            ]
-                            * self.variables["population#nb"][x, y].value
-                        )
 
-                        print("Water Needs (Bloom)", water_needs)
-                        w = min(
-                            water_needs / 1000,
-                            self.variables["cumulated_water#L"][x, y].value,
-                        )
-                        stress_water = water_needs / 1000 - w
-                        self.variables["cumulated_water#L"][x, y].set_value(
-                            max(0, self.variables["cumulated_water#L"][x, y].value - w)
-                        )
-                        self.variables["cumulated_stress_water#L"][x, y].set_value(
-                            self.variables["cumulated_stress_water#L"][x, y].value
-                            + stress_water
-                        )
+                        #TODO: Add growth probability? to decide if growth day or not-growth day, hence decide death proba.
+
+
+
+
 
                         non_pollinated = max(
                             self.variables["flowers_per_plant#nb"][x, y].value
-                            - self.variables["flowers_pollinated_per_plant#nb"][
-                                x, y
-                            ].value,
+                            - self.variables["flowers_pollinated_per_plant#nb"][x, y].value,
                             0,
                         )
 
@@ -773,37 +696,43 @@ class Plant(Entity_API):
                         W = np.sum(w)
                         w = w / W
 
+                        # Wind conditions:
                         q = []
                         q.append(
                             (
-                                p["sensitivity_wind_T"],
+                                p["sensitivity_wind_air_temperature"],
                                 weather.variables["air_temperature"]["mean#°C"].value,
-                                p["wind_T_min"],
-                                p["wind_T_max"],
+                                p["wind_air_temperature_min#°C"],
+                                p["wind_air_temperature_max#°C"],
                             )
                         )
-                        # TODO: Add minimum wind speed?
+
+                        q.append(
+                            (
+                                p["sensitivity_wind_speed"],
+                                weather.variables["wind"]["speed#km.h-1"].value,
+                                p["wind_speed_min#km.h-1"],
+                                p["wind_speed_max#km.h-1"],
+                            )
+                        )
                         wind_pollination_success = expglm(p["sensitivity_wind_0"], q)
 
-                        # self.variables['pollinator_visits#nb'][x, y].set_value(0.)
+                        # Pollinator conditions:
                         for po in pollinators:
-                            if po.variables["occurrence#bin"][x, y]:
+                            if po.variables["occurrence#bin"][x, y].value == "True":
                                 self.variables["pollinator_visits#nb"][x, y].set_value(
-                                    self.variables["pollinator_visits#nb"][x, y].value
-                                    + 1
+                                    self.variables["pollinator_visits#nb"][x, y].value + 1
                                 )
                         q = []
                         q.append(
                             (
                                 p["sensitivity_pollinator_visits"],
                                 self.variables["pollinator_visits#nb"][x, y].value,
-                                p["pollinator_visits_min"],
+                                p["pollinator_visits_min#nb"],
                                 np.infty,
                             )
                         )
-                        insect_pollination_success = expglm(
-                            p["sensitivity_pollinator_0"], q
-                        )
+                        insect_pollination_success = expglm(p["sensitivity_pollinator_0"], q)
 
                         pp = (
                             w[0] * p["auto_pollination_success#%"]
@@ -811,12 +740,8 @@ class Plant(Entity_API):
                             + w[2] * insect_pollination_success
                         )
                         # print("POLLINATION INSECT",insect_pollination_success, pp)
-                        self.variables["flowers_pollinated_per_plant#nb"][
-                            x, y
-                        ].set_value(
-                            self.variables["flowers_pollinated_per_plant#nb"][
-                                x, y
-                            ].value
+                        self.variables["flowers_pollinated_per_plant#nb"][x, y].set_value(
+                            self.variables["flowers_pollinated_per_plant#nb"][x, y].value
                             + np.floor(
                                 self.np_random.binomial(non_pollinated, pp, 1)[0]
                             )
@@ -830,7 +755,6 @@ class Plant(Entity_API):
                             self.variables["age_bloom#day"][x, y].value + 1
                         )
 
-                        # TODO: Remove flowers due to wind, stress, or when enough flowers are pollinated ?
 
                         # Bloom-Fruit
                         q = []
@@ -861,96 +785,80 @@ class Plant(Entity_API):
 
                         is_dead = self.np_random.binomial(1, p_stayalive, 1)[0] == 0
                         if is_dead:
-                            self.variables["stage"][x, y].set_value("dead")
-                            self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
+                            self.debug_death_info[x, y] = {"stage": self.variables["stage"][x, y].value,
+                                                           "p": p_stayalive, "q": q}
                             logger.debug(
-                                "[FarmGym] DEATH CAUSE, bloom stage:"
+                                "[FarmGym] DEATH CAUSE:"
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            # print("[FarmGym] DEATH CAUSE, bloom stage:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["fruit"]:
                         p = self.parameters["fruit_conditions"]
 
-                        water_needs = (
-                            weather.evaporation(field)
-                            * self.parameters["grow_conditions"][
-                                "grow_leaf_surface#m2.cm-1"
-                            ]
-                            * self.variables["size#cm"][(x, y)].value
-                            * self.variables["population#nb"][(x, y)].value
-                        )
-                        water_needs += (
-                            (
-                                2
-                                - self.parameters["fruit_conditions"][
-                                    "sensitivity_draught#%"
-                                ]
-                            )
-                            * self.variables["fruits_per_plant#nb"][x, y].value
-                            * self.parameters["fruit_conditions"][
-                                "Water_fruit_consumption#mL.g-1"
-                            ]
-                            * self.variables["fruit_weight#g"][x, y].value
-                            * self.variables["population#nb"][x, y].value
-                        )
 
-                        print("Water Needs (Fruit)", water_needs)
-                        w = min(
-                            water_needs / 1000,
-                            self.variables["cumulated_water#L"][x, y].value,
-                        )
-                        stress_water = water_needs - w
-                        self.variables["cumulated_water#L"][x, y].set_value(
-                            max(0, self.variables["cumulated_water#L"][x, y].value - w)
-                        )
-                        self.variables["cumulated_stress_water#L"][x, y].set_value(
-                            self.variables["cumulated_stress_water#L"][x, y].value
-                            + stress_water
-                        )
-
-                        r = self.requirement_nutrients((x, y))
+                        # Sun power in kWh/m2:
+                        sun_power = irradiance_perday(field.localization["longitude#°"], weather.variables["day#int365"].value) * (1.-weather.variables["clouds#%"].value / 100)
+                        # sun power received by plant in kWh:
+                        # sun_power *= self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]* self.variables["size#cm"][(x,y)].value
 
                         q = []
                         q.append(
                             (
-                                p["sensitivity_fruit_T"],
+                                p["sensitivity_fruit_Energy"],
+                                sun_power,
+                                p["fruit_Energy_opt#kWh.m-2"],
+                                np.infty,
+                            )
+                        )
+                        q.append(
+                            (
+                                p["sensitivity_fruit_air_temperature"],
                                 weather.variables["air_temperature"]["mean#°C"].value,
-                                p["fruit_T_min"],
-                                p["fruit_T_max"],
+                                p["fruit_air_temperature_min#°C"],
+                                p["fruit_air_temperature_max#°C"],
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_fruit_N"],
-                                soil.variables["available_N#g"][(x, y)].value,
-                                r["N"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_N#g"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_fruit_K"],
-                                soil.variables["available_K#g"][(x, y)].value,
-                                r["K"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_K#g"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_fruit_P"],
-                                soil.variables["available_P#g"][(x, y)].value,
-                                r["P"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_P#g"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_fruit_C"],
-                                soil.variables["available_C#g"][(x, y)].value,
-                                r["C"],
-                                np.infty,
+                                self.variables["cumulated_stress_nutrients_C#g"][(x, y)].value,
+                                -np.infty,
+                                0,
+                            )
+                        )
+                        q.append(
+                            (
+                                p["sensitivity_fruit_Water"],
+                                self.variables["cumulated_stress_water#L"][(x, y)].value,
+                                -np.infty,
+                                0,
                             )
                         )
                         draught = p["sensitivity_draught#%"]
@@ -979,24 +887,7 @@ class Plant(Entity_API):
                                 np_random=self.np_random,
                             ),
                         )
-
-                        stress = 0
-                        stress += self.variables["cumulated_stress_nutrients_N#g"][
-                            x, y
-                        ].value
-                        stress += self.variables["cumulated_stress_nutrients_P#g"][
-                            x, y
-                        ].value
-                        stress += self.variables["cumulated_stress_nutrients_K#g"][
-                            x, y
-                        ].value
-                        stress += self.variables["cumulated_stress_nutrients_C#g"][
-                            x, y
-                        ].value
-                        stress += (
-                            self.variables["cumulated_stress_water#L"][x, y].value
-                            * 1000
-                        )
+                        #print("Fruit rate", rate, q)
 
                         qq = []
                         qq.append(
@@ -1010,7 +901,7 @@ class Plant(Entity_API):
                         qq.append(
                             (
                                 p["sensitivity_fruit_stress"],
-                                stress / 1000,
+                                total_stress / 1000,
                                 -np.infty,
                                 0.0,
                             )
@@ -1070,15 +961,15 @@ class Plant(Entity_API):
                                 p["sensitivity_death_pests"],
                                 nb_pests,
                                 0,
-                                p["death_pests_max"],
+                                p["death_pests_max#nb"],
                             )
                         )
                         q.append(
                             (
                                 p["sensitivity_death_humidity"],
                                 weather.variables["humidity#%"].value,
-                                p["death_humidity_min"],
-                                p["death_humidity_max"],
+                                p["death_humidity_min#%"],
+                                p["death_humidity_max#%"],
                             )
                         )
                         q.append(
@@ -1086,20 +977,21 @@ class Plant(Entity_API):
                                 p["sensitivity_death_noweight"],
                                 self.variables["consecutive_noweight#day"][x, y].value,
                                 -np.infty,
-                                p["death_noweight_max"],
+                                p["death_noweight_max#day"],
                             )
                         )
                         p_stayalive = expglm(p["sensitivity_death_0"], q)
                         is_dead = self.np_random.binomial(1, p_stayalive, 1)[0] == 0
                         if is_dead:
-                            self.variables["stage"][x, y].set_value("dead")
-                            self.debug_death_info[x, y] = {"p": p_stayalive, "q": q}
+                            self.debug_death_info[x, y] = {"stage": self.variables["stage"][x, y].value,
+                                                           "p": p_stayalive, "q": q}
                             logger.debug(
-                                "[FarmGym] DEATH CAUSE, fruit stage:"
+                                "[FarmGym] DEATH CAUSE:"
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            # print("[FarmGym] DEATH CAUSE, fruit stage:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["ripe"]:
                         p = self.parameters["ripe_conditions"]
@@ -1107,10 +999,10 @@ class Plant(Entity_API):
                         q = []
                         q.append(
                             (
-                                p["sensitivity_ripe_T"],
+                                p["sensitivity_ripe_air_temperature"],
                                 weather.variables["air_temperature"]["mean#°C"].value,
-                                p["ripe_T_min"],
-                                p["ripe_T_max"],
+                                p["ripe_air_temperature_min#°C"],
+                                p["ripe_air_temperature_max#°C"],
                             )
                         )
                         q.append(
@@ -1179,42 +1071,40 @@ class Plant(Entity_API):
 
                         # Ripe-Death
                         if self.variables["fruits_per_plant#nb"][x, y].value == 0:
-                            self.variables["stage"][x, y].set_value("dead")
-                            self.debug_death_info[x, y] = {"fruits_per_plant#nb": 0}
+                            self.debug_death_info[x, y] = {"stage": self.variables["stage"][x, y].value,
+                                                           "fruits": self.variables["fruits_per_plant#nb"][x, y].value}
                             logger.debug(
-                                "[FarmGym] DEATH CAUSE, ripe stage:"
+                                "[FarmGym] DEATH CAUSE:"
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            # print("[FarmGym] DEATH CAUSE, ripe stage:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
+                            self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["harvested"]:
                         for n in ["N", "K", "P", "C"]:
-                            self.variables["cumulated_nutrients_" + n + "#g"][
-                                x, y
-                            ].set_value(0)
-                            self.variables["cumulated_stress_nutrients_" + n + "#g"][
-                                x, y
-                            ].set_value(0)
+                            self.variables["cumulated_nutrients_" + n + "#g"][x, y].set_value(0)
+                            self.variables["cumulated_stress_nutrients_" + n + "#g"][x, y].set_value(0)
 
-                        self.variables["cumulated_water#L"][x, y].set_value(0)
                         self.variables["cumulated_stress_water#L"][x, y].set_value(0)
 
                     elif self.variables["stage"][x, y].value in ["dead"]:
+                        self.variables["fruits_per_plant#nb"][x, y].set_value(0)
+                        threshold = 0.1
                         # Dead-None
                         if (
-                            (self.variables["cumulated_nutrients_N#g"][x, y].value == 0)
+                            (self.variables["cumulated_nutrients_N#g"][x, y].value <= threshold)
                             and (
                                 self.variables["cumulated_nutrients_P#g"][x, y].value
-                                == 0
+                                <= threshold
                             )
                             and (
                                 self.variables["cumulated_nutrients_K#g"][x, y].value
-                                == 0
+                                <= threshold
                             )
                             and (
                                 self.variables["cumulated_nutrients_C#g"][x, y].value
-                                == 0
+                                <= threshold
                             )
                         ):
                             self.variables["stage"][x, y].set_value("none")
@@ -1299,13 +1189,15 @@ class Plant(Entity_API):
             self.variables["cumulated_stress_nutrients_P#g"][position].set_value(0)
             self.variables["cumulated_stress_nutrients_K#g"][position].set_value(0)
             self.variables["cumulated_stress_nutrients_C#g"][position].set_value(0)
-            self.variables["cumulated_water#L"][position].set_value(0)
             self.variables["cumulated_stress_water#L"][position].set_value(0)
 
             self.variables["grow_size_threshold#cm"][position].set_value(0)
             self.variables["fruit_weight_threshold#g"][position].set_value(0)
 
     def requirement_nutrients(self, position):
+        """
+        return nutrients requirement in g
+        """
         r = {"N": 0.0, "K": 0.0, "P": 0.0, "C": 0.0}  #'Water':(0.,1.)}
         if not self.is_active(position):
             return r
@@ -1319,115 +1211,50 @@ class Plant(Entity_API):
                 "fruit",
             ]:
                 r[n] += (
-                    self.variables["size#cm"][position].value
-                    * 0.1
+                    self.variables["size#cm"][position].value* 10
                     * self.parameters["grow_conditions"][n + "_grow_consumption#g.mm-1"]
-                    * self.variables["population#nb"][position].value
                 )
             if self.variables["stage"][position].value in ["entered_bloom", "bloom"]:
                 r[n] += (
                     self.variables["flowers_per_plant#nb"][position].value
                     * self.parameters["bloom_conditions"][n + "_flower_consumption#g"]
-                    * self.variables["population#nb"][position].value
                 )
             if self.variables["stage"][position].value in ["entered_fruit", "fruit"]:
                 r[n] += (
                     self.variables["fruits_per_plant#nb"][position].value
                     * self.variables["fruit_weight#g"][position].value
-                    * self.parameters["fruit_conditions"][
-                        n + "_fruit_consumption#g.g-1"
-                    ]
-                    * self.variables["population#nb"][position].value
+                    * self.parameters["fruit_conditions"][n + "_fruit_consumption#g.g-1"]
                 )
-        #     if (self.variables["stage"][position] in ['entered_grow','grow','entered_blossom','blossom','entered_fruit', 'fruit']):
-        #         r[n] +=         self.variables['size_grow#cm']*0.01*self.parameters['grow_conditions'][n+'_grow_consumption#mL.mm-1']
-        #     if (self.variables["stage"][position] in ['entered_blossom','blossom']):
-        #         r[n] +=         self.variables['flowers_per_plant#nb']*self.parameters['blossom_conditions'][n+'_flower_consumption#mL']
-        #     if (self.variables["stage"][position] in ['entered_fruit', 'fruit']):
-        #         r[n] +=         self.variables['fruits_per_plant#nb']*self.variables['fruit_weight#g']*self.parameters['fruit_conditions'][n+'_fruit_consumption#mL.g-1']
+            r[n] *= self.variables["population#nb"][position].value
         return r
 
     def requirement_water(self, position, weather, field):
         """
         return water requirement in mL
         """
+        if not self.is_active(position):
+            return 0
         w = (
-            weather.evaporation(field)
+            weather.evaporation(field) # Evaporation in mL.m-2.day-1
             * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
             * self.variables["size#cm"][position].value
-            * self.variables["population#nb"][position].value
         )
-        # print("REQUIRE water",w, " store ", self.variables['cumulated_water#L'][position].value)
-        # print("REQUIRE MORE WATER",self.variables['stage'][position])
         if self.variables["stage"][position].value in ["entered_grow", "grow"]:
-            # rate=1.+(1-self.parameters['grow_conditions']['sensitivity_draught#%'])
-            rate = 1.0
-            new_size = increase(
-                self.variables["size#cm"][position].value,
-                rate,
-                self.parameters["size_max#cm"],
-            )
-            # g = (
-            #     self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
-            #     * self.variables["size#cm"][position].value
-            # )
-            # w += self.parameters['grow_conditions']['Water_evapo_coefficients#'][2]*(new_size-self.variables['size#cm'][position].value)*weather.evapo_coefficient(field)*self.variables['population#nb'][position].value
-            w += (
-                self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
-                * (new_size - self.variables["size#cm"][position].value)
-                * weather.evaporation(field)
-                * self.variables["population#nb"][position].value
-            )
-            # print("REQUIRE MORE WATER")
-            # water_needs+= self.parameters['grow_conditions']['Water_evapo_coefficients#'][2]*(newsize-self.variables['size#cm'][x,y].value)*weather.evapo_coefficient(field)*self.variables['population#nb'][x,y].value/100.
-            # print("size",self.variables['size#cm'][position].value, "new size",new_size)
-            # print("ASK require water", max(w-self.variables['cumulated_water#L'][position].value,0))
+            w += self.parameters["grow_conditions"]["Water_grow_consumption#mL"]
         if self.variables["stage"][position].value in ["entered_bloom", "bloom"]:
-            w += (
-                (2 - self.parameters["bloom_conditions"]["sensitivity_draught#%"])
-                * self.variables["flowers_per_plant#nb"][position].value
+            w += (self.variables["flowers_per_plant#nb"][position].value
                 * self.parameters["bloom_conditions"]["Water_flower_consumption#mL"]
-                * self.variables["population#nb"][position].value
             )
 
         if self.variables["stage"][position].value in ["entered_fruit", "fruit"]:
-            w += (
-                (2 - self.parameters["fruit_conditions"]["sensitivity_draught#%"])
-                * self.variables["fruits_per_plant#nb"][position].value
+            w += (self.variables["fruits_per_plant#nb"][position].value
                 * self.parameters["fruit_conditions"]["Water_fruit_consumption#mL.g-1"]
                 * self.variables["fruit_weight#g"][position].value
-                * self.variables["population#nb"][position].value
             )
 
-        return max(w / 1000 - self.variables["cumulated_water#L"][position].value, 0)
+        w = w * self.variables["population#nb"][position].value
+        return w
 
-    def evapo_transpiration(self, position, weather, field):
-        # ET_0 = weather.evaporation(field)  # ml/m2/day
-        return (
-            weather.evaporation(field)
-            * self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
-            * self.variables["size#cm"][position].value
-        )
-        # size = self.variables["size#cm"][position].value
-        # if size > 0:
-        #     u = weather.variables["wind"]["speed#km.h-1"].value
-        #     rh = weather.variables["humidity#%"].value
-        #     alpha_Kcb = self.parameters["grow_conditions"]["Water_evapo_coefficients#"]
-        #     # m2, m2/cm, m2/cm
-        #     Kcb = (  # noqa: F841
-        #         alpha_Kcb[0]
-        #         + size * alpha_Kcb[1]
-        #         + 4 * (0.01 * (u - 2) - 0.001 * (rh - 45)) * ((size / 300) ** 0.3)
-        #     )
-        #
-        #     g = (
-        #         self.parameters["grow_conditions"]["grow_leaf_surface#m2.cm-1"]
-        #         * self.variables["size#cm"][position].value
-        #     )
-        #     print("KCB",Kcb,"g",g, "ET_0", ET_0, "EvaT", ET_0*g)
-        #
-        #     return ET_0 * g
-        # return 0
 
     def receive_nutrients(self, position, nutrients, stress):
         if self.is_active(position):
@@ -1467,9 +1294,6 @@ class Plant(Entity_API):
     def receive_water(self, position, water, stress):
         if self.is_active(position):
             # print("WATER RECEIVED", water, stress)
-            self.variables["cumulated_water#L"][position].set_value(
-                self.variables["cumulated_water#L"][position].value + water
-            )
             self.variables["cumulated_stress_water#L"][position].set_value(
                 self.variables["cumulated_stress_water#L"][position].value + stress
             )
@@ -1520,7 +1344,7 @@ class Plant(Entity_API):
             r = self.variables["size#cm"][position].value * 0.01 / 2.0
             return (
                 np.pi * r * r * self.variables["population#nb"][position].value
-            )  # * self.parameters['shadow_coeff#%']
+            )  * self.parameters['shadow_coeff#%']
         return 0
 
     def to_fieldimage(self):

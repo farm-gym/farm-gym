@@ -1,0 +1,14 @@
+Initial:
+  Field-0:
+    Weather-0:
+      year#int100: 0
+      day#int365: 120
+    Soil-0:
+      microlife_health_index#%: 75
+    Plant-0:
+      stage: "seed"
+      population#nb: 1
+Terminal:
+  [
+    [{state_variable: ["Field-0", "Weather-0", "day#int365", []], function: "value", operator: ">=", ref_value: 360}]
+  ]

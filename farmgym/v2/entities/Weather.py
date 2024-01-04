@@ -294,12 +294,12 @@ class Weather(Entity_API):
     def to_thumbnailimage(self):
         im_width, im_height = 64, 64
         image = Image.new("RGBA", (im_width, im_height), (255, 255, 255, 0))
-        if self.variables["clouds#%"].value <= 25:
+        if self.variables["clouds#%"].value <= 50:
             image.paste(self.images["sunny"], (0, 0))
-        if self.variables["rain_amount#mm.day-1"].value >= 5:
-            image.paste(self.images["rainy"], (0, 0))
-        if self.variables["clouds#%"].value >= 25:
+        if self.variables["clouds#%"].value >= 50:
             image.paste(self.images["cloudy"], (0, 0))
+        if self.variables["rain_amount#mm.day-1"].value >= 0.5:
+            image.paste(self.images["rainy"], (0, 0))
         if self.variables["wind"]["speed#km.h-1"].value >= 40:
             image.paste(self.images["windy"], (0, 0))
         if self.variables["air_temperature"]["mean#°C"].value >= 30:

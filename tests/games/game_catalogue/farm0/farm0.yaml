@@ -9,9 +9,10 @@ Farm:
       width#nb: 1
       scale#m: 1.0
     entities:
-      - Weather: montpellier
+      - Weather: lille
       - Soil:  clay
-#      - Plant: bean
+      - Plant: bean
+      - Pollinators: bee
   Farmer-0:
     type: basic
     parameters:

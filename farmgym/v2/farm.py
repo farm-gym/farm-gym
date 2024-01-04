@@ -1514,7 +1514,7 @@ def generate_video(image_folder=".", video_name="farm.avi"):
 
     fourcc = cv2.VideoWriter_fourcc(*"DIVX")
 
-    maxX, maxY = 32 * 6, 32 * 6
+    maxX, maxY = 64 * 6, 64 * 6
 
     # Array images should only consider
     # the image files ignoring others if any

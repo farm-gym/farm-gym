@@ -6,14 +6,14 @@ import numpy as np
 from farmgym.v2.farm import generate_video  # generate_gif
 
 
-def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
+def run_gym_xp(farm: object, agent: object, max_steps: object = np.infty, render: object = True, monitoring: object = False) -> object:
     agent.reset(farm)
     observation, information = farm.reset()
-    if render == "text":
+    if "text" in render:
         print("Initial step:")
         print(farm.render_step([], observation, 0, False, False, information))
         print("###################################")
-    elif render == "image":
+    if "image" in render:
         time_tag = time.time()
         os.mkdir("run-" + str(time_tag))
         os.chdir("run-" + str(time_tag))
@@ -25,10 +25,10 @@ def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
     while (not terminated) and i <= max_steps:
         action = agent.choose_action()
         obs, reward, terminated, truncated, info = farm.step(action)
-        if render == "text":
+        if "text" in render:
             print(farm.render_step(action, obs, reward, terminated, truncated, info))
             print("###################################")
-        elif render == "image":
+        if "image" in render:
             farm.render()
         agent.update(obs, reward, terminated, truncated, info)
         i += 1
@@ -36,7 +36,7 @@ def run_gym_xp(farm, agent, max_steps=np.infty, render=True, monitoring=False):
     if farm.monitor is not None:
         farm.monitor.stop()
 
-    if render == "image":
+    if "image" in render:
         farm.render()
         generate_video(image_folder=".", video_name="farm.avi")
         os.chdir("../")

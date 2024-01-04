@@ -1,0 +1,18 @@
+params:
+  max_action_schedule_size: 1
+  number_of_bins_to_discretize_continuous_actions: 11
+observations:
+  Free:
+    Field-0:
+      Weather-0:
+        day#int365: 
+        air_temperature: 
+          '*':
+interventions:
+  BasicFarmer-0:
+    Field-0:
+      Soil-0:
+        water_discrete: 
+          plot: ['(0, 0)']
+          amount#L: [0.0]
+

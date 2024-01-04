@@ -48,6 +48,21 @@ def mat2d_value(value_array):
             mat[x, y] = value_array[x, y].value
     return mat
 
+def name_value(value_array):
+    if isinstance(value_array, Range):
+        return  value_array.range.index(value_array.value)
+    else:
+        sum = 0
+        nb = 0
+        it = np.nditer(value_array, flags=["multi_index", "refs_ok"])
+        for x in it:
+            vv = value_array[it.multi_index]
+            sum += vv.range.index(vv.value)
+            nb += 1
+        if nb > 0:
+            return sum / nb
+        else:
+            return 0
 
 def dict_select(x, vars):
     # print("D:",x,vars)
@@ -165,7 +180,7 @@ class MonitorTensorBoard:
         with self.writer.as_default():
             for i in range(len(self.variables)):
                 v = self.variables[i]
-                print(v)
+                #print(v)
                 (
                     fi_key,
                     entity_key,
@@ -463,7 +478,7 @@ def make_variables_to_be_monitored(variables):
     Output:
     list of variables var ready to be used in farm.add_monitoring(var)
     """
-    myfunc = {"sum": sum_value, "avg": avg_value, "mat": mat2d_value}
+    myfunc = {"sum": sum_value, "avg": avg_value, "mat": mat2d_value, "name": name_value}
     varlist = []
     for var in variables:
         vv = var.split("@")

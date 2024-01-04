@@ -2,7 +2,7 @@ import copy
 
 from farmgym.v2.entities.Cide import Cide
 from farmgym.v2.entities.Pests import Pests
-from farmgym.v2.entities.Plant import Plant
+from farmgym.v2.entities.Plant_old import Plant
 from farmgym.v2.entities.Pollinators import Pollinators
 from farmgym.v2.entities.Soil import Soil
 from farmgym.v2.entities.Weather import Weather
