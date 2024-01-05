@@ -14,5 +14,5 @@ interventions:
       Soil-0:
         water_discrete: 
           plot: ['(0, 0)']
-          amount#L: [0.0]
+          amount#L: [1.0]
 

@@ -295,17 +295,17 @@ class Soil(Entity_API):
 
                 # Microlife health index:
                 q = []
-                # TODO: add too much water in soil.
                 q.append(
                     (
-                        1.0,
+                        2.0,
                         self.variables["amount_cide#g"]["soil"][x, y].value / 100,
                         0,
                         0,
                     )
                 )
-                q.append((0.5, water_surplus / max_water_plot_capacity, 0, 0))
+                q.append((5.0, water_surplus / max_water_plot_capacity, 0, 0))
                 p_stayalive = expglm(0.0, q)
+                #print("WATER SURPLUS, MICROLIFE",p_stayalive, q)
                 # print("STAYALIVE",p_stayalive,self.variables['amount_cide#g']['soil'][x,y].value,water_surplus/max_water_plot_capacity)
                 # is_dead = (self.np_random.binomial(1, p_stayalive, 1)[0] == 0)
                 # if (is_dead):
@@ -313,11 +313,11 @@ class Soil(Entity_API):
                 #        self.variables['microlife_health_index#%'][x, y].value * p_stayalive)
                 # else:
                 #    self.variables['microlife_health_index#%'][x, y].set_value(min(100,
-                #        self.variables['microlife_health_index#%'][x, y].value * (1+0.1*p_stayalive)))
+                #        self.variables['microlife_health_index#%'][x, y].value * (1+0.02*p_stayalive)))
                 self.variables["microlife_health_index#%"][x, y].set_value(
                     (
                         (
-                            p_stayalive * (1 + 0.1 * p_stayalive)
+                            p_stayalive * (1 + 0.02 * p_stayalive)
                             + (1 - p_stayalive) * (p_stayalive)
                         )
                         * self.variables["microlife_health_index#%"][x, y].value
@@ -329,6 +329,7 @@ class Soil(Entity_API):
                 # rain_intensity = weather.variables["rain_intensity"].value
                 # rain_intensity = 0
                 if water_surplus > 0:
+                    #print("WATER SURPLUS", water_surplus)
                     milife = (
                         self.variables["microlife_health_index#%"][x, y].value / 100.0
                     )
@@ -412,6 +413,7 @@ class Soil(Entity_API):
             )
             self.variables["available_Water#L"][x, y].set_value(new_value)
             if water_surplus > 0:
+                #print("WATER ADDED SURPLUS", water_surplus)
                 milife = self.variables["microlife_health_index#%"][x, y].value / 100.0
                 for n in ["N", "K", "P", "C"]:
                     self.variables["available_" + n + "#g"][x, y].set_value(
@@ -432,14 +434,15 @@ class Soil(Entity_API):
 
                 q = []
                 q.append(
-                    (2.0, self.variables["amount_cide#g"]["soil"][x, y].value, 0, 0)
+                    (5.0, self.variables["amount_cide#g"]["soil"][x, y].value, 0, 0)
                 )
-                q.append((0.5, water_surplus / max_water_plot_capacity, 0, 0))
+                q.append((2., water_surplus / max_water_plot_capacity, 0, 0))
                 p_stayalive = expglm(0.0, q)
+                #print("WATER ADDED SURPLUS, MICROLIFE",p_stayalive, q)
                 self.variables["microlife_health_index#%"][x, y].set_value(
                     (
                         (
-                            p_stayalive * (1 + 0.1 * p_stayalive)
+                            p_stayalive * (1 + 0.02 * p_stayalive)
                             + (1 - p_stayalive) * (p_stayalive)
                         )
                         * self.variables["microlife_health_index#%"][x, y].value
