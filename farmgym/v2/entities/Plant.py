@@ -455,7 +455,6 @@ class Plant(Entity_API):
                                     + str((x, y))
                                     + str(self.debug_death_info[x, y])
                                 )
-                                print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
                                 self.variables["stage"][x, y].set_value("dead")
 
                             else:
@@ -670,7 +669,6 @@ class Plant(Entity_API):
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
                             self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["bloom"]:
@@ -792,7 +790,6 @@ class Plant(Entity_API):
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
                             self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["fruit"]:
@@ -990,7 +987,6 @@ class Plant(Entity_API):
                                 + str((x, y))
                                 + str(self.debug_death_info[x, y])
                             )
-                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
                             self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["ripe"]:
@@ -1074,11 +1070,10 @@ class Plant(Entity_API):
                             self.debug_death_info[x, y] = {"stage": self.variables["stage"][x, y].value,
                                                            "fruits": self.variables["fruits_per_plant#nb"][x, y].value}
                             logger.debug(
-                                "[FarmGym] DEATH CAUSE:"
-                                + str((x, y))
+                                "[FarmGym] DEATH CAUSE:" 
+                                + str((x, y)) 
                                 + str(self.debug_death_info[x, y])
                             )
-                            print("[FarmGym] DEATH CAUSE:" + str((x, y)) + str(self.debug_death_info[x, y]))
                             self.variables["stage"][x, y].set_value("dead")
 
                     elif self.variables["stage"][x, y].value in ["harvested"]:

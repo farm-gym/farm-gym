@@ -907,24 +907,28 @@ class Policy_helper:
             freq = random.choice(freqs)
             delay = random.choice(delays)
             soil_policies = self.get_soil_policies(freq, param, delay)
-            name += f"f{freq}a{int(param)}d{delay}_"
+            name += f"watr_f{freq}a{int(param)}d{delay}_"
             # Weeds
-            param = random.choice(weeds_params)
-            freq = random.choice(freqs)
-            delay = random.choice(delays)
-            weeds_policies = self.get_weeds_policies(freq, param, delay)
-            name += f"f{freq}a{param}d{delay}_"
+            weeds_policies = []
+            if weeds_params:
+                param = random.choice(weeds_params)
+                freq = random.choice(freqs)
+                delay = random.choice(delays)
+                weeds_policies = self.get_weeds_policies(freq, param, delay)
+                name += f"cide_f{freq}a{param}d{delay}_"
             # Fertilizer
-            param = random.choice(fertilizer_params)
-            freq = random.choice(freqs)
-            delay = random.choice(delays)
-            fertilizer_policies = self.get_fertilizer_policies(freq, param, delay)
-            name += f"f{freq}a{param}d{delay}_"
+            fertilizer_policies = []
+            if fertilizer_params:
+                param = random.choice(fertilizer_params)
+                freq = random.choice(freqs)
+                delay = random.choice(delays)
+                fertilizer_policies = self.get_fertilizer_policies(freq, param, delay)
+                name += f"fert_f{freq}a{param}d{delay}_"
             # Plant
             freq = random.choice(freqs)
             delay = random.choice(delays)
             plant_policies = self.get_plant_policies(freq, None, delay)
-            name += f"f{freq}a0d{delay}"
+            name += f"harv_f{freq}a0d{delay}"
 
             apis = soil_policies + weeds_policies + fertilizer_policies + plant_policies
             apis = [i.api for i in apis]
