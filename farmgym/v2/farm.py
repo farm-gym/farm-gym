@@ -1483,15 +1483,15 @@ class Farm(gym.Env):
             " corresponding farmgym action schedule:",
             farm.gymaction_to_farmgymaction([]),
         )
+        print("Now sampling 25 actions uniformly randomly:")
         for i in range(25):
             a = farm.action_space.sample()
-            if len(a) > 0:
-                print(
-                    "Random gym action schedule:\t\t",
-                    a,
-                    "\n corresponding discretized farmgym action schedule:",
-                    farm.gymaction_to_discretized_farmgymaction(a),
-                )
+            print(
+                "Random gym action schedule:\t\t",
+                a,
+                "\n corresponding discretized farmgym action schedule:",
+                farm.gymaction_to_discretized_farmgymaction(a),
+            )
 
         print("###############################")
         # print(farm.actions_to_string())

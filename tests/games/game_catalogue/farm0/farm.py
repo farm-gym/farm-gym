@@ -47,6 +47,6 @@ def env():
 
 if __name__ == "__main__":
     f = env()
-    print(f)
+    f.understand_the_farm()
     agent = Farmgym_RandomAgent()
-    run_gym_xp(f, agent, max_steps=250, render="text&image")
+    #run_gym_xp(f, agent, max_steps=250, render="text&image")
