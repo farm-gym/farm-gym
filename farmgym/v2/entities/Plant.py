@@ -1189,6 +1189,9 @@ class Plant(Entity_API):
             self.variables["grow_size_threshold#cm"][position].set_value(0)
             self.variables["fruit_weight_threshold#g"][position].set_value(0)
 
+        # Update global_stage as being most present stage
+        self.compute_globalstage()
+
     def requirement_nutrients(self, position):
         """
         return nutrients requirement in g
