@@ -391,18 +391,16 @@ class Farm(gym.Env):
             return self.gym_step_AOMDP(action)
 
     def gym_step_POMDP(self, action):
-        # info = {}
-        observations, _, _, _, _ = self.farmgym_step([])
-        obs, reward, terminated, truncated, info = self.farmgym_step(
+        # Observation step
+        _, _, _, _, _ = self.farmgym_step([])
+        # Intervention step
+        _, reward, terminated, truncated, info = self.farmgym_step(
             self.gymaction_to_discretized_farmgymaction(action)
         )
-        # info["intervention cost"] = info2["intervention cost"]
-        # free_observations = self.get_free_observations()
-        # print("O1",observations)
-        # print("O2",obs)
-        # print("O3", self.farmgym_to_gym_observations(observations + obs))
+        # Updated state of the farm
+        obs = self.get_free_observations()
         return self.farmgym_to_gym_observations(
-            observations + obs
+            obs
         ), reward, terminated, truncated, info
 
     def farmgym_to_gym_observations(self, farmgym_observations):
