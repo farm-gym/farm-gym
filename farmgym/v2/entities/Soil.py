@@ -393,6 +393,29 @@ class Soil(Entity_API):
         return ET_0 * evapo_prop * V + drop_proportion
 
     def act_on_variables(self, action_name, action_params):
+        """
+            Apply a soil-related action to the variables.
+
+            Parameters:
+            - action_name (str): The name of the soil action to perform.
+            - action_params (dict): Parameters specific to the action.
+
+            Supported Actions and Their Effects:
+            - "water_discrete" or "water_continuous":
+                - Add water to a plot, either discretely or continuously.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                    - "amount#L" (float): Amount of water to add in liters.
+                - Effects:
+                    - Calculates the maximum water capacity of the plot based on soil parameters.
+                    - Updates the available water in the plot after the input.
+                    - Updates the total cumulative added water.
+                    - Adjusts available nutrients and cide amounts based on water surplus.
+                    - Updates the microlife health index based on water surplus.
+
+            Raises:
+            - AssertionError: If the action or its parameters are invalid.
+            """
         self.assert_action(action_name, action_params)
         if action_name == "water_discrete" or "water_continuous":
             x, y = action_params["plot"]

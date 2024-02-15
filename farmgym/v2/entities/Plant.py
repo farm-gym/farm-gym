@@ -1108,6 +1108,52 @@ class Plant(Entity_API):
         self.compute_globalstage()
 
     def act_on_variables(self, action_name, action_params):
+        def act_on_variables(self, action_name, action_params):
+            """
+            Apply a specific action to plant variables.
+
+            Parameters:
+            - action_name (str): The name of the action to be applied.
+            - action_params (dict): Parameters specific to the action.
+
+            Actions and their effects:
+            - "harvest":
+                - Harvest all ripe fruits from the entire field.
+                - Effects:
+                    - Updates the harvest weight based on the fruits harvested.
+                    - Resets the number of fruits per plant and sets their stage to "harvested".
+
+            - "micro_harvest":
+                - Harvest ripe fruits from a specific plot.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                - Effects:
+                    - Updates the harvest weight based on the fruits harvested.
+                    - Resets the number of fruits per plant and sets their stage to "harvested".
+
+            - "sow":
+                - Sow seeds in a specific plot.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                    - "amount#seed" (float): Amount of seeds to sow.
+                - Effects:
+                    - Sets the population, stage, and age of the seed in the specified plot.
+                    - Only has effects if the plant is absent or in seed stage.
+
+            - "remove":
+                - Remove a plant from a specific plot.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                - Effects:
+                    - Resets all plant variables in the specified plot to initial values.
+
+            - Updates the global stage based on the most present stage in the entire field.
+
+            Raises:
+            - AssertionError: If the action or its parameters are invalid.
+            """
+            # Method implementation goes here
+
         self.assert_action(action_name, action_params)
         if action_name == "harvest":
             self.variables["harvest_weight#kg"].set_value(0)
@@ -1148,8 +1194,6 @@ class Plant(Entity_API):
                 self.variables["harvest_weight#kg"].set_value(
                     self.variables["harvest_weight#kg"].value + value
                 )
-            #    return value
-            # return 0.
         elif action_name == "sow":
             position = action_params["plot"]
             if self.variables["stage"][position].value in ["none", "seed"]:

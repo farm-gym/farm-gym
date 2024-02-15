@@ -57,6 +57,35 @@ class Fertilizer(Entity_API):
         return r
 
     def act_on_variables(self, action_name, action_params):
+        """
+            Apply a specific action to variables.
+
+            Parameters:
+            - action_name (str): The name of the action to be applied.
+            - action_params (dict): Parameters specific to the action.
+
+            Actions and their effects:
+            - "scatter":
+                - Scatter a specified amount of fertilizer on a plot.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                    - "amount#kg" (float): Amount of fertilizer in kilograms.
+                - Effects:
+                    - Increases the fertilizer amount on the specified plot.
+                    - Updates the total cumulative scattered amount of fertilizer.
+
+            - "scatter_bag":
+                - Scatter a specified amount of fertilizer bags on a plot.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                    - "amount#bag" (int): Number of bags to scatter.
+                - Effects:
+                    - Increases the fertilizer amount on the specified plot based on the weight per bag.
+                    - Updates the total cumulative scattered amount of fertilizer.
+
+            Raises:
+            - AssertionError: If the action or its parameters are invalid.
+            """
         self.assert_action(action_name, action_params)
         if action_name == "scatter":
             x, y = action_params["plot"]
