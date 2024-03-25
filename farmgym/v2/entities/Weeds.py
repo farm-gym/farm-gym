@@ -298,6 +298,22 @@ class Weeds(Entity_API):
             self.variables["grow#nb"][x, y].set_value(z)
 
     def act_on_variables(self, action_name, action_params):
+        """
+            Perform an action on weed variables.
+
+            Parameters:
+            - action_name (str): The name of the action to perform.
+            - action_params (dict): Parameters specific to the action.
+
+            Supported Actions and Their Effects:
+            - "remove":
+                - Remove weeds from a specific plot.
+                - Parameters:
+                    - "plot" (tuple): Coordinates (x, y) of the plot.
+                - Effects:
+                    - Resets the growth and flower variables for weeds in the specified plot to zero.
+
+            """
         if action_name == "remove":
             position = action_params["plot"]
             s = (  # noqa: F841
