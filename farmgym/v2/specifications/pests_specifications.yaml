@@ -49,3 +49,29 @@ nice:
     sensitivity_pesticide: 5.
     sensitivity_death_birds: 3.
     death_birds_max: 0.1
+
+agressive:
+  sprites:
+    few: 'pest-few.png'
+    many: 'pest-many.png'
+  min_population#nb: 0  
+  max_population#nb: 4  
+  arrival_frequency#day-1: 0.1 
+  appear_conditions:
+    sensitivity_0: 0.1  
+    sensitivity_dist_edge: 0.3  
+    T_min: 15 
+    T_max: 30  
+    sensitivity_T: 2.0 
+    pesticide_min: 0 
+    sensitivity_pesticide: 10.0 
+  leave_conditions:
+    sensitivity_0: 0.05  
+    sensitivity_dist_edge: 0.1  
+    T_min: 15  
+    T_max: 30  
+    sensitivity_T: 0.5  
+    pesticide_min: 0  
+    sensitivity_pesticide: 10.0  
+    sensitivity_death_birds: 5.0 
+    death_birds_max: 0.2  
