@@ -7,7 +7,7 @@ from tests.games.game_builder.run_farm import run_gym_xp
 
 
 def env():
-    yaml_path = os.path.join(os.path.dirname(__file__), "farm0.yaml")
+    yaml_path = os.path.join(os.path.dirname(__file__), "farm1.yaml")
     farm = make_farm(yaml_path)
 
     farm.add_monitoring(
@@ -47,6 +47,6 @@ def env():
 
 if __name__ == "__main__":
     f = env()
-    f.understand_the_farm()
+    #f.understand_the_farm()
     agent = Farmgym_RandomAgent()
-    #run_gym_xp(f, agent, max_steps=250, render="text&image")
+    run_gym_xp(f, agent, max_steps=250, render="text&image")

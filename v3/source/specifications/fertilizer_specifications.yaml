@@ -1,0 +1,50 @@
+basic_N:
+  sprites:
+    some: 'fertilizer-some.png'
+  N#%: 1
+  K#%: 0
+  P#%: 0
+  C#%: 0
+  base_absorption_speed#kg.week-1: 0.1
+  bag#kg: 1.8
+basic_K:
+  sprites:
+    some: 'fertilizer-some.png'
+  N#%: 0
+  K#%: 1
+  P#%: 0
+  C#%: 0
+  base_absorption_speed#kg.week-1: 0.12
+  bag#kg: 2.1
+
+basic_all:
+  sprites:
+    some: 'fertilizer-some.png'
+  N#%: 0.25
+  K#%: 0.25
+  P#%: 0.25
+  C#%: 0.25
+  base_absorption_speed#kg.week-1: 0.4
+  bag#kg: 3
+
+
+slow_all:
+  sprites:
+    some: 'fertilizer-some.png'
+  N#%: 0.25
+  K#%: 0.25
+  P#%: 0.25
+  C#%: 0.25
+  base_absorption_speed#kg.week-1: 0.07
+  bag#kg: 5
+
+
+fast_all:
+  sprites:
+    some: 'fertilizer-some.png'
+  N#%: 0.25
+  K#%: 0.25
+  P#%: 0.25
+  C#%: 0.25
+  base_absorption_speed#kg.week-1: 0.5
+  bag#kg: 0.75

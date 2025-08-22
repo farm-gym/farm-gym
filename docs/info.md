@@ -27,9 +27,9 @@ Farm:
       max_daily_interventions: 1
       max_daily_observations: 2
 day_path: {"field":"Field-0", "entity":"Weather-0", "variable": "day#int365"}
+initialization: init.yaml
 actions: actions.yaml
 score: score.yaml
-initialization: init.yaml
 interaction_mode: POMDP
 ```
 Note that we can easily modify the specification of the weather to another one such as lille2, lille3, montpellier, etc (see below).

@@ -1,0 +1,8 @@
+base_facility:
+  sprites:
+    scarecrow-basic: 'scarecrow-basic.png'
+    scarecrow-advanced: 'scarecrow-advanced.png'
+  scarecrow_strength:
+    none: 0
+    basic: 4
+    advanced: 10

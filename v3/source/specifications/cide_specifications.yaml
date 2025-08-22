@@ -1,0 +1,41 @@
+pesticide:
+  sprites:
+    some: 'pesticide-some.png'
+  weeds: 0
+  pollinators: 1
+  pests: 1
+  soil: 0.1
+  base_absorption_speed#kg.week-1: 0.7
+  bag#kg: 0.1
+
+herbicide:
+  sprites:
+    some: 'herbicide-some.png'
+  weeds: 1
+  pollinators: 0
+  pests: 0
+  soil: 0.1
+  base_absorption_speed#kg.week-1: 0.4
+  bag#kg: 0.1
+
+
+herbicide_slow:
+  sprites:
+    some: 'herbicide-some.png'
+  weeds: 1
+  pollinators: 0.1
+  pests: 0
+  soil: 0.1
+  base_absorption_speed#kg.week-1: 0.07
+  bag#kg: 0.1
+
+
+herbicide_fast:
+  sprites:
+    some: 'herbicide-some.png'
+  weeds: 1
+  pollinators: 0.1
+  pests: 0
+  soil: 0.1
+  base_absorption_speed#kg.week-1: 0.7
+  bag#kg: 1

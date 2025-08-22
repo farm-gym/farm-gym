@@ -1,0 +1,27 @@
+base_bird:
+  sprites:
+    few: 'birds-t-few.png'
+    many: 'birds-t-many.png'
+  seed_eater: True
+  pest_eater: True
+  pollinator_eater: False
+  max_population: 8
+
+pest_eater:
+  sprites:
+    few: 'birds-t-few.png'
+    many: 'birds-t-many.png'
+  seed_eater: False
+  pest_eater: True
+  pollinator_eater: False
+  max_population: 6
+
+
+seed_eater:
+  sprites:
+    few: 'birds-t-few.png'
+    many: 'birds-t-many.png'
+  seed_eater: True
+  pest_eater: False
+  pollinator_eater: False
+  max_population: 8

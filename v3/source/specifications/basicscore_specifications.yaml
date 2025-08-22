@@ -1,0 +1,75 @@
+basic:
+  reward:
+   alpha_bio: 1.
+   alpha_resource: 1.
+   alpha_soil: 1.
+   alpha_harvest: 1.
+   alpha_stage: 1.
+  cost_per_plot:
+   default: 1.
+   Birds:
+     observe:
+       population#nb: 1
+   Facility:
+     observe:
+       scarecrow: 1
+     put_scarecrow:
+        none: 1
+        basic: 5
+        advanced: 10
+   Fertilizer:
+     observe:
+        amount#kg: 1
+     scattering_amount#kg: 1
+     scattering_amount#bag: 3
+   Pests:
+     observe:
+       plot_population#nb: 10
+       onplant_population#nb: 15
+   Plant:
+     observe:
+       stage: 1
+       global_stage: 1
+       size#cm: 1
+       flowers_per_plant#nb: 1
+       fruits_per_plant#nb: 1
+       fruit_weight#g: 1
+       pollinator_visits#nb: 1
+       harvest_weight#kg: 1
+     sow: 1
+     harvest: 10
+     remove: 2
+   Pollinators:
+     observe:
+       occurrence#bin: 1
+   Soil:
+     observe:
+       available_Water#L: 1
+       available_N#g: 1
+       available_P#g: 1
+       available_K#g: 1
+       available_C#g: 1
+       microlife_health_index#%: 1
+       amount_cide#g: 1
+     watering_discrete_30min#L:  1
+     watering_continuous_30min#L: 1
+   Cide:
+     observe:
+       amount#kg: 1
+     scattering_amount#kg: 1
+     scattering_bag#kg: 3
+   Weather:
+     observe:
+       air_temperature-mean#°C: 1
+       humidity_index#%: 1
+       wind-speed#km.h-1: 1
+       air_temperature-mean#°C_forecast: 5
+       rain_amount: 1
+       sun_exposure#int5: 1
+       consecutive_frost#day: 1
+   Weeds:
+      observe:
+        grow#nb: 1
+        flowers#nb: 1
+      remove: 1
+

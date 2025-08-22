@@ -1,0 +1,480 @@
+#TODO: Convention we use unit #% to indicate a variable whose range is [0,1] not [0,100] !
+bean:
+  sprites:
+    none: 'empty.png'
+    seed: 'seed.png'
+    entered_grow: 'bean_growing.png'
+    grow: 'bean_growing.png'
+    entered_bloom: 'bean_blooming.png'
+    bloom: 'bean_blooming.png'
+    entered_fruit: 'bean_fruiting.png'
+    fruit: 'bean_fruiting.png'
+    entered_ripe: 'bean_fruit.png'
+    ripe: 'bean_fruit.png'
+    harvested: 'harvested.png'
+    entered_seed: 'seed.png'
+    dead: 'dead.png'
+
+  initial_stage: 'seed'
+  size_max#cm: 120
+  flowers_max#nb: 18
+  fruit_weight_max#g: 50
+  shadow_coeff#%: 0.5  #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop
+  pest_repulsive_effect#float: 0.1
+  stress_healing#%: 0.01  #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop
+  seed_conditions:
+    sensitivity_death_0: 0
+    death_birds_max#nb: 0.99
+    sensitivity_death_birds: 1
+    death_ageseed_max#day: 10
+    sensitivity_death_ageseed: 0.8
+
+    sensitivity_sprout_0: 0
+    sprout_air_temperature_min#°C: 8
+    sprout_air_temperature_max#°C: 25
+    sensitivity_sprout_air_temperature: 0.7
+    sprout_humidity_min#%: 50 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sprout_humidity_max#%: 95 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sensitivity_sprout_humidity: 0.4
+    sensitivity_sprout_age: 1.
+    sprout_age_min#day: 4
+  grow_conditions:
+    sensitivity_grow_0: 0
+    grow_rate_sigma2: 0.03
+    grow_rate_min#: 0.1
+
+    N_air_storage#g.mm-1: 0.0005
+    C_air_storage#g.mm-1: 0.15
+    #Info: with respect to Nitrogen, we have    1:50-300  proportion of C, 1:0.1-0.5 proportion of P and 1:1.5-5 of K, and about 2mg of C per mm of growth for one mm2 area of stem section.
+    # Here we consider a unit section of 1cm2=100mm2
+    N_grow_consumption#g.mm-1: 0.0011
+    K_grow_consumption#g.mm-1: 0.0037
+    P_grow_consumption#g.mm-1: 0.00034
+    C_grow_consumption#g.mm-1: 0.2
+    Water_grow_consumption#mL: 0.6
+    grow_leaf_surface#m2.cm-1: 0.0015
+
+    sensitivity_grow_Energy: 0.4
+    grow_Energy_opt#kWh.m-2:  6
+    sensitivity_grow_air_temperature: 0.1
+    grow_air_temperature_min#°C: 12
+    grow_air_temperature_max#°C: 28
+    sensitivity_grow_N: 0.5
+    sensitivity_grow_P: 0.5
+    sensitivity_grow_K: 0.5
+    sensitivity_grow_C: 0.05
+    sensitivity_grow_Water: 0.85
+    sensitivity_draught#%: 0.33 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop. The higher the more water is required, 0.3 is already high.
+
+    sensitivity_death_0: 0
+    sensitivity_death_pests: 0.5
+    death_pests_max#nb: 1
+    sensitivity_death_nogrow: 0.1
+    death_nogrow_max#day: 8
+  bloom_conditions:
+    bloom_duration#day: 5
+    # Pollination by Bees should increase yield by 15-30% in beans sometimes 50%.
+    wind_pollination_rate#%: 0.1 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    insect_pollination_rate#%: 0.3 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    auto_pollination_rate#%: 0.6 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    auto_pollination_success#%: 0.7 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    sensitivity_stress: 0.4
+    stress_boost#%: 0.2 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+
+
+    sensitivity_draught#%: 0.6
+    sensitivity_wind_0: 0.1
+    sensitivity_wind_air_temperature: 0.4
+    wind_air_temperature_min#°C: 4
+    wind_air_temperature_max#°C: 26
+    sensitivity_wind_speed: 0.6
+    wind_speed_min#km.h-1: 3
+    wind_speed_max#km.h-1: 80
+    sensitivity_pollinator_0: 0.1
+    sensitivity_pollinator_visits: 1.
+    pollinator_visits_min#nb: 1
+
+    N_flower_consumption#g: 0.000011
+    K_flower_consumption#g: 0.000037
+    P_flower_consumption#g: 0.0000034
+    C_flower_consumption#g: 0.002
+    Water_flower_consumption#mL: 0.006
+
+    sensitivity_death_0: 0.
+    sensitivity_death_frost: 2.
+    death_frost_max#day: 2.
+  fruit_conditions:
+    fruit_rate_sigma2: 0.03
+    weight_rate_min#: 0.1
+    sensitivity_draught#%: 0.3
+
+    N_fruit_consumption#g.g-1: 0.00011
+    K_fruit_consumption#g.g-1: 0.00037
+    P_fruit_consumption#g.g-1: 0.000034
+    C_fruit_consumption#g.g-1: 0.02
+    Water_fruit_consumption#mL.g-1: 0.0001 # Amount used to maintain each g of the fruit, not to grow by one additional gram.
+
+    sensitivity_fruit_0: 0.2
+    sensitivity_fruit_Energy: 0.5
+    fruit_Energy_opt#kWh.m-2: 6
+    sensitivity_fruit_air_temperature: 0.8
+    fruit_air_temperature_min#°C: 13
+    fruit_air_temperature_max#°C: 25
+    sensitivity_fruit_N: 0.1
+    sensitivity_fruit_P: 0.1
+    sensitivity_fruit_K: 0.1
+    sensitivity_fruit_C: 0.01
+    sensitivity_fruit_Water: 1.
+
+
+    fruit_pollinators_min#nb: 3
+    sensitivity_fruit_pollinators: 1.2
+    sensitivity_fruit_stress: 0.7
+
+    sensitivity_death_0: 0
+    sensitivity_death_pests: 0.9
+    death_pests_max#nb: 1
+    sensitivity_death_humidity: 0.8
+    death_humidity_min#%: 40 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    death_humidity_max#%: 95 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sensitivity_death_noweight: 0.1
+    death_noweight_max#day: 6
+  ripe_conditions:
+    ripe_rate_sigma2: 0.05
+    sensitivity_ripe_0: 0.
+    sensitivity_ripe_air_temperature: 0.6
+    ripe_air_temperature_min#°C: 13
+    ripe_air_temperature_max#°C: 22
+    sensitivity_ripe_rain: 0.1
+    sensitivity_ripe_pests: 1.
+    sensitivity_ripe_frost: 2.
+    ripe_frost_max#day: 2
+    sensitivity_ripe_age: 0.5
+    ripe_age_max#day: 7
+  death_conditions:
+    N_release_speed#g.g-1.day-1: 0.1
+    P_release_speed#g.g-1.day-1: 0.1
+    K_release_speed#g.g-1.day-1: 0.1
+    C_release_speed#g.g-1.day-1: 0.1
+
+
+
+#TODO: Convention we use unit #% to indicate a variable whose range is [0,1] not [0,100] !
+corn:
+  sprites:
+    none: 'empty.png'
+    seed: 'seed.png'
+    entered_grow: 'corn_growing.png'
+    grow: 'corn_growing.png'
+    entered_bloom: 'corn_blooming.png'
+    bloom: 'corn_blooming.png'
+    entered_fruit: 'corn_fruiting.png'
+    fruit: 'corn_fruiting.png'
+    entered_ripe: 'corn_fruit.png'
+    ripe: 'corn_fruit.png'
+    harvested: 'harvested.png'
+    entered_seed: 'seed.png'
+    dead: 'dead.png'
+
+  initial_stage: 'seed'
+  size_max#cm: 300
+  flowers_max#nb: 8
+  fruit_weight_max#g: 500
+  shadow_coeff#%: 0.4  #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop
+  pest_repulsive_effect#float: 0.1
+  stress_healing#%: 0.01  #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop
+  seed_conditions:
+    sensitivity_death_0: 0
+    death_birds_max#nb: 0.99
+    sensitivity_death_birds: 3
+    death_ageseed_max#day: 10
+    sensitivity_death_ageseed: 0.8
+
+    sensitivity_sprout_0: 0
+    sprout_air_temperature_min#°C: 15
+    sprout_air_temperature_max#°C: 30
+    sensitivity_sprout_air_temperature: 0.7
+    sprout_humidity_min#%: 30 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sprout_humidity_max#%: 85 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sensitivity_sprout_humidity: 0.4
+    sensitivity_sprout_age: 1.
+    sprout_age_min#day: 4
+  grow_conditions:
+    sensitivity_grow_0: 0
+    grow_rate_sigma2: 0.05
+    grow_rate_min#: 0.1
+
+    N_air_storage#g.mm-1: 0.0001
+    C_air_storage#g.mm-1: 0.1
+    #Info: with respect to Nitrogen, we have    1:50-300  proportion of C, 1:0.1-0.5 proportion of P and 1:1.5-5 of K, and about 2mg of C per mm of growth for one mm2 area of stem section.
+    # Here we consider a unit section of 1cm2=100mm2
+    N_grow_consumption#g.mm-1: 0.0011
+    K_grow_consumption#g.mm-1: 0.0037
+    P_grow_consumption#g.mm-1: 0.00034
+    C_grow_consumption#g.mm-1: 0.2
+    Water_grow_consumption#mL: 0.8
+    grow_leaf_surface#m2.cm-1: 0.001
+
+    sensitivity_grow_Energy: 0.4
+    grow_Energy_opt#kWh.m-2:  7.5
+    sensitivity_grow_air_temperature: 0.1
+    grow_air_temperature_min#°C: 16
+    grow_air_temperature_max#°C: 32
+    sensitivity_grow_N: 0.5
+    sensitivity_grow_P: 0.5
+    sensitivity_grow_K: 0.5
+    sensitivity_grow_C: 0.05
+    sensitivity_grow_Water: 0.85
+    sensitivity_draught#%: 0.36 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop. The higher the more water is required, 0.3 is already high.
+
+    sensitivity_death_0: 0
+    sensitivity_death_pests: 0.3
+    death_pests_max#nb: 2
+    sensitivity_death_nogrow: 0.1
+    death_nogrow_max#day: 8
+  bloom_conditions:
+    bloom_duration#day: 8
+    # Pollination by Bees should increase yield by 15-30% in beans sometimes 50%.
+    wind_pollination_rate#%: 0.9 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    insect_pollination_rate#%: 0.09 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    auto_pollination_rate#%: 0.01 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    auto_pollination_success#%: 0.7 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    sensitivity_stress: 0.4
+    stress_boost#%: 0.2 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+
+
+    sensitivity_draught#%: 0.5
+    sensitivity_wind_0: 0.1
+    sensitivity_wind_air_temperature: 0.4
+    wind_air_temperature_min#°C: 8
+    wind_air_temperature_max#°C: 32
+    sensitivity_wind_speed: 0.6
+    wind_speed_min#km.h-1: 5
+    wind_speed_max#km.h-1: 90
+    sensitivity_pollinator_0: 0.1
+    sensitivity_pollinator_visits: 0.2
+    pollinator_visits_min#nb: 1
+
+    N_flower_consumption#g: 0.000011
+    K_flower_consumption#g: 0.000037
+    P_flower_consumption#g: 0.0000034
+    C_flower_consumption#g: 0.002
+    Water_flower_consumption#mL: 0.005
+
+    sensitivity_death_0: 0.
+    sensitivity_death_frost: 2.
+    death_frost_max#day: 2.
+  fruit_conditions:
+    fruit_rate_sigma2: 0.04
+    weight_rate_min#: 0.1
+    sensitivity_draught#%: 0.33
+
+    N_fruit_consumption#g.g-1: 0.00011
+    K_fruit_consumption#g.g-1: 0.00037
+    P_fruit_consumption#g.g-1: 0.000034
+    C_fruit_consumption#g.g-1: 0.02
+    Water_fruit_consumption#mL.g-1: 0.0001 # Amount used to maintain each g of the fruit, not to grow by one additional gram.
+
+    sensitivity_fruit_0: 0.2
+    sensitivity_fruit_Energy: 0.5
+    fruit_Energy_opt#kWh.m-2: 6
+    sensitivity_fruit_air_temperature: 0.8
+    fruit_air_temperature_min#°C: 12
+    fruit_air_temperature_max#°C: 30
+    sensitivity_fruit_N: 0.1
+    sensitivity_fruit_P: 0.1
+    sensitivity_fruit_K: 0.1
+    sensitivity_fruit_C: 0.01
+    sensitivity_fruit_Water: 0.8
+
+
+    fruit_pollinators_min#nb: 1
+    sensitivity_fruit_pollinators: 0.2
+    sensitivity_fruit_stress: 0.7
+
+    sensitivity_death_0: 0
+    sensitivity_death_pests: 0.7
+    death_pests_max#nb: 2
+    sensitivity_death_humidity: 0.8
+    death_humidity_min#%: 25 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    death_humidity_max#%: 85 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sensitivity_death_noweight: 0.1
+    death_noweight_max#day: 6
+  ripe_conditions:
+    ripe_rate_sigma2: 0.05
+    sensitivity_ripe_0: 0.
+    sensitivity_ripe_air_temperature: 0.6
+    ripe_air_temperature_min#°C: 13
+    ripe_air_temperature_max#°C: 40
+    sensitivity_ripe_rain: 0.1
+    sensitivity_ripe_pests: 1.
+    sensitivity_ripe_frost: 2.
+    ripe_frost_max#day: 1
+    sensitivity_ripe_age: 0.5
+    ripe_age_max#day: 6
+  death_conditions:
+    N_release_speed#g.g-1.day-1: 0.1
+    P_release_speed#g.g-1.day-1: 0.1
+    K_release_speed#g.g-1.day-1: 0.1
+    C_release_speed#g.g-1.day-1: 0.1
+
+
+
+tomato:
+  sprites:
+    none: 'empty.png'
+    seed: 'seed.png'
+    entered_grow: 'tomato_growing.png'
+    grow: 'tomato_growing.png'
+    entered_bloom: 'tomato_blooming.png'
+    bloom: 'tomato_blooming.png'
+    entered_fruit: 'tomato_fruiting.png'
+    fruit: 'tomato_fruiting.png'
+    entered_ripe: 'tomato_fruit.png'
+    ripe: 'tomato_fruit.png'
+    harvested: 'harvested.png'
+    entered_seed: 'seed.png'
+    dead: 'dead.png'
+
+  initial_stage: 'seed'
+  size_max#cm: 160
+  flowers_max#nb: 15
+  fruit_weight_max#g: 200
+  shadow_coeff#%: 0.6  #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop
+  pest_repulsive_effect#float: 0.05
+  stress_healing#%: 0.01  #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop
+  seed_conditions:
+    sensitivity_death_0: 0
+    death_birds_max#nb: 0.99
+    sensitivity_death_birds: 4
+    death_ageseed_max#day: 10
+    sensitivity_death_ageseed: 0.8
+
+    sensitivity_sprout_0: 0
+    sprout_air_temperature_min#°C: 15
+    sprout_air_temperature_max#°C: 30
+    sensitivity_sprout_air_temperature: 0.7
+    sprout_humidity_min#%: 45 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sprout_humidity_max#%: 90 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sensitivity_sprout_humidity: 0.4
+    sensitivity_sprout_age: 1.
+    sprout_age_min#day: 3
+  grow_conditions:
+    sensitivity_grow_0: 0.01
+    grow_rate_sigma2: 0.05
+    grow_rate_min#: 0.1
+
+    N_air_storage#g.mm-1: 0.00007
+    C_air_storage#g.mm-1: 0.15
+    #Info: with respect to Nitrogen, we have    1:50-300  proportion of C, 1:0.1-0.5 proportion of P and 1:1.5-5 of K, and about 2mg of C per mm of growth for one mm2 area of stem section.
+    # Here we consider a unit section of 1cm2=100mm2
+    N_grow_consumption#g.mm-1: 0.0011
+    K_grow_consumption#g.mm-1: 0.0037
+    P_grow_consumption#g.mm-1: 0.00034
+    C_grow_consumption#g.mm-1: 0.2
+    Water_grow_consumption#mL: 0.7
+    grow_leaf_surface#m2.cm-1: 0.0018
+
+    sensitivity_grow_Energy: 0.3
+    grow_Energy_opt#kWh.m-2:  8
+    sensitivity_grow_air_temperature: 0.1
+    grow_air_temperature_min#°C: 14
+    grow_air_temperature_max#°C: 30
+    sensitivity_grow_N: 0.5
+    sensitivity_grow_P: 0.5
+    sensitivity_grow_K: 0.5
+    sensitivity_grow_C: 0.05
+    sensitivity_grow_Water: 0.85
+    sensitivity_draught#%: 0.28 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop. The higher the more water is required, 0.3 is already high.
+
+    sensitivity_death_0: 0
+    sensitivity_death_pests: 0.4
+    death_pests_max#nb: 1
+    sensitivity_death_nogrow: 0.1
+    death_nogrow_max#day: 8
+  bloom_conditions:
+    bloom_duration#day: 5
+    # Pollination by Bees should increase yield by 15-30% in beans sometimes 50%.
+    wind_pollination_rate#%: 0.2 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    insect_pollination_rate#%: 0.75 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    auto_pollination_rate#%: 0.05 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    auto_pollination_success#%: 0.7 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+    sensitivity_stress: 0.4
+    stress_boost#%: 0.25 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a prop.
+
+
+    sensitivity_draught#%: 0.5
+    sensitivity_wind_0: 0.1
+    sensitivity_wind_air_temperature: 0.4
+    wind_air_temperature_min#°C: 12
+    wind_air_temperature_max#°C: 35
+    sensitivity_wind_speed: 0.6
+    wind_speed_min#km.h-1: 2
+    wind_speed_max#km.h-1: 75
+    sensitivity_pollinator_0: 0.1
+    sensitivity_pollinator_visits: 1.5
+    pollinator_visits_min#nb: 1
+
+    N_flower_consumption#g: 0.000011
+    K_flower_consumption#g: 0.000037
+    P_flower_consumption#g: 0.0000034
+    C_flower_consumption#g: 0.002
+    Water_flower_consumption#mL: 0.002
+
+    sensitivity_death_0: 0.
+    sensitivity_death_frost: 2.
+    death_frost_max#day: 0.5
+  fruit_conditions:
+    fruit_rate_sigma2: 0.05
+    weight_rate_min#: 0.1
+    sensitivity_draught#%: 0.25
+
+    N_fruit_consumption#g.g-1: 0.00011
+    K_fruit_consumption#g.g-1: 0.00037
+    P_fruit_consumption#g.g-1: 0.000034
+    C_fruit_consumption#g.g-1: 0.02
+    Water_fruit_consumption#mL.g-1: 0.0001 # Amount used to maintain each g of the fruit, not to grow by one additional gram.
+
+    sensitivity_fruit_0: 0.2
+    sensitivity_fruit_Energy: 0.5
+    fruit_Energy_opt#kWh.m-2: 7
+    sensitivity_fruit_air_temperature: 0.8
+    fruit_air_temperature_min#°C: 16
+    fruit_air_temperature_max#°C: 35
+    sensitivity_fruit_N: 0.1
+    sensitivity_fruit_P: 0.1
+    sensitivity_fruit_K: 0.1
+    sensitivity_fruit_C: 0.01
+    sensitivity_fruit_Water: 0.6
+
+
+    fruit_pollinators_min#nb: 1
+    sensitivity_fruit_pollinators: 0.2
+    sensitivity_fruit_stress: 0.7
+
+    sensitivity_death_0: 0
+    sensitivity_death_pests: 1.5
+    death_pests_max#nb: 1
+    sensitivity_death_humidity: 0.8
+    death_humidity_min#%: 25 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    death_humidity_max#%: 88 #TODO: Check coherence ! actually a % is in [0,100] otherwise, a prop is in [0,1]. Here considered a %.
+    sensitivity_death_noweight: 0.1
+    death_noweight_max#day: 6
+  ripe_conditions:
+    ripe_rate_sigma2: 0.05
+    sensitivity_ripe_0: 0.
+    sensitivity_ripe_air_temperature: 0.6
+    ripe_air_temperature_min#°C: 16
+    ripe_air_temperature_max#°C: 40
+    sensitivity_ripe_rain: 0.5
+    sensitivity_ripe_pests: 1.
+    sensitivity_ripe_frost: 2.
+    ripe_frost_max#day: 1
+    sensitivity_ripe_age: 0.5
+    ripe_age_max#day: 4
+  death_conditions:
+    N_release_speed#g.g-1.day-1: 0.1
+    P_release_speed#g.g-1.day-1: 0.1
+    K_release_speed#g.g-1.day-1: 0.1
+    C_release_speed#g.g-1.day-1: 0.1
+

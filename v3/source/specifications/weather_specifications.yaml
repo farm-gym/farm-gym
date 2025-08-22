@@ -1,0 +1,144 @@
+montpellier:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/montpellier.csv: 1.
+    weather_data/constant_dryhot.csv: 0.
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+montpellier2:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/montpellier.csv: 0.7
+    weather_data/constant_dryhot.csv: 0.3
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+montpellier3:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/montpellier.csv: 0.4
+    weather_data/constant_dryhot.csv: 0.6
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+
+lille:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/lille.csv: 1.
+    weather_data/constant_rain.csv: 0.
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+
+lille2:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/lille.csv: 0.7
+    weather_data/constant_rain.csv: 0.3
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+
+lille3:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/lille.csv: 0.4
+    weather_data/constant_rain.csv: 0.6
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0
+
+
+
+mix:
+  sprites:
+    sunny: 'weather-t-sunny.png'
+    rainy: 'weather-t-rainy.png'
+    windy: 'weather-t-windy.png'
+    cloudy: 'weather-t-cloudy.png'
+    freeze: 'weather-t-frost.png'
+    hot: 'weather-t-hot.png'
+  one_year_data_filename:
+    weather_data/lille.csv: 0.7
+    weather_data/montpellier.csv: 0.3
+  forecast_lookahead: 5
+  forecast_noise: 0.1
+  air_temperature_noise: 0
+  humidity_noise: 0
+  clouds_noise: 0
+  rain_amount_noise: 0
+  wind_speed_noise: 0
+  wind_direction_noise: 0

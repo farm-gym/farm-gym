@@ -46,18 +46,18 @@ base_weed:
     sensitivity_dist_edge: 0.3
     sensitivity_0: 0.2
 
-grass:
+nice:
   sprites:
     few: 'weeds-few.png'
     many: 'weeds-many.png'
-  time_to_grow#day: 10
+  time_to_grow#day: 15
   sensitivity_flowers_0: 0.1
-  max_new_seeds#nb: 1
-  flowers_per_plant#nb: 1
   size#cm: 20
-  flower_to_seed#%: 0.2
-  seed_per_flower#nb: 1
-  pest_repulsive_effect#float: -1.5
+  flowers_per_plant#nb: 5
+  flower_to_seed#%: 1
+  seed_per_flower#nb: 5
+  max_new_seeds#nb: 5
+  pest_repulsive_effect#float: 0
   grow_conditions:
     sensitivity_grow_0: 0.1
     sensitivity_grow_T: 0.5
@@ -74,14 +74,14 @@ grass:
     death_herbicide_max#g: 0.5
 
 
-    N_air_storage#g.mm-1: 0.03
-    C_air_storage#g.mm-1: 0.02
+    N_air_storage#g.mm-1: 0.0000005
+    C_air_storage#g.mm-1: 0.0000003
 
-    N_grow_consumption#g.mm-1: 0.05
+    N_grow_consumption#g.mm-1: 0.000005
     K_grow_consumption#g.mm-1: 0.05
     P_grow_consumption#g.mm-1: 0.05
     C_grow_consumption#g.mm-1: 0.05
-    Water_grow_consumption#mL.mm-1: 0.05
+    Water_grow_consumption#mL.mm-1: 0.00005
     sensibility_draught#%: 0.1
 
     sensitivity_death_N: 0.2
